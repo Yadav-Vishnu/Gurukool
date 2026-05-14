@@ -1,0 +1,55 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: gurukool-frontend
+  namespace: gurukool
+  labels:
+    app: gurukool-frontend
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: gurukool-frontend
+  template:
+    metadata:
+      labels:
+        app: gurukool-frontend
+    spec:
+      containers:
+        - name: frontend
+          image: ghcr.io/gurukool/frontend:1.0.0
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 80
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 80
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 80
+            initialDelaySeconds: 20
+            periodSeconds: 20
+          resources:
+            requests:
+              cpu: 100m
+              memory: 128Mi
+            limits:
+              cpu: 500m
+              memory: 256Mi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: frontend
+  namespace: gurukool
+spec:
+  selector:
+    app: gurukool-frontend
+  ports:
+    - name: http
+      port: 80
+      targetPort: 80

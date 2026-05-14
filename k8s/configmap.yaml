@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: gurukool-config
+  namespace: gurukool
+data:
+  NODE_ENV: production
+  PORT: "3000"
+  DB_HOST: postgres.gurukool.svc.cluster.local
+  DB_PORT: "5432"
+  DB_NAME: gurukool
+  DB_USER: gurukool_admin
+  REDIS_HOST: redis.gurukool.svc.cluster.local
+  REDIS_PORT: "6379"
+  FRONTEND_URL: https://app.gurukool.app

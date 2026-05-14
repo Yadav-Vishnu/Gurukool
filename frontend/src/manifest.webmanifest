@@ -1,0 +1,24 @@
+{
+  "name": "Gurukool",
+  "short_name": "Gurukool",
+  "theme_color": "#f46d43",
+  "background_color": "#fffdf8",
+  "display": "standalone",
+  "scope": "/",
+  "start_url": "/",
+  "description": "Gurukool is a cross-platform educational app for GATE, PSU, and ESE aspirants.",
+  "icons": [
+    {
+      "src": "assets/icons/icon-192.svg",
+      "sizes": "192x192",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "assets/icons/icon-512.svg",
+      "sizes": "512x512",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

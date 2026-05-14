@@ -1,0 +1,137 @@
+{
+  "index": "/index.html",
+  "assetGroups": [
+    {
+      "name": "app-shell",
+      "installMode": "prefetch",
+      "resources": {
+        "files": [
+          "/index.html",
+          "/*.css",
+          "/*.js",
+          "/manifest.webmanifest"
+        ]
+      }
+    },
+    {
+      "name": "assets",
+      "installMode": "lazy",
+      "updateMode": "prefetch",
+      "resources": {
+        "files": [
+          "/assets/**"
+        ]
+      }
+    }
+  ],
+  "dataGroups": [
+    {
+      "name": "gurukool-books-notes",
+      "urls": [
+        "/api/books/**",
+        "http://localhost:3000/api/books/**",
+        "https://api.gurukool.app/api/books/**"
+      ],
+      "cacheConfig": {
+        "strategy": "performance",
+        "maxSize": 80,
+        "maxAge": "7d"
+      }
+    },
+    {
+      "name": "gurukool-tests-offline",
+      "urls": [
+        "/api/tests/catalog**",
+        "/api/tests/attempts/**",
+        "http://localhost:3000/api/tests/catalog**",
+        "http://localhost:3000/api/tests/attempts/**",
+        "https://api.gurukool.app/api/tests/catalog**",
+        "https://api.gurukool.app/api/tests/attempts/**"
+      ],
+      "cacheConfig": {
+        "strategy": "performance",
+        "maxSize": 120,
+        "maxAge": "3d"
+      }
+    },
+    {
+      "name": "gurukool-community",
+      "urls": [
+        "/api/community/questions**",
+        "/api/community/calendar/events**",
+        "/api/community/notifications**",
+        "http://localhost:3000/api/community/questions**",
+        "http://localhost:3000/api/community/calendar/events**",
+        "http://localhost:3000/api/community/notifications**",
+        "https://api.gurukool.app/api/community/questions**",
+        "https://api.gurukool.app/api/community/calendar/events**",
+        "https://api.gurukool.app/api/community/notifications**"
+      ],
+      "cacheConfig": {
+        "strategy": "freshness",
+        "maxSize": 80,
+        "maxAge": "1d",
+        "timeout": "4s"
+      }
+    },
+    {
+      "name": "gurukool-engagement",
+      "urls": [
+        "/api/engagement/dashboard**",
+        "/api/engagement/flashcards/daily**",
+        "/api/engagement/challenges/weekly**",
+        "/api/engagement/quizzes/live**",
+        "http://localhost:3000/api/engagement/dashboard**",
+        "http://localhost:3000/api/engagement/flashcards/daily**",
+        "http://localhost:3000/api/engagement/challenges/weekly**",
+        "http://localhost:3000/api/engagement/quizzes/live**",
+        "https://api.gurukool.app/api/engagement/dashboard**",
+        "https://api.gurukool.app/api/engagement/flashcards/daily**",
+        "https://api.gurukool.app/api/engagement/challenges/weekly**",
+        "https://api.gurukool.app/api/engagement/quizzes/live**"
+      ],
+      "cacheConfig": {
+        "strategy": "freshness",
+        "maxSize": 80,
+        "maxAge": "1d",
+        "timeout": "4s"
+      }
+    },
+    {
+      "name": "gurukool-platform",
+      "urls": [
+        "/api/platform/dashboard**",
+        "/api/platform/deployments**",
+        "/api/platform/scale-profiles**",
+        "/api/platform/institutions**",
+        "http://localhost:3000/api/platform/dashboard**",
+        "http://localhost:3000/api/platform/deployments**",
+        "http://localhost:3000/api/platform/scale-profiles**",
+        "http://localhost:3000/api/platform/institutions**",
+        "https://api.gurukool.app/api/platform/dashboard**",
+        "https://api.gurukool.app/api/platform/deployments**",
+        "https://api.gurukool.app/api/platform/scale-profiles**",
+        "https://api.gurukool.app/api/platform/institutions**"
+      ],
+      "cacheConfig": {
+        "strategy": "freshness",
+        "maxSize": 60,
+        "maxAge": "1d",
+        "timeout": "4s"
+      }
+    },
+    {
+      "name": "gurukool-api",
+      "urls": [
+        "http://localhost:3000/api/**",
+        "https://api.gurukool.app/api/**"
+      ],
+      "cacheConfig": {
+        "strategy": "freshness",
+        "maxSize": 25,
+        "maxAge": "1d",
+        "timeout": "5s"
+      }
+    }
+  ]
+}

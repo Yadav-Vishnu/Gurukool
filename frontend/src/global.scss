@@ -1,0 +1,79 @@
+@use "./theme/variables";
+
+@import "@ionic/angular/css/core.css";
+@import "@ionic/angular/css/normalize.css";
+@import "@ionic/angular/css/structure.css";
+@import "@ionic/angular/css/typography.css";
+@import "@ionic/angular/css/display.css";
+@import "@ionic/angular/css/padding.css";
+@import "@ionic/angular/css/float-elements.css";
+@import "@ionic/angular/css/text-alignment.css";
+@import "@ionic/angular/css/text-transformation.css";
+@import "@ionic/angular/css/flex-utils.css";
+:root {
+  color-scheme: light;
+}
+
+html,
+body {
+  margin: 0;
+  min-height: 100%;
+  background:
+    radial-gradient(circle at top right, rgba(244, 109, 67, 0.18), transparent 30%),
+    radial-gradient(circle at top left, rgba(30, 136, 229, 0.16), transparent 28%),
+    linear-gradient(180deg, #fffdf8 0%, #f6f8ff 50%, #eef4ff 100%);
+  font-family: "Poppins", "Segoe UI", sans-serif;
+  color: var(--ion-color-dark);
+}
+
+body {
+  overscroll-behavior-y: none;
+}
+
+ion-content {
+  --background: transparent;
+}
+
+.page-shell {
+  width: min(960px, 100%);
+  margin: 0 auto;
+  padding: 24px 20px 48px;
+}
+
+.glass-card {
+  border: 1px solid rgba(255, 255, 255, 0.65);
+  border-radius: 24px;
+  background: rgba(255, 255, 255, 0.78);
+  box-shadow: 0 24px 60px rgba(29, 53, 87, 0.12);
+  backdrop-filter: blur(18px);
+}
+
+.section-kicker {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 12px;
+  border-radius: 999px;
+  background: rgba(244, 109, 67, 0.12);
+  color: var(--gk-primary-strong);
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.muted-copy {
+  color: var(--gk-muted);
+}
+
+.stack {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+@media (min-width: 768px) {
+  .page-shell {
+    padding: 36px 32px 64px;
+  }
+}
