@@ -220,7 +220,7 @@ import { SessionRecord } from '../../core/models/auth.models';
       }
 
       .actions-wide {
-        grid-template-columns: repeat(5, minmax(0, 1fr));
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
         justify-content: stretch;
       }
     }

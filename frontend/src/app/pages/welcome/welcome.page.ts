@@ -9,13 +9,13 @@ import { IonicModule } from '@ionic/angular';
   imports: [CommonModule, RouterLink, IonicModule],
   template: `
     <ion-content [fullscreen]="true">
-      <div class="page-shell stack">
+      <div class="page-shell stack welcome-shell">
         <section class="hero glass-card">
-          <span class="section-kicker">Phase 1 • Core Setup</span>
+          <span class="section-kicker">GATE | PSU | ESE Prep</span>
           <h1>Gurukool</h1>
           <p class="lead">
-            A mobile-first study platform for GATE, PSU, and ESE aspirants with secure login,
-            single-device sessions, and a backend ready for the next exam features.
+            A calm, mobile-first study space for serious exam preparation: mock tests, revision
+            notebooks, formula streaks, peer learning, and mentor-style guidance in one place.
           </p>
 
           <div class="hero-actions">
@@ -31,31 +31,45 @@ import { IonicModule } from '@ionic/angular';
         <section class="feature-grid">
           <ion-card class="glass-card feature-card">
             <ion-card-header>
-              <ion-card-title>Frontend Ready</ion-card-title>
+              <span class="feature-number">01</span>
+              <ion-card-title>Practice Like The Real Exam</ion-card-title>
             </ion-card-header>
             <ion-card-content>
-              Angular routing, Ionic mobile UI, Capacitor support, and PWA installability are all
-              scaffolded for cross-platform delivery.
+              Attempt GATE-style mocks with timers, question palettes, calculators, analytics,
+              weak-area tracking, and wrong-answer notes.
             </ion-card-content>
           </ion-card>
 
           <ion-card class="glass-card feature-card">
             <ion-card-header>
-              <ion-card-title>Backend Ready</ion-card-title>
+              <span class="feature-number">02</span>
+              <ion-card-title>Turn Books Into Notes</ion-card-title>
             </ion-card-header>
             <ion-card-content>
-              Express, PostgreSQL, Redis, OAuth, OTP login, and session enforcement are wired so
-              new exam modules can plug in cleanly.
+              Upload PDFs, confirm subjects, save highlights, paraphrase important points, and
+              keep an offline-ready revision notebook.
             </ion-card-content>
           </ion-card>
 
           <ion-card class="glass-card feature-card">
             <ion-card-header>
-              <ion-card-title>Production-Minded</ion-card-title>
+              <span class="feature-number">03</span>
+              <ion-card-title>Stay Consistent Daily</ion-card-title>
             </ion-card-header>
             <ion-card-content>
-              Helmet, rate limiting, token hashing, session rotation, and strict environment
-              configuration are already baked into the Phase 1 foundation.
+              Review formula flashcards, earn XP, protect streaks, join challenges, and generate
+              a focused weekly mentor roadmap.
+            </ion-card-content>
+          </ion-card>
+
+          <ion-card class="glass-card feature-card">
+            <ion-card-header>
+              <span class="feature-number">04</span>
+              <ion-card-title>Learn With Peers</ion-card-title>
+            </ion-card-header>
+            <ion-card-content>
+              Discuss questions, connect safely, schedule study sessions, and use secure audio
+              calls when collaboration helps a concept finally click.
             </ion-card-content>
           </ion-card>
         </section>
@@ -76,7 +90,7 @@ import { IonicModule } from '@ionic/angular';
       width: 220px;
       height: 220px;
       border-radius: 50%;
-      background: radial-gradient(circle, rgba(30, 136, 229, 0.16), transparent 70%);
+      background: radial-gradient(circle, rgba(29, 92, 99, 0.18), transparent 70%);
       pointer-events: none;
     }
 
@@ -90,7 +104,7 @@ import { IonicModule } from '@ionic/angular';
 
     .lead {
       margin: 0;
-      max-width: 34rem;
+      max-width: 42rem;
       color: var(--gk-muted);
       font-size: 1rem;
       line-height: 1.7;
@@ -109,6 +123,29 @@ import { IonicModule } from '@ionic/angular';
 
     .feature-card {
       margin: 0;
+      min-height: 210px;
+    }
+
+    .feature-card ion-card-header {
+      display: grid;
+      gap: 12px;
+    }
+
+    .feature-number {
+      width: fit-content;
+      border: 1px solid color-mix(in srgb, var(--page-b) 24%, transparent);
+      border-radius: 999px;
+      padding: 6px 10px;
+      background: color-mix(in srgb, var(--page-b) 10%, transparent);
+      color: var(--gk-forest);
+      font-size: 0.76rem;
+      font-weight: 900;
+      letter-spacing: 0.08em;
+    }
+
+    .feature-card ion-card-content {
+      color: var(--gk-muted);
+      line-height: 1.65;
     }
 
     @media (min-width: 768px) {
@@ -117,7 +154,13 @@ import { IonicModule } from '@ionic/angular';
       }
 
       .feature-grid {
-        grid-template-columns: repeat(3, minmax(0, 1fr));
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+
+    @media (min-width: 1100px) {
+      .feature-grid {
+        grid-template-columns: repeat(4, minmax(0, 1fr));
       }
     }
   `],
