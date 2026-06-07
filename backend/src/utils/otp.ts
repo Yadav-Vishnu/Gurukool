@@ -1,5 +1,5 @@
-import crypto from 'crypto';
-import bcrypt from 'bcryptjs';
+import crypto from "crypto";
+import bcrypt from "bcryptjs";
 
 /**
  * OTP (One-Time Password) Utility
@@ -14,6 +14,7 @@ import bcrypt from 'bcryptjs';
  */
 export const generateOTP = (): string => {
   const otp = crypto.randomInt(100000, 999999);
+  console.log(`Generated OTP: ${otp}`); // Log for debugging (remove in production)
   return otp.toString();
 };
 
@@ -31,7 +32,10 @@ export const hashOTP = async (otp: string): Promise<string> => {
  * Verify a user-entered OTP against the stored hash.
  * Returns true if the OTP matches.
  */
-export const verifyOTP = async (otp: string, hash: string): Promise<boolean> => {
+export const verifyOTP = async (
+  otp: string,
+  hash: string,
+): Promise<boolean> => {
   return bcrypt.compare(otp, hash);
 };
 
@@ -41,9 +45,12 @@ export const verifyOTP = async (otp: string, hash: string): Promise<boolean> => 
  * In development mode, the OTP is logged to the console.
  * In production, this would call the SMS provider's API.
  */
-export const sendOTPViaSMS = async (phone: string, otp: string): Promise<boolean> => {
+export const sendOTPViaSMS = async (
+  phone: string,
+  otp: string,
+): Promise<boolean> => {
   // Development mode: just log it
-  if (process.env.NODE_ENV === 'development') {
+  if (process.env.NODE_ENV === "development") {
     console.log(`\n📱 ===== OTP for ${phone}: ${otp} ===== 📱\n`);
     return true;
   }
