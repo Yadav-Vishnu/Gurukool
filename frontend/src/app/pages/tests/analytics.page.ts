@@ -159,7 +159,7 @@ import { AttemptAnalytics } from '../../core/models/test-engine.models';
   `,
   styles: [`
     .analytics-shell {
-      padding-top: 88px;
+      padding-top: 16px;
     }
 
     .hero-card {

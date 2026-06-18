@@ -10,8 +10,14 @@
 @import "@ionic/angular/css/text-alignment.css";
 @import "@ionic/angular/css/text-transformation.css";
 @import "@ionic/angular/css/flex-utils.css";
+
 :root {
   color-scheme: light;
+  --space-xs: 4px;
+  --space-sm: 8px;
+  --space-md: 16px;
+  --space-lg: 24px;
+  --space-xl: 32px;
 }
 
 html,
@@ -19,16 +25,51 @@ body {
   margin: 0;
   min-height: 100%;
   background:
-    radial-gradient(circle at 12% 8%, rgba(247, 181, 56, 0.24), transparent 28%),
-    radial-gradient(circle at 90% 6%, rgba(29, 92, 99, 0.2), transparent 26%),
-    radial-gradient(circle at 70% 82%, rgba(232, 93, 63, 0.13), transparent 28%),
-    linear-gradient(145deg, #fffaf0 0%, #f4efe2 42%, #e8f1eb 100%);
+    radial-gradient(
+      circle at 12% 8%,
+      rgba(var(--ion-color-tertiary-rgb), 0.15),
+      transparent 35%
+    ),
+    radial-gradient(
+      circle at 90% 6%, 
+      rgba(var(--ion-color-secondary-rgb), 0.15), 
+      transparent 35%
+    ),
+    radial-gradient(
+      circle at 70% 82%,
+      rgba(var(--ion-color-primary-rgb), 0.15),
+      transparent 35%
+    ),
+    linear-gradient(145deg, var(--gk-cream) 0%, var(--gk-paper) 42%, var(--gk-mint) 100%);
   font-family: var(--ion-font-family);
   color: var(--ion-color-dark);
 }
 
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-family-heading);
+}
+
 body {
   overscroll-behavior-y: none;
+}
+
+/* Routed page components need .ion-page layout when using Angular's
+   router-outlet instead of Ionic's ion-router-outlet. */
+ion-app > *:not(ion-router-outlet) {
+  @extend %ion-page-layout;
+}
+
+%ion-page-layout {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  flex-direction: column;
+  contain: layout size style;
+  overflow: hidden;
+  z-index: 0;
 }
 
 ion-content {
@@ -41,23 +82,33 @@ ion-content {
 ion-toolbar {
   --min-height: 66px;
   --border-width: 0;
-  --background: rgba(255, 252, 244, 0.76);
+  --background: #ffffff;
   --color: var(--gk-ink);
   border-bottom: 1px solid rgba(16, 44, 51, 0.08);
-  backdrop-filter: blur(22px) saturate(1.25);
 }
 
 ion-title {
-  font-weight: 850;
-  letter-spacing: -0.03em;
+  font-family: var(--font-family-heading);
+  font-weight: 800;
+  letter-spacing: -0.02em;
 }
 
 ion-button {
   --border-radius: 999px;
-  --box-shadow: 0 12px 28px rgba(16, 44, 51, 0.14);
-  font-weight: 800;
-  letter-spacing: -0.01em;
+  --box-shadow: var(--gk-shadow-soft);
+  font-weight: 600;
+  letter-spacing: 0;
   text-transform: none;
+  transition: transform 200ms cubic-bezier(0.4, 0, 0.2, 1), box-shadow 200ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+ion-button::part(native):hover {
+  transform: translateY(-2px);
+  box-shadow: var(--gk-shadow-lifted);
+}
+
+ion-button::part(native):active {
+  transform: translateY(1px);
 }
 
 ion-button[fill="outline"] {
@@ -125,8 +176,11 @@ input[type="file"] {
   border: 1px dashed rgba(29, 92, 99, 0.36);
   border-radius: 20px;
   padding: 18px;
-  background:
-    linear-gradient(135deg, rgba(255, 252, 244, 0.88), rgba(223, 242, 234, 0.58));
+  background: linear-gradient(
+    135deg,
+    rgba(255, 252, 244, 0.88),
+    rgba(223, 242, 234, 0.58)
+  );
   color: var(--gk-muted);
   font-weight: 700;
 }
@@ -138,56 +192,26 @@ button {
 .page-shell {
   width: min(1120px, 100%);
   margin: 0 auto;
-  padding: 24px 20px 48px;
+  padding: var(--space-sm) var(--space-sm) var(--space-lg);
   position: relative;
   --page-a: var(--gk-saffron);
   --page-b: var(--gk-forest);
   --page-c: var(--gk-gold);
 }
 
-.page-shell::before {
-  content: "";
-  position: fixed;
-  inset: 92px auto auto 50%;
-  width: min(720px, 88vw);
-  height: 280px;
-  transform: translateX(-50%);
-  border-radius: 999px;
-  background:
-    radial-gradient(circle at 20% 40%, color-mix(in srgb, var(--page-c) 32%, transparent), transparent 32%),
-    radial-gradient(circle at 78% 18%, color-mix(in srgb, var(--page-b) 22%, transparent), transparent 34%),
-    radial-gradient(circle at 52% 92%, color-mix(in srgb, var(--page-a) 18%, transparent), transparent 30%);
-  filter: blur(26px);
-  opacity: 0.72;
-  pointer-events: none;
-  z-index: -1;
-}
-
 .glass-card {
   position: relative;
   overflow: hidden;
-  border: 1px solid rgba(255, 255, 255, 0.74);
+  border: 1px solid var(--gk-outline);
   border-radius: var(--gk-radius-lg);
-  background:
-    linear-gradient(145deg, rgba(255, 252, 244, 0.92), rgba(255, 252, 244, 0.68)),
-    radial-gradient(circle at top right, color-mix(in srgb, var(--page-a) 12%, transparent), transparent 34%);
+  background: #ffffff;
   box-shadow: var(--gk-shadow-soft);
-  backdrop-filter: blur(20px) saturate(1.25);
+  transition: transform 300ms cubic-bezier(0.4, 0, 0.2, 1), box-shadow 300ms cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-.glass-card::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background:
-    linear-gradient(135deg, rgba(255, 255, 255, 0.42), transparent 42%),
-    radial-gradient(circle at 100% 0%, color-mix(in srgb, var(--page-c) 12%, transparent), transparent 34%);
-  pointer-events: none;
-}
-
-.glass-card > * {
-  position: relative;
-  z-index: 1;
+.glass-card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--gk-shadow-lifted);
 }
 
 .hero,
@@ -196,9 +220,21 @@ button {
   isolation: isolate;
   border: 1px solid rgba(255, 255, 255, 0.8);
   background:
-    radial-gradient(circle at 12% 12%, color-mix(in srgb, var(--page-c) 38%, transparent), transparent 34%),
-    radial-gradient(circle at 90% 10%, color-mix(in srgb, var(--page-b) 26%, transparent), transparent 32%),
-    linear-gradient(135deg, rgba(255, 252, 244, 0.96), rgba(236, 246, 238, 0.82));
+    radial-gradient(
+      circle at 12% 12%,
+      color-mix(in srgb, var(--page-c) 38%, transparent),
+      transparent 34%
+    ),
+    radial-gradient(
+      circle at 90% 10%,
+      color-mix(in srgb, var(--page-b) 26%, transparent),
+      transparent 32%
+    ),
+    linear-gradient(
+      135deg,
+      rgba(255, 252, 244, 0.96),
+      rgba(236, 246, 238, 0.82)
+    );
   box-shadow: var(--gk-shadow-lifted);
 }
 
@@ -213,8 +249,16 @@ button {
   border: 1px solid rgba(16, 44, 51, 0.08);
   border-radius: 30px;
   background:
-    linear-gradient(135deg, rgba(255, 252, 244, 0.76), rgba(255, 255, 255, 0.22)),
-    repeating-linear-gradient(135deg, rgba(16, 44, 51, 0.08) 0 1px, transparent 1px 10px);
+    linear-gradient(
+      135deg,
+      rgba(255, 252, 244, 0.76),
+      rgba(255, 255, 255, 0.22)
+    ),
+    repeating-linear-gradient(
+      135deg,
+      rgba(16, 44, 51, 0.08) 0 1px,
+      transparent 1px 10px
+    );
   transform: rotate(10deg);
   opacity: 0.78;
 }
@@ -229,12 +273,17 @@ button {
 .section-kicker {
   display: inline-flex;
   align-items: center;
+  align-self: flex-start;
+  width: fit-content;
   gap: 8px;
   padding: 6px 12px;
   border-radius: 999px;
   border: 1px solid color-mix(in srgb, var(--page-a) 26%, transparent);
-  background:
-    linear-gradient(135deg, rgba(255, 252, 244, 0.74), color-mix(in srgb, var(--page-a) 12%, transparent));
+  background: linear-gradient(
+    135deg,
+    rgba(255, 252, 244, 0.74),
+    color-mix(in srgb, var(--page-a) 12%, transparent)
+  );
   color: var(--gk-primary-strong);
   font-size: 0.78rem;
   font-weight: 700;
@@ -250,7 +299,7 @@ button {
 .stack {
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: var(--space-md);
 }
 
 .welcome-shell,
@@ -356,9 +405,9 @@ button {
 .institution-card:hover,
 .host-row:hover,
 .moderation-case:hover {
-  transform: translateY(-2px);
+  transform: translateY(-4px);
   border-color: var(--gk-outline-strong);
-  box-shadow: 0 18px 42px rgba(16, 44, 51, 0.12);
+  box-shadow: var(--gk-shadow-lifted);
 }
 
 .option-card,
@@ -400,7 +449,7 @@ button {
 
 @media (min-width: 768px) {
   .page-shell {
-    padding: 36px 32px 64px;
+    padding: 16px 32px 64px;
   }
 }
 
@@ -427,5 +476,953 @@ button {
   .hero-card,
   .hero-panel {
     border-radius: 24px;
+  }
+}
+
+/* ==========================================================================
+   Gurukool Theming System
+   ========================================================================== */
+
+/* --- Dark Theme --- */
+body.dark-theme {
+  --gk-ink: #f8fafc;
+  --gk-paper: #111827;
+  --gk-cream: #030712;
+  --gk-mint: #0f272a;
+  --gk-muted: #9ca3af;
+  --gk-outline: rgba(255, 255, 255, 0.1);
+  --gk-outline-strong: rgba(255, 255, 255, 0.2);
+  --ion-text-color: #f8fafc;
+  --ion-color-dark: #f8fafc;
+  --ion-toolbar-background: #111827;
+  --ion-card-background: #1f2937;
+  background:
+    radial-gradient(
+      circle at 12% 8%,
+      rgba(var(--ion-color-tertiary-rgb), 0.08),
+      transparent 35%
+    ),
+    radial-gradient(
+      circle at 90% 6%, 
+      rgba(var(--ion-color-secondary-rgb), 0.08), 
+      transparent 35%
+    ),
+    linear-gradient(145deg, #0b0f19 0%, #111827 42%, #042f2e 100%) !important;
+  color: #f8fafc !important;
+}
+
+body.dark-theme ion-content {
+  --background: linear-gradient(rgba(17, 24, 39, 0.85), rgba(17, 24, 39, 0.95)) !important;
+}
+
+body.dark-theme ion-toolbar {
+  --background: #111827 !important;
+  --color: #f8fafc !important;
+}
+
+body.dark-theme .glass-card,
+body.dark-theme ion-card.glass-card,
+body.dark-theme .custom-field {
+  background: #1f2937 !important;
+  border-color: rgba(255, 255, 255, 0.1) !important;
+}
+
+body.dark-theme .book-row,
+body.dark-theme .note-row,
+body.dark-theme .session-item {
+  background: #1f2937 !important;
+  border-color: rgba(255, 255, 255, 0.1) !important;
+}
+
+body.dark-theme .custom-field {
+  --background: #1f2937;
+}
+
+/* Dark Theme: Footer visibility fix */
+body.dark-theme .app-footer {
+  background: #0b0f19 !important;
+  color: rgba(255, 255, 255, 0.72) !important;
+}
+
+body.dark-theme .footer-inner {
+  border-bottom-color: rgba(255, 255, 255, 0.08) !important;
+}
+
+body.dark-theme .footer-bottom {
+  color: rgba(255, 255, 255, 0.35) !important;
+}
+
+/* Dark Theme: Stat tiles & Study Progress readability fix */
+body.dark-theme .stat-tile {
+  background: #1f2937 !important;
+  border-color: rgba(255, 255, 255, 0.1) !important;
+}
+
+body.dark-theme .stat-value {
+  color: #f8fafc !important;
+}
+
+body.dark-theme .stat-label {
+  color: #9ca3af !important;
+}
+
+body.dark-theme .stat-kicker {
+  opacity: 0.9;
+}
+
+/* Dark Theme: Section titles */
+body.dark-theme .section-title {
+  color: #f8fafc !important;
+}
+
+/* Dark Theme: Dashboard hero card */
+body.dark-theme .dashboard-hero-card {
+  background: linear-gradient(135deg, rgba(31, 41, 55, 0.9) 0%, rgba(17, 24, 39, 0.95) 100%) !important;
+  border-color: rgba(255, 255, 255, 0.1) !important;
+}
+
+body.dark-theme .dashboard-hero-card h1 {
+  background: linear-gradient(135deg, #f8fafc 30%, var(--ion-color-primary) 100%) !important;
+  -webkit-background-clip: text !important;
+  -webkit-text-fill-color: transparent !important;
+}
+
+/* Dark Theme: Study Illustration SVG adjustments */
+body.dark-theme .desk-surface {
+  fill: #334155 !important;
+}
+body.dark-theme .chair-back {
+  fill: #1e293b !important;
+}
+body.dark-theme .chair-stem {
+  stroke: #1e293b !important;
+}
+body.dark-theme .bg-glow {
+  opacity: 0.08 !important;
+}
+
+/* Dark Theme: Premium banner card */
+body.dark-theme .premium-banner-card {
+  background: linear-gradient(135deg, rgba(31, 41, 55, 0.9) 0%, rgba(17, 24, 39, 0.95) 100%) !important;
+  border-color: rgba(255, 255, 255, 0.1) !important;
+}
+
+body.dark-theme .premium-banner-card h2 {
+  color: #f8fafc !important;
+}
+
+body.dark-theme .premium-banner-card p {
+  color: #9ca3af !important;
+}
+
+/* Dark Theme: Workspace cards */
+body.dark-theme .workspace-card {
+  background: #1f2937 !important;
+  border-color: rgba(255, 255, 255, 0.1) !important;
+}
+
+body.dark-theme .card-info h3 {
+  color: #f8fafc !important;
+}
+
+body.dark-theme .card-info p {
+  color: #9ca3af !important;
+}
+
+/* Dark Theme: Settings modal */
+body.dark-theme .settings-modal-panel {
+  background: #111827 !important;
+  border-left-color: rgba(255, 255, 255, 0.1) !important;
+}
+
+body.dark-theme .settings-nav-tabs {
+  background: rgba(255, 255, 255, 0.02) !important;
+  border-bottom-color: rgba(255, 255, 255, 0.1) !important;
+}
+
+body.dark-theme .settings-close-btn {
+  background: rgba(255, 255, 255, 0.05) !important;
+  border-color: rgba(255, 255, 255, 0.1) !important;
+  color: #f8fafc !important;
+}
+
+body.dark-theme .avatar-picker-tile {
+  background: #1f2937 !important;
+  border-color: rgba(255, 255, 255, 0.1) !important;
+}
+
+body.dark-theme .theme-tile-option {
+  background: #1f2937 !important;
+  border-color: rgba(255, 255, 255, 0.1) !important;
+}
+
+body.dark-theme .profile-snapshot-innerstack {
+  background: rgba(255, 255, 255, 0.03) !important;
+  border-color: rgba(255, 255, 255, 0.1) !important;
+}
+
+body.dark-theme .profile-info-row {
+  border-bottom-color: rgba(255, 255, 255, 0.06) !important;
+}
+
+body.dark-theme .section-kicker {
+  background: linear-gradient(135deg, rgba(31, 41, 55, 0.8), rgba(240, 90, 40, 0.15)) !important;
+  border-color: rgba(240, 90, 40, 0.2) !important;
+  color: var(--ion-color-primary-tint) !important;
+}
+
+body.dark-theme .active-badge-chip {
+  background: rgba(var(--ion-color-success-rgb), 0.15) !important;
+  border-color: rgba(var(--ion-color-success-rgb), 0.25) !important;
+}
+
+body.dark-theme .subtitle-copy {
+  color: #9ca3af !important;
+}
+
+/* Dark Theme: Header avatar */
+body.dark-theme .header-avatar-circle {
+  border-color: rgba(255, 255, 255, 0.2) !important;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.3), 0 0 0 1px rgba(255, 255, 255, 0.08) !important;
+}
+
+body.dark-theme .header-avatar-status-dot {
+  border-color: #111827 !important;
+}
+
+/* Dark Theme: Settings panel footer */
+body.dark-theme .settings-panel-footer {
+  background: #1f2937 !important;
+  border-top-color: rgba(255, 255, 255, 0.1) !important;
+}
+
+/* Saffron Theme: Settings panel overrides */
+body.saffron-theme .settings-modal-panel {
+  background: #fffcf4 !important;
+  border-left-color: rgba(240, 90, 40, 0.15) !important;
+}
+
+body.saffron-theme .settings-panel-footer {
+  background: #fffdf9 !important;
+  border-top-color: rgba(240, 90, 40, 0.12) !important;
+}
+
+body.saffron-theme .avatar-picker-tile,
+body.saffron-theme .theme-tile-option {
+  background: #fffdf9 !important;
+  border-color: rgba(240, 90, 40, 0.12) !important;
+}
+
+body.saffron-theme .user-profile-glass-card {
+  background: linear-gradient(135deg, rgba(240, 90, 40, 0.03) 0%, rgba(255, 179, 0, 0.05) 100%) !important;
+  border-color: rgba(240, 90, 40, 0.12) !important;
+}
+
+body.saffron-theme .user-card-avatar-circle {
+  border-color: #fffcf4 !important;
+}
+
+body.saffron-theme .user-card-plan-box {
+  background: rgba(240, 90, 40, 0.03) !important;
+  border-color: rgba(240, 90, 40, 0.1) !important;
+}
+
+body.saffron-theme .avatar-card-status-dot {
+  border-color: #fffcf4 !important;
+}
+
+body.saffron-theme .profile-snapshot-innerstack {
+  background: rgba(240, 90, 40, 0.02) !important;
+  border-color: rgba(240, 90, 40, 0.12) !important;
+}
+
+body.saffron-theme .profile-info-row {
+  border-bottom-color: rgba(240, 90, 40, 0.08) !important;
+}
+
+body.saffron-theme .session-item {
+  background: #fffdf9 !important;
+  border-color: rgba(240, 90, 40, 0.12) !important;
+}
+
+body.saffron-theme .custom-field {
+  --background: #fffdf9;
+}
+
+/* --- Saffron Theme --- */
+body.saffron-theme {
+  --gk-ink: #2d1606;
+  --gk-paper: #fffcf4;
+  --gk-cream: #fff8e7;
+  --gk-mint: #ffe8d6;
+  --gk-muted: #8c7355;
+  --gk-outline: rgba(182, 95, 50, 0.12);
+  --gk-outline-strong: rgba(182, 95, 50, 0.24);
+  --ion-text-color: #2d1606;
+  --ion-color-dark: #2d1606;
+  --ion-toolbar-background: #fffcf4;
+  --ion-card-background: #fffdf9;
+  background:
+    radial-gradient(
+      circle at 12% 8%,
+      rgba(240, 90, 40, 0.12),
+      transparent 35%
+    ),
+    radial-gradient(
+      circle at 90% 6%, 
+      rgba(255, 179, 0, 0.12), 
+      transparent 35%
+    ),
+    linear-gradient(145deg, #fff8e7 0%, #fffcf4 42%, #ffe3d1 100%) !important;
+  color: #2d1606 !important;
+}
+
+body.saffron-theme ion-content {
+  --background: linear-gradient(rgba(255, 248, 231, 0.6), rgba(255, 244, 220, 0.7)) !important;
+}
+
+body.saffron-theme ion-toolbar {
+  --background: #fffcf4 !important;
+  --color: #2d1606 !important;
+}
+
+body.saffron-theme .glass-card,
+body.saffron-theme ion-card.glass-card,
+body.saffron-theme .custom-field {
+  background: #fffdf9 !important;
+  border-color: rgba(240, 90, 40, 0.15) !important;
+}
+
+body.saffron-theme .book-row,
+body.saffron-theme .note-row {
+  background: #fffdf9 !important;
+  border-color: rgba(240, 90, 40, 0.12) !important;
+}
+
+body.saffron-theme .app-footer {
+  background: #2d1606 !important;
+  color: rgba(255, 255, 255, 0.72) !important;
+}
+
+body.saffron-theme .stat-tile {
+  background: #fffdf9 !important;
+  border-color: rgba(240, 90, 40, 0.12) !important;
+}
+
+
+/* --- Emerald Forest Theme --- */
+body.forest-theme {
+  --gk-ink: #f0fdf4;
+  --gk-paper: #0b2219;
+  --gk-cream: #061510;
+  --gk-mint: #1e4d3a;
+  --gk-muted: #86efac;
+  --gk-outline: rgba(16, 185, 129, 0.15);
+  --gk-outline-strong: rgba(16, 185, 129, 0.3);
+  --ion-text-color: #f0fdf4;
+  --ion-color-dark: #f0fdf4;
+  --ion-toolbar-background: #0b2219;
+  --ion-card-background: #143527;
+  --ion-color-primary: #10b981;
+  --ion-color-primary-rgb: 16, 185, 129;
+  --ion-color-primary-shade: #059669;
+  --ion-color-primary-tint: #34d399;
+  background:
+    radial-gradient(
+      circle at 12% 8%,
+      rgba(16, 185, 129, 0.16),
+      transparent 35%
+    ),
+    radial-gradient(
+      circle at 90% 6%, 
+      rgba(52, 211, 153, 0.16), 
+      transparent 35%
+    ),
+    linear-gradient(145deg, #0b2219 0%, #143527 50%, #061510 100%) !important;
+  color: #f0fdf4 !important;
+}
+
+body.forest-theme ion-content {
+  --background: linear-gradient(rgba(20, 53, 39, 0.85), rgba(11, 34, 25, 0.95)) !important;
+}
+
+body.forest-theme ion-toolbar {
+  --background: #0b2219 !important;
+  --color: #f0fdf4 !important;
+}
+
+body.forest-theme .glass-card,
+body.forest-theme ion-card.glass-card,
+body.forest-theme .custom-field {
+  background: #143527 !important;
+  border-color: rgba(16, 185, 129, 0.2) !important;
+}
+
+body.forest-theme .book-row,
+body.forest-theme .note-row,
+body.forest-theme .session-item {
+  background: #143527 !important;
+  border-color: rgba(16, 185, 129, 0.15) !important;
+}
+
+body.forest-theme .custom-field {
+  --background: #143527;
+}
+
+body.forest-theme .app-footer {
+  background: #061510 !important;
+  color: rgba(240, 253, 244, 0.72) !important;
+}
+
+body.forest-theme .stat-tile {
+  background: #143527 !important;
+  border-color: rgba(16, 185, 129, 0.15) !important;
+}
+
+body.forest-theme .stat-value {
+  color: #86efac !important;
+}
+
+body.forest-theme .stat-label {
+  color: #a7f3d0 !important;
+}
+
+body.forest-theme .section-title {
+  color: #f0fdf4 !important;
+}
+
+body.forest-theme .dashboard-hero-card {
+  background: linear-gradient(135deg, rgba(20, 53, 39, 0.9) 0%, rgba(11, 34, 25, 0.95) 100%) !important;
+  border-color: rgba(16, 185, 129, 0.2) !important;
+}
+
+/* Forest Theme: Settings Modal overrides */
+body.forest-theme .settings-modal-panel {
+  background: #0b2219 !important;
+  border-left-color: rgba(16, 185, 129, 0.15) !important;
+}
+
+body.forest-theme .settings-panel-footer {
+  background: #143527 !important;
+  border-top-color: rgba(16, 185, 129, 0.15) !important;
+}
+
+body.forest-theme .avatar-picker-tile,
+body.forest-theme .theme-tile-option {
+  background: #143527 !important;
+  border-color: rgba(16, 185, 129, 0.15) !important;
+}
+
+body.forest-theme .user-profile-glass-card {
+  background: linear-gradient(135deg, rgba(16, 185, 129, 0.04) 0%, rgba(52, 211, 153, 0.06) 100%) !important;
+  border-color: rgba(16, 185, 129, 0.15) !important;
+}
+
+body.forest-theme .user-card-avatar-circle {
+  border-color: #0b2219 !important;
+}
+
+body.forest-theme .user-card-plan-box {
+  background: rgba(0, 0, 0, 0.2) !important;
+  border-color: rgba(16, 185, 129, 0.1) !important;
+}
+
+body.forest-theme .avatar-card-status-dot {
+  border-color: #0b2219 !important;
+}
+
+body.forest-theme .profile-snapshot-innerstack {
+  background: rgba(16, 185, 129, 0.03) !important;
+  border-color: rgba(16, 185, 129, 0.15) !important;
+}
+
+body.forest-theme .profile-info-row {
+  border-bottom-color: rgba(16, 185, 129, 0.08) !important;
+}
+
+
+/* --- Midnight Ocean Theme --- */
+body.ocean-theme {
+  --gk-ink: #f0fdfa;
+  --gk-paper: #081124;
+  --gk-cream: #020617;
+  --gk-mint: #152c52;
+  --gk-muted: #99f6e4;
+  --gk-outline: rgba(20, 184, 166, 0.15);
+  --gk-outline-strong: rgba(20, 184, 166, 0.3);
+  --ion-text-color: #f0fdfa;
+  --ion-color-dark: #f0fdfa;
+  --ion-toolbar-background: #081124;
+  --ion-card-background: #0c1a36;
+  --ion-color-primary: #14b8a6;
+  --ion-color-primary-rgb: 20, 184, 166;
+  --ion-color-primary-shade: #0d9488;
+  --ion-color-primary-tint: #2dd4bf;
+  background:
+    radial-gradient(
+      circle at 12% 8%,
+      rgba(20, 184, 166, 0.16),
+      transparent 35%
+    ),
+    radial-gradient(
+      circle at 90% 6%, 
+      rgba(56, 189, 248, 0.16), 
+      transparent 35%
+    ),
+    linear-gradient(145deg, #081124 0%, #0c1a36 50%, #020617 100%) !important;
+  color: #f0fdfa !important;
+}
+
+body.ocean-theme ion-content {
+  --background: linear-gradient(rgba(12, 26, 54, 0.85), rgba(8, 17, 36, 0.95)) !important;
+}
+
+body.ocean-theme ion-toolbar {
+  --background: #081124 !important;
+  --color: #f0fdfa !important;
+}
+
+body.ocean-theme .glass-card,
+body.ocean-theme ion-card.glass-card,
+body.ocean-theme .custom-field {
+  background: #0c1a36 !important;
+  border-color: rgba(20, 184, 166, 0.2) !important;
+}
+
+body.ocean-theme .book-row,
+body.ocean-theme .note-row,
+body.ocean-theme .session-item {
+  background: #0c1a36 !important;
+  border-color: rgba(20, 184, 166, 0.15) !important;
+}
+
+body.ocean-theme .custom-field {
+  --background: #0c1a36;
+}
+
+body.ocean-theme .app-footer {
+  background: #020617 !important;
+  color: rgba(240, 253, 250, 0.72) !important;
+}
+
+body.ocean-theme .stat-tile {
+  background: #0c1a36 !important;
+  border-color: rgba(20, 184, 166, 0.15) !important;
+}
+
+body.ocean-theme .stat-value {
+  color: #99f6e4 !important;
+}
+
+body.ocean-theme .stat-label {
+  color: #93c5fd !important;
+}
+
+body.ocean-theme .section-title {
+  color: #f0fdfa !important;
+}
+
+body.ocean-theme .dashboard-hero-card {
+  background: linear-gradient(135deg, rgba(12, 26, 54, 0.9) 0%, rgba(8, 17, 36, 0.95) 100%) !important;
+  border-color: rgba(20, 184, 166, 0.2) !important;
+}
+
+/* Ocean Theme: Settings Modal overrides */
+body.ocean-theme .settings-modal-panel {
+  background: #081124 !important;
+  border-left-color: rgba(20, 184, 166, 0.15) !important;
+}
+
+body.ocean-theme .settings-panel-footer {
+  background: #0c1a36 !important;
+  border-top-color: rgba(20, 184, 166, 0.15) !important;
+}
+
+body.ocean-theme .avatar-picker-tile,
+body.ocean-theme .theme-tile-option {
+  background: #0c1a36 !important;
+  border-color: rgba(20, 184, 166, 0.15) !important;
+}
+
+body.ocean-theme .user-profile-glass-card {
+  background: linear-gradient(135deg, rgba(20, 184, 166, 0.04) 0%, rgba(56, 189, 248, 0.06) 100%) !important;
+  border-color: rgba(20, 184, 166, 0.15) !important;
+}
+
+body.ocean-theme .user-card-avatar-circle {
+  border-color: #081124 !important;
+}
+
+body.ocean-theme .user-card-plan-box {
+  background: rgba(0, 0, 0, 0.2) !important;
+  border-color: rgba(20, 184, 166, 0.1) !important;
+}
+
+body.ocean-theme .avatar-card-status-dot {
+  border-color: #081124 !important;
+}
+
+body.ocean-theme .profile-snapshot-innerstack {
+  background: rgba(20, 184, 166, 0.03) !important;
+  border-color: rgba(20, 184, 166, 0.15) !important;
+}
+
+body.ocean-theme .profile-info-row {
+  border-bottom-color: rgba(20, 184, 166, 0.08) !important;
+}
+
+
+/* Additional Dark Theme overrides for the new Profile Card */
+body.dark-theme .user-profile-glass-card {
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.02) 0%, rgba(255, 255, 255, 0.04) 100%) !important;
+  border-color: rgba(255, 255, 255, 0.08) !important;
+}
+
+body.dark-theme .user-card-avatar-circle {
+  border-color: #111827 !important;
+}
+
+body.dark-theme .user-card-avatar-circle.pro-glow {
+  border-color: #ffd700 !important;
+}
+
+body.dark-theme .user-card-plan-box {
+  background: rgba(0, 0, 0, 0.2) !important;
+  border-color: rgba(255, 255, 255, 0.05) !important;
+}
+
+
+/* ╔═══════════════════════════════════════════════════╗
+   ║  COMPREHENSIVE READABILITY FIXES                  ║
+   ║  Forest Theme & Ocean Theme — All Pages           ║
+   ╚═══════════════════════════════════════════════════╝ */
+
+/* ---- Shared dark-theme base (covers forest + ocean) ---- */
+body.forest-theme,
+body.ocean-theme {
+  /* Hero / glass cards on dark bg need dark surfaces */
+  .hero,
+  .hero-card,
+  .hero-panel {
+    border-color: rgba(255, 255, 255, 0.06) !important;
+    background:
+      radial-gradient(
+        circle at 12% 12%,
+        rgba(255, 255, 255, 0.03),
+        transparent 34%
+      ),
+      radial-gradient(
+        circle at 90% 10%,
+        rgba(255, 255, 255, 0.02),
+        transparent 32%
+      ),
+      rgba(255, 255, 255, 0.04) !important;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25) !important;
+  }
+
+  .hero::before,
+  .hero-card::before,
+  .hero-panel::before {
+    border-color: rgba(255, 255, 255, 0.06) !important;
+    background: rgba(255, 255, 255, 0.03) !important;
+    opacity: 0.4 !important;
+  }
+
+  .hero h1,
+  .hero-card h1,
+  .hero-panel h1 {
+    color: var(--gk-ink) !important;
+  }
+
+  .hero p,
+  .hero-card p,
+  .hero-panel p,
+  .muted-copy {
+    color: var(--gk-muted) !important;
+  }
+
+  .section-kicker {
+    border-color: rgba(255, 255, 255, 0.1) !important;
+    background: rgba(255, 255, 255, 0.06) !important;
+    color: var(--ion-color-primary-tint) !important;
+  }
+
+  .section-title {
+    color: var(--gk-ink) !important;
+  }
+
+  /* Ion components */
+  ion-segment {
+    border-color: rgba(255, 255, 255, 0.1) !important;
+    background: rgba(255, 255, 255, 0.04) !important;
+    box-shadow: none !important;
+  }
+
+  ion-segment-button {
+    --color: var(--gk-muted);
+    --color-checked: #ffffff;
+    color: var(--gk-muted) !important;
+  }
+
+  ion-item {
+    --background: transparent;
+    --color: var(--gk-ink);
+    box-shadow: none !important;
+  }
+
+  ion-input,
+  ion-textarea,
+  ion-select {
+    --color: var(--gk-ink) !important;
+    --placeholder-color: var(--gk-muted) !important;
+  }
+
+  ion-label {
+    color: var(--gk-ink) !important;
+  }
+
+  ion-label h2,
+  ion-label h3,
+  ion-label p {
+    color: var(--gk-muted) !important;
+  }
+
+  ion-card-title {
+    color: var(--gk-ink) !important;
+  }
+
+  ion-card-subtitle {
+    color: var(--gk-muted) !important;
+  }
+
+  ion-chip {
+    --background: rgba(255, 255, 255, 0.08);
+    --color: var(--gk-ink);
+    border-color: rgba(255, 255, 255, 0.1) !important;
+  }
+
+  /* Buttons */
+  ion-button[fill="outline"] {
+    --background: rgba(255, 255, 255, 0.04) !important;
+    --border-color: rgba(255, 255, 255, 0.12) !important;
+    --color: var(--gk-ink) !important;
+    --box-shadow: none !important;
+  }
+
+  /* General text overrides for hardcoded colors */
+  h1, h2, h3, h4, h5, h6 {
+    color: var(--gk-ink);
+  }
+
+  p, span, strong, label, td, th {
+    color: var(--gk-ink);
+  }
+
+  /* File inputs */
+  input[type="file"] {
+    border-color: rgba(255, 255, 255, 0.12) !important;
+    background: rgba(255, 255, 255, 0.04) !important;
+    color: var(--gk-muted) !important;
+  }
+
+  /* Dashboard page specifics */
+  .dashboard-hero-card {
+    background: rgba(255, 255, 255, 0.04) !important;
+    border-color: rgba(255, 255, 255, 0.08) !important;
+  }
+
+  .workspace-card-grid .glass-card {
+    background: rgba(255, 255, 255, 0.04) !important;
+  }
+
+  /* Tests / Catalog page specifics */
+  .premium-banner,
+  .pro-banner-card {
+    background: rgba(255, 179, 0, 0.08) !important;
+    border-color: rgba(255, 179, 0, 0.15) !important;
+  }
+
+  .premium-banner h3,
+  .pro-banner-card h3 {
+    color: #fbbf24 !important;
+  }
+
+  .premium-banner p,
+  .pro-banner-card p {
+    color: var(--gk-muted) !important;
+  }
+
+  .mock-test-card,
+  .test-card {
+    background: rgba(255, 255, 255, 0.04) !important;
+    border-color: rgba(255, 255, 255, 0.08) !important;
+  }
+
+  .mock-test-card h3,
+  .test-card h3 {
+    color: var(--gk-ink) !important;
+  }
+
+  .mock-test-card p,
+  .test-card p,
+  .mock-test-card span,
+  .test-card span {
+    color: var(--gk-muted) !important;
+  }
+
+  .pro-badge-tag {
+    background: rgba(255, 179, 0, 0.18) !important;
+    color: #fbbf24 !important;
+  }
+
+  /* Search/Filter section */
+  .search-filter-section,
+  .filter-panel {
+    background: rgba(255, 255, 255, 0.04) !important;
+    border-color: rgba(255, 255, 255, 0.08) !important;
+  }
+
+  .filter-label {
+    color: var(--gk-muted) !important;
+  }
+
+  /* Community page */
+  .forum-card,
+  .post-card,
+  .discussion-card {
+    background: rgba(255, 255, 255, 0.04) !important;
+    border-color: rgba(255, 255, 255, 0.08) !important;
+  }
+
+  /* Engagement page */
+  .engagement-card,
+  .streak-card,
+  .leaderboard-card {
+    background: rgba(255, 255, 255, 0.04) !important;
+    border-color: rgba(255, 255, 255, 0.08) !important;
+  }
+
+  /* Books page */
+  .book-card {
+    background: rgba(255, 255, 255, 0.04) !important;
+    border-color: rgba(255, 255, 255, 0.08) !important;
+  }
+
+  /* Growth page */
+  .growth-card,
+  .milestone-card {
+    background: rgba(255, 255, 255, 0.04) !important;
+    border-color: rgba(255, 255, 255, 0.08) !important;
+  }
+
+  /* Adaptive Generator card */
+  .adaptive-generator-card {
+    background: rgba(255, 255, 255, 0.04) !important;
+    border-color: rgba(255, 255, 255, 0.08) !important;
+  }
+
+  /* Footer overrides */
+  .app-footer a {
+    color: var(--gk-muted) !important;
+  }
+
+  /* Welcome page */
+  .hero-split-container {
+    background: rgba(255, 255, 255, 0.03) !important;
+  }
+
+  /* Analytics page */
+  .chart-container,
+  .analytics-card {
+    background: rgba(255, 255, 255, 0.04) !important;
+    border-color: rgba(255, 255, 255, 0.08) !important;
+  }
+}
+
+/* Forest-specific accent overrides */
+body.forest-theme {
+  .hero,
+  .hero-card,
+  .hero-panel {
+    background:
+      radial-gradient(
+        circle at 12% 12%,
+        rgba(16, 185, 129, 0.06),
+        transparent 34%
+      ),
+      rgba(20, 53, 39, 0.8) !important;
+  }
+
+  ion-segment-button {
+    --indicator-color: #10b981;
+  }
+
+  .pro-badge-tag {
+    background: rgba(52, 211, 153, 0.18) !important;
+    color: #34d399 !important;
+  }
+}
+
+/* Ocean-specific accent overrides */
+body.ocean-theme {
+  .hero,
+  .hero-card,
+  .hero-panel {
+    background:
+      radial-gradient(
+        circle at 12% 12%,
+        rgba(20, 184, 166, 0.06),
+        transparent 34%
+      ),
+      rgba(12, 26, 54, 0.8) !important;
+  }
+
+  ion-segment-button {
+    --indicator-color: #14b8a6;
+  }
+
+  .pro-badge-tag {
+    background: rgba(45, 212, 191, 0.18) !important;
+    color: #2dd4bf !important;
+  }
+}
+
+/* Dark theme also needs some of the same generic text overrides */
+body.dark-theme {
+  .section-kicker {
+    border-color: rgba(255, 255, 255, 0.1) !important;
+    background: rgba(255, 255, 255, 0.06) !important;
+    color: var(--ion-color-primary-tint, #c084fc) !important;
+  }
+
+  .hero,
+  .hero-card,
+  .hero-panel {
+    border-color: rgba(255, 255, 255, 0.06) !important;
+    background: rgba(255, 255, 255, 0.04) !important;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3) !important;
+  }
+
+  .hero::before,
+  .hero-card::before,
+  .hero-panel::before {
+    border-color: rgba(255, 255, 255, 0.06) !important;
+    background: rgba(255, 255, 255, 0.03) !important;
+    opacity: 0.3 !important;
+  }
+
+  ion-segment {
+    border-color: rgba(255, 255, 255, 0.1) !important;
+    background: rgba(255, 255, 255, 0.04) !important;
+    box-shadow: none !important;
+  }
+
+  ion-segment-button {
+    --color: var(--gk-muted);
+    --color-checked: #ffffff;
+  }
+
+  ion-item {
+    box-shadow: none !important;
   }
 }

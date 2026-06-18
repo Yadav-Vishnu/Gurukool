@@ -11,7 +11,6 @@ import { AnalyticsPage } from './pages/tests/analytics.page';
 import { BooksPage } from './pages/books/books.page';
 import { CommunityPage } from './pages/community/community.page';
 import { EngagementPage } from './pages/engagement/engagement.page';
-import { GrowthPage } from './pages/growth/growth.page';
 
 export const routes: Routes = [
   {
@@ -66,11 +65,6 @@ export const routes: Routes = [
   {
     path: 'engagement',
     component: EngagementPage,
-    canActivate: [authGuard],
-  },
-  {
-    path: 'growth',
-    component: GrowthPage,
     canActivate: [authGuard],
   },
   {

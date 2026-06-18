@@ -10,6 +10,8 @@ import {
   ModerationCase,
   PlatformDashboard,
 } from '../../core/models/platform.models';
+import { AppHeaderComponent } from '../../shared/app-header.component';
+import { AppFooterComponent } from '../../shared/app-footer.component';
 
 type InstitutionForm = {
   name: string;
@@ -27,264 +29,349 @@ type ReportForm = {
 @Component({
   selector: 'app-growth-page',
   standalone: true,
-  imports: [CommonModule, FormsModule, IonicModule],
+  imports: [CommonModule, FormsModule, IonicModule, AppHeaderComponent, AppFooterComponent],
   template: `
-    <ion-header translucent="true">
-      <ion-toolbar>
-        <ion-title>Growth</ion-title>
-        <ion-buttons slot="end">
-          <ion-button fill="outline" (click)="loadDashboard()" [disabled]="loading()">
-            {{ loading() ? 'Refreshing...' : 'Refresh' }}
-          </ion-button>
-        </ion-buttons>
-      </ion-toolbar>
-    </ion-header>
+    <app-header></app-header>
 
     <ion-content [fullscreen]="true">
       <div class="page-shell stack growth-shell">
+        
+        <!-- Hero Panel -->
         <section class="hero-panel stack">
-          <span class="section-kicker">Phase 7 - Scalability & Market Growth</span>
-          <h1>Prepare Gurukool for app stores, Kubernetes, institutions, and safe communities.</h1>
+          <div class="section-header-hero">
+            <div>
+              <span class="section-kicker">Enterprise & Scaling Infrastructure</span>
+              <h1>Institutional Onboarding & Performance Control Center</h1>
+            </div>
+            <ion-button fill="outline" color="primary" size="small" (click)="loadDashboard()" [disabled]="loading()">
+              <ion-icon name="sync-outline" slot="start"></ion-icon>
+              {{ loading() ? 'Refreshing...' : 'Refresh Hub' }}
+            </ion-button>
+          </div>
           <p class="muted-copy">
-            This page is the launch control room: cross-platform release status, autoscaling
-            profiles, coaching-center hosting, and AI-assisted moderation queues.
+            Monitor institutional partnership onboarding, Kubernetes microservice replica targets, active release deployment pipelines, and community content moderation stats in real-time.
           </p>
         </section>
 
-        <ion-note color="success" *ngIf="successMessage()">{{ successMessage() }}</ion-note>
-        <ion-note color="danger" *ngIf="errorMessage()">{{ errorMessage() }}</ion-note>
+        <!-- System Alerts -->
+        <div class="alert-bar success-alert" *ngIf="successMessage()">
+          <svg class="alert-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          <span>{{ successMessage() }}</span>
+        </div>
+        <div class="alert-bar error-alert" *ngIf="errorMessage()">
+          <svg class="alert-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+          </svg>
+          <span>{{ errorMessage() }}</span>
+        </div>
 
-        <section class="metric-grid" *ngIf="dashboard() as dash">
-          <article>
-            <span>Platforms</span>
-            <strong>{{ dash.deployments.length }}</strong>
-          </article>
-          <article>
-            <span>Institutions</span>
-            <strong>{{ dash.institutions.length }}</strong>
-          </article>
-          <article>
-            <span>Moderation queue</span>
-            <strong>{{ dash.moderationStats.openCases }}</strong>
-          </article>
+        <!-- Infrastructure HUD Stats -->
+        <section class="metric-hud-grid" *ngIf="dashboard() as dash">
+          <div class="hud-card">
+            <span>Cluster Platforms</span>
+            <strong>{{ dash.deployments.length }} Active Channels</strong>
+            <small>iOS, Android, PWA, Backend</small>
+          </div>
+          <div class="hud-card">
+            <span>Onboarded Partners</span>
+            <strong>{{ dash.institutions.length }} Coaching Centers</strong>
+            <small>Active sync configurations</small>
+          </div>
+          <div class="hud-card">
+            <span>Moderation Backlog</span>
+            <strong>{{ dash.moderationStats.openCases }} Cases Open</strong>
+            <small>AI Toxicity Queue checks</small>
+          </div>
         </section>
 
-        <section class="glass-card stack">
-          <div class="section-header">
-            <div>
-              <h2>Cross-Platform Deployment</h2>
-              <p class="muted-copy">PWA, Android, iOS, and backend release readiness.</p>
-            </div>
-          </div>
-
-          <div class="deployment-grid">
-            <article class="deployment-card" *ngFor="let release of deployments()">
-              <div class="card-topline">
-                <strong>{{ platformLabel(release) }}</strong>
-                <ion-badge [color]="deploymentColor(release.status)">
-                  {{ release.status }}
-                </ion-badge>
+        <!-- Main Dashboard Split Layout -->
+        <div class="growth-dashboard-grid">
+          
+          <!-- LEFT SIDE: Deployment & Service Scaling -->
+          <div class="grid-column-left stack">
+            
+            <!-- Cross-Platform Deployment Card -->
+            <section class="glass-card panel-card stack">
+              <div class="panel-header">
+                <div>
+                  <span class="panel-subtitle">CI/CD Release Pipelines</span>
+                  <h2>Cross-Platform Rollouts</h2>
+                </div>
               </div>
-              <span>Version {{ release.releaseVersion }} - {{ release.buildChannel }}</span>
-              <div class="rollout-track">
-                <div [style.width.%]="release.rolloutPercent"></div>
+
+              <div class="deployment-grid-list">
+                <div class="deployment-card-item stack" *ngFor="let release of deployments()">
+                  <div class="card-topline">
+                    <strong class="platform-name">{{ platformLabel(release) }}</strong>
+                    <span class="status-badge" [class.released]="release.status === 'released'" [class.building]="release.status === 'building'">
+                      {{ release.status }}
+                    </span>
+                  </div>
+                  <span class="version-label">Version {{ release.releaseVersion }} · Channel: {{ release.buildChannel }}</span>
+                  
+                  <div class="rollout-progress-container">
+                    <div class="rollout-track">
+                      <div class="rollout-bar" [style.width.%]="release.rolloutPercent"></div>
+                    </div>
+                    <small class="rollout-pct">{{ release.rolloutPercent }}% rollout completed</small>
+                  </div>
+                  
+                  <p class="release-notes-text">📝 {{ release.notes }}</p>
+                </div>
               </div>
-              <small>{{ release.rolloutPercent }}% rollout</small>
-              <p>{{ release.notes }}</p>
-            </article>
-          </div>
-        </section>
+            </section>
 
-        <section class="glass-card stack">
-          <div class="section-header">
-            <div>
-              <h2>Microservice Scaling</h2>
-              <p class="muted-copy">Kubernetes replica targets and resource requests.</p>
-            </div>
-          </div>
-
-          <article class="scale-row" *ngFor="let profile of dashboard()?.scaleProfiles">
-            <div>
-              <strong>{{ profile.displayName }}</strong>
-              <span>{{ profile.serviceType }} - {{ profile.status }}</span>
-            </div>
-            <div class="scale-numbers">
-              <span>{{ profile.minReplicas }}-{{ profile.maxReplicas }} pods</span>
-              <span>{{ profile.cpuRequestMillicores }}m CPU</span>
-              <span>{{ profile.memoryRequestMb }}MB RAM</span>
-            </div>
-          </article>
-        </section>
-
-        <section class="glass-card stack">
-          <div class="section-header">
-            <div>
-              <h2>Institution Partnerships</h2>
-              <p class="muted-copy">Coaching centers can request partner access and host tests.</p>
-            </div>
-          </div>
-
-          <div class="institution-grid">
-            <article class="institution-card" *ngFor="let institution of institutions()">
-              <div class="card-topline">
-                <strong>{{ institution.name }}</strong>
-                <ion-badge [color]="institution.status === 'active' ? 'success' : 'warning'">
-                  {{ institution.status }}
-                </ion-badge>
+            <!-- Microservice Kubernetes Scaling -->
+            <section class="glass-card panel-card stack">
+              <div class="panel-header">
+                <div>
+                  <span class="panel-subtitle">Cluster Provisioning</span>
+                  <h2>Kubernetes Microservice Scaling</h2>
+                </div>
               </div>
-              <span>{{ institution.city || 'Remote' }}, {{ institution.country }}</span>
-              <p>
-                {{ institution.hostedTestCount }} hosted test(s),
-                {{ institution.seatsUsed }}/{{ institution.seatsPurchased || 'unlimited' }} seats used.
-              </p>
-              <ion-button size="small" fill="outline" (click)="requestHostedTest(institution)">
-                Request Demo Hosted Test
-              </ion-button>
-            </article>
-          </div>
 
-          <div class="partner-form">
-            <h3>Request coaching-center onboarding</h3>
-            <ion-item lines="none">
-              <ion-label position="stacked">Institution name</ion-label>
-              <ion-input
-                [ngModel]="institutionForm().name"
-                (ngModelChange)="patchInstitution('name', $event)">
-              </ion-input>
-            </ion-item>
-            <ion-item lines="none">
-              <ion-label position="stacked">Contact name</ion-label>
-              <ion-input
-                [ngModel]="institutionForm().contactName"
-                (ngModelChange)="patchInstitution('contactName', $event)">
-              </ion-input>
-            </ion-item>
-            <ion-item lines="none">
-              <ion-label position="stacked">Contact email</ion-label>
-              <ion-input
-                type="email"
-                [ngModel]="institutionForm().contactEmail"
-                (ngModelChange)="patchInstitution('contactEmail', $event)">
-              </ion-input>
-            </ion-item>
-            <ion-item lines="none">
-              <ion-label position="stacked">City</ion-label>
-              <ion-input
-                [ngModel]="institutionForm().city"
-                (ngModelChange)="patchInstitution('city', $event)">
-              </ion-input>
-            </ion-item>
-            <ion-item lines="none">
-              <ion-label position="stacked">Seats needed</ion-label>
-              <ion-input
-                type="number"
-                min="0"
-                [ngModel]="institutionForm().seatsPurchased"
-                (ngModelChange)="patchInstitution('seatsPurchased', $event)">
-              </ion-input>
-            </ion-item>
-            <ion-button expand="block" color="secondary" (click)="createInstitution()">
-              Submit Partner Request
-            </ion-button>
-          </div>
-        </section>
-
-        <section class="glass-card stack">
-          <div class="section-header">
-            <div>
-              <h2>Hosted Tests</h2>
-              <p class="muted-copy">Institution-specific test events and access codes.</p>
-            </div>
-          </div>
-
-          <article class="host-row" *ngFor="let host of dashboard()?.hostedTests">
-            <div>
-              <strong>{{ host.title }}</strong>
-              <span>{{ host.institutionName }} - {{ host.status }}</span>
-            </div>
-            <ion-badge color="tertiary">{{ host.accessCode }}</ion-badge>
-          </article>
-        </section>
-
-        <section class="glass-card stack">
-          <div class="section-header">
-            <div>
-              <h2>Community Moderation</h2>
-              <p class="muted-copy">Rule-based AI triage plus human moderator review.</p>
-            </div>
-          </div>
-
-          <div class="moderation-stats" *ngIf="dashboard()?.moderationStats as stats">
-            <article>
-              <span>Open</span>
-              <strong>{{ stats.openCases }}</strong>
-            </article>
-            <article>
-              <span>Critical</span>
-              <strong>{{ stats.criticalCases }}</strong>
-            </article>
-            <article>
-              <span>7 days</span>
-              <strong>{{ stats.casesLast7Days }}</strong>
-            </article>
-          </div>
-
-          <div class="report-form">
-            <h3>Try a moderation report</h3>
-            <ion-item lines="none">
-              <ion-label position="stacked">Content to report</ion-label>
-              <ion-textarea
-                autoGrow="true"
-                [ngModel]="reportForm().content"
-                (ngModelChange)="patchReport('content', $event)">
-              </ion-textarea>
-            </ion-item>
-            <ion-item lines="none">
-              <ion-label position="stacked">Reason</ion-label>
-              <ion-input
-                [ngModel]="reportForm().reason"
-                (ngModelChange)="patchReport('reason', $event)">
-              </ion-input>
-            </ion-item>
-            <ion-button expand="block" fill="outline" (click)="reportContent()">
-              Queue Report
-            </ion-button>
-          </div>
-
-          <div class="queue-list" *ngIf="moderationQueue().length; else noQueue">
-            <article class="moderation-case" *ngFor="let item of moderationQueue()">
-              <div class="card-topline">
-                <strong>{{ item.classifierLabel }} - {{ item.severity }}</strong>
-                <ion-badge [color]="item.severity === 'critical' ? 'danger' : 'warning'">
-                  {{ item.status }}
-                </ion-badge>
+              <div class="scaling-list stack">
+                <div class="scale-row-item" *ngFor="let profile of dashboard()?.scaleProfiles">
+                  <div class="service-meta">
+                    <strong>{{ profile.displayName }}</strong>
+                    <span class="service-type-badge">{{ profile.serviceType }} · {{ profile.status }}</span>
+                  </div>
+                  <div class="scale-allocations">
+                    <span class="alloc-pill pod-count">📂 {{ profile.minReplicas }} - {{ profile.maxReplicas }} Pods</span>
+                    <span class="alloc-pill cpu-count">⚡ {{ profile.cpuRequestMillicores }}m CPU</span>
+                    <span class="alloc-pill ram-count">💾 {{ profile.memoryRequestMb }}MB RAM</span>
+                  </div>
+                </div>
               </div>
-              <p>{{ item.contentExcerpt }}</p>
-              <small>AI recommends: {{ item.aiRecommendation }} - risk {{ item.riskScore }}</small>
-              <div class="case-actions">
-                <ion-button size="small" color="danger" (click)="reviewCase(item, 'hide_content')">
-                  Hide
-                </ion-button>
-                <ion-button size="small" fill="outline" (click)="reviewCase(item, 'dismissed')">
-                  Dismiss
+            </section>
+
+          </div>
+
+          <!-- RIGHT SIDE: Partnerships, Moderation Cases & Hosted Tests -->
+          <div class="grid-column-right stack">
+
+            <!-- Partnerships Card -->
+            <section class="glass-card panel-card stack">
+              <div class="panel-header">
+                <div>
+                  <span class="panel-subtitle">Institutional Seats</span>
+                  <h2>Coaching Partnerships</h2>
+                </div>
+              </div>
+
+              <!-- Partner Coaching list -->
+              <div class="institution-list-container stack">
+                <div class="institution-card-item stack" *ngFor="let institution of institutions()">
+                  <div class="card-topline">
+                    <strong>{{ institution.name }}</strong>
+                    <span class="partner-status-tag" [class.active]="institution.status === 'active'">
+                      {{ institution.status }}
+                    </span>
+                  </div>
+                  <span class="location-label">📍 {{ institution.city || 'Remote' }}, {{ institution.country }}</span>
+                  
+                  <!-- Seat Allocation Progress Bar -->
+                  <div class="seat-allocation-progress">
+                    <div class="seat-bar-track">
+                      <div class="seat-bar-fill" [style.width.%]="(institution.seatsUsed / (institution.seatsPurchased || 100)) * 100"></div>
+                    </div>
+                    <div class="seat-stats-labels">
+                      <span>Seats Allocated</span>
+                      <strong>{{ institution.seatsUsed }} / {{ institution.seatsPurchased || 'unlimited' }} Seats</strong>
+                    </div>
+                  </div>
+
+                  <ion-button size="small" fill="outline" color="secondary" (click)="requestHostedTest(institution)">
+                    Launch Demo Hosted Exam
+                  </ion-button>
+                </div>
+              </div>
+
+              <!-- Partner Onboarding Form -->
+              <div class="partner-form-wrapper stack">
+                <h3>Request Coaching Onboarding</h3>
+                
+                <div class="custom-input-group">
+                  <label class="input-label">Institution Name</label>
+                  <ion-item lines="none" class="custom-field">
+                    <ion-input
+                      [ngModel]="institutionForm().name"
+                      (ngModelChange)="patchInstitution('name', $event)"
+                      placeholder="e.g. Ace GATE Academy">
+                    </ion-input>
+                  </ion-item>
+                </div>
+
+                <div class="custom-input-group">
+                  <label class="input-label">Contact Person Name</label>
+                  <ion-item lines="none" class="custom-field">
+                    <ion-input
+                      [ngModel]="institutionForm().contactName"
+                      (ngModelChange)="patchInstitution('contactName', $event)"
+                      placeholder="e.g. Prof. Anand Rao">
+                    </ion-input>
+                  </ion-item>
+                </div>
+
+                <div class="custom-input-group">
+                  <label class="input-label">Contact Email Address</label>
+                  <ion-item lines="none" class="custom-field">
+                    <ion-input
+                      type="email"
+                      [ngModel]="institutionForm().contactEmail"
+                      (ngModelChange)="patchInstitution('contactEmail', $event)"
+                      placeholder="e.g. contact@acegate.org">
+                    </ion-input>
+                  </ion-item>
+                </div>
+
+                <div class="input-grid-2">
+                  <div class="custom-input-group">
+                    <label class="input-label">City</label>
+                    <ion-item lines="none" class="custom-field">
+                      <ion-input
+                        [ngModel]="institutionForm().city"
+                        (ngModelChange)="patchInstitution('city', $event)"
+                        placeholder="Hyderabad">
+                      </ion-input>
+                    </ion-item>
+                  </div>
+                  <div class="custom-input-group">
+                    <label class="input-label">Initial Seats</label>
+                    <ion-item lines="none" class="custom-field">
+                      <ion-input
+                        type="number"
+                        min="1"
+                        [ngModel]="institutionForm().seatsPurchased"
+                        (ngModelChange)="patchInstitution('seatsPurchased', $event)">
+                      </ion-input>
+                    </ion-item>
+                  </div>
+                </div>
+
+                <ion-button expand="block" color="secondary" (click)="createInstitution()">
+                  Submit Partnership Request
                 </ion-button>
               </div>
-            </article>
+            </section>
+
+            <!-- Hosted Tests List -->
+            <section class="glass-card panel-card stack">
+              <div class="panel-header">
+                <div>
+                  <span class="panel-subtitle">Access Codes</span>
+                  <h2>Hosted Exam Keys</h2>
+                </div>
+              </div>
+
+              <div class="hosted-tests-list stack">
+                <div class="hosted-test-row" *ngFor="let host of dashboard()?.hostedTests">
+                  <div class="hosted-info">
+                    <strong>{{ host.title }}</strong>
+                    <span>Partner: {{ host.institutionName }} · Status: {{ host.status }}</span>
+                  </div>
+                  <span class="access-key-tag">{{ host.accessCode }}</span>
+                </div>
+              </div>
+            </section>
+
+            <!-- Community Content Moderation Dashboard -->
+            <section class="glass-card panel-card stack">
+              <div class="panel-header">
+                <div>
+                  <span class="panel-subtitle">Safe Learning Environment</span>
+                  <h2>AI Community Moderation</h2>
+                </div>
+              </div>
+
+              <!-- Moderation metrics -->
+              <div class="moderation-metrics-grid" *ngIf="dashboard()?.moderationStats as stats">
+                <div class="mod-pill critical">
+                  <span>Critical Cases</span>
+                  <strong>{{ stats.criticalCases }}</strong>
+                </div>
+                <div class="mod-pill active-mod">
+                  <span>Last 7 Days</span>
+                  <strong>{{ stats.casesLast7Days }}</strong>
+                </div>
+              </div>
+
+              <!-- Try Moderation Form -->
+              <div class="moderation-report-form stack">
+                <h3>Submit Content Safety Report</h3>
+                <div class="custom-input-group">
+                  <label class="input-label">reported content excerpt</label>
+                  <ion-item lines="none" class="custom-field">
+                    <ion-textarea
+                      autoGrow="true"
+                      rows="2"
+                      [ngModel]="reportForm().content"
+                      (ngModelChange)="patchReport('content', $event)"
+                      placeholder="Paste abusive or non-relevant comment text here...">
+                    </ion-textarea>
+                  </ion-item>
+                </div>
+                <div class="custom-input-group">
+                  <label class="input-label">Report Reason Category</label>
+                  <ion-item lines="none" class="custom-field">
+                    <ion-input
+                      [ngModel]="reportForm().reason"
+                      (ngModelChange)="patchReport('reason', $event)">
+                    </ion-input>
+                  </ion-item>
+                </div>
+                <ion-button expand="block" fill="outline" color="secondary" (click)="reportContent()">
+                  File Community Report
+                </ion-button>
+              </div>
+
+              <!-- Moderation Queue -->
+              <div class="moderation-queue-list stack">
+                <h3>Active Moderation Queue</h3>
+                <div class="moderation-cases-wrapper" *ngIf="moderationQueue().length; else noQueue">
+                  <div class="moderation-case-card stack" *ngFor="let item of moderationQueue()">
+                    <div class="card-topline">
+                      <strong>{{ item.classifierLabel }}</strong>
+                      <span class="severity-badge" [class.critical-sev]="item.severity === 'critical'">
+                        {{ item.severity }}
+                      </span>
+                    </div>
+                    <p class="excerpt-box">"{{ item.contentExcerpt }}"</p>
+                    <div class="ai-verdict">
+                      <span>AI Recommendation: <strong>{{ item.aiRecommendation }}</strong></span>
+                      <span>Risk Score: <strong>{{ item.riskScore }}</strong></span>
+                    </div>
+
+                    <div class="moderator-actions-group">
+                      <ion-button size="small" color="danger" (click)="reviewCase(item, 'hide_content')">
+                        Apply Ban / Hide
+                      </ion-button>
+                      <ion-button size="small" fill="outline" color="medium" (click)="reviewCase(item, 'dismissed')">
+                        Dismiss Case
+                      </ion-button>
+                    </div>
+                  </div>
+                </div>
+                <ng-template #noQueue>
+                  <p class="empty-state-text">No active content blocks in review queue. Community is safe.</p>
+                </ng-template>
+              </div>
+            </section>
+
           </div>
-        </section>
+
+        </div>
+
       </div>
+      <app-footer></app-footer>
     </ion-content>
-
-    <ng-template #noQueue>
-      <p class="muted-copy">
-        No visible queue items. Student accounts can still submit reports; admin/moderator accounts
-        see the review list here.
-      </p>
-    </ng-template>
   `,
   styles: [`
     .growth-shell {
-      padding-top: 88px;
+      padding-top: 24px;
+      padding-bottom: 40px;
     }
 
     .hero-panel {
@@ -292,171 +379,604 @@ type ReportForm = {
       overflow: hidden;
       border: 1px solid rgba(10, 40, 48, 0.12);
       border-radius: 28px;
-      padding: 24px;
+      padding: 32px 24px;
       background:
         radial-gradient(circle at 15% 20%, rgba(247, 181, 56, 0.28), transparent 30%),
         radial-gradient(circle at 85% 5%, rgba(29, 92, 99, 0.22), transparent 34%),
         linear-gradient(135deg, rgba(255, 253, 248, 0.98), rgba(224, 242, 238, 0.9));
-      box-shadow: 0 22px 70px rgba(10, 40, 48, 0.12);
+      box-shadow: var(--gk-shadow-soft);
+      animation: gk-rise 500ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
+    }
+
+    .section-header-hero {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 12px;
+      margin-bottom: 8px;
     }
 
     h1 {
-      margin: 8px 0;
+      margin: 8px 0 16px;
       max-width: 880px;
-      font-size: clamp(2rem, 5vw, 3.3rem);
-      line-height: 0.98;
+      font-size: clamp(2.2rem, 5vw, 3.8rem);
+      line-height: 1.05;
       letter-spacing: -0.05em;
-      color: #102c33;
+      font-weight: 800;
+      background: linear-gradient(135deg, #102c33 0%, var(--ion-color-primary) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
     }
 
-    h2,
-    h3 {
-      margin: 0;
-      color: #102c33;
-    }
-
-    h2 {
-      font-size: 1.18rem;
-    }
-
-    h3 {
-      font-size: 1rem;
-    }
-
-    .section-header,
-    .card-topline {
+    /* System Alert Bars */
+    .alert-bar {
       display: flex;
+      align-items: center;
       gap: 12px;
-      align-items: flex-start;
-      justify-content: space-between;
+      padding: 14px 20px;
+      border-radius: 16px;
+      font-weight: 600;
+      font-size: 0.92rem;
+      animation: gk-rise 400ms ease;
     }
 
-    .metric-grid,
-    .deployment-grid,
-    .institution-grid,
-    .moderation-stats,
-    .partner-form,
-    .report-form,
-    .queue-list {
+    .success-alert {
+      background: rgba(47, 159, 111, 0.08);
+      border: 1px solid rgba(47, 159, 111, 0.25);
+      color: var(--gk-forest);
+    }
+
+    .error-alert {
+      background: rgba(232, 93, 63, 0.08);
+      border: 1px solid rgba(232, 93, 63, 0.25);
+      color: var(--gk-saffron);
+    }
+
+    .alert-icon {
+      width: 22px;
+      height: 22px;
+      flex-shrink: 0;
+    }
+
+    /* HUD metrics styling */
+    .metric-hud-grid {
       display: grid;
-      gap: 12px;
+      grid-template-columns: 1fr;
+      gap: 16px;
     }
 
-    .metric-grid article,
-    .deployment-card,
-    .scale-row,
-    .institution-card,
-    .host-row,
-    .moderation-stats article,
-    .moderation-case {
+    @media (min-width: 768px) {
+      .metric-hud-grid {
+        grid-template-columns: repeat(3, 1fr);
+      }
+    }
+
+    .hud-card {
+      background: #ffffff;
+      border: 1px solid var(--gk-outline);
+      border-radius: 20px;
+      padding: 20px;
+      box-shadow: var(--gk-shadow-soft);
+      transition: all 200ms ease;
+    }
+
+    .hud-card:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--gk-shadow-lifted);
+      border-color: var(--gk-outline-strong);
+    }
+
+    .hud-card span {
+      font-size: 0.72rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--gk-muted);
+      display: block;
+    }
+
+    .hud-card strong {
+      font-size: 1.35rem;
+      font-weight: 850;
+      color: #102c33;
+      display: block;
+      margin: 4px 0;
+    }
+
+    .hud-card small {
+      font-size: 0.76rem;
+      color: var(--gk-muted);
+    }
+
+    /* Split Dashboard Grid */
+    .growth-dashboard-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 24px;
+    }
+
+    @media (min-width: 1024px) {
+      .growth-dashboard-grid {
+        grid-template-columns: 1fr 1fr;
+        align-items: start;
+      }
+    }
+
+    /* Panel Card Design */
+    .panel-card {
+      padding: 24px;
+      border: 1px solid var(--gk-outline);
+    }
+
+    .panel-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+
+    .panel-subtitle {
+      font-size: 0.76rem;
+      font-weight: 800;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--gk-muted);
+      display: block;
+      margin-bottom: 4px;
+    }
+
+    .panel-card h2 {
+      font-size: 1.35rem;
+      font-weight: 850;
+      color: #102c33;
+      margin: 0;
+    }
+
+    .panel-card h3 {
+      font-size: 1.05rem;
+      font-weight: 800;
+      color: #102c33;
+      margin: 0 0 14px 0;
+      border-left: 3px solid var(--gk-gold);
+      padding-left: 10px;
+    }
+
+    /* Form Fields Styling */
+    .custom-input-group {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .input-label {
+      font-size: 0.78rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      color: var(--gk-muted);
+    }
+
+    .custom-field {
+      --background: #ffffff;
+      --border-radius: 12px;
+      border: 1px solid var(--gk-outline);
+      border-radius: 12px;
+      transition: all 200ms ease;
+    }
+
+    .custom-field:focus-within {
+      border-color: var(--ion-color-primary);
+      box-shadow: 0 0 0 3px rgba(var(--ion-color-primary-rgb), 0.12);
+    }
+
+    .input-grid-2 {
+      display: grid;
+      gap: 16px;
+      grid-template-columns: 1fr;
+    }
+
+    @media (min-width: 600px) {
+      .input-grid-2 {
+        grid-template-columns: 1fr 1fr;
+      }
+    }
+
+    /* CI/CD Release Card Items */
+    .deployment-grid-list {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .deployment-card-item {
+      background: #ffffff;
       border: 1px solid var(--gk-outline);
       border-radius: 16px;
-      background: rgba(248, 250, 255, 0.78);
-      padding: 14px;
+      padding: 16px;
     }
 
-    .metric-grid span,
-    .deployment-card span,
-    .scale-row span,
-    .institution-card span,
-    .host-row span,
-    .moderation-stats span {
-      display: block;
-      color: var(--gk-muted);
-      font-size: 0.86rem;
+    .card-topline {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
     }
 
-    .metric-grid strong,
-    .moderation-stats strong {
-      display: block;
-      margin-top: 4px;
+    .platform-name {
+      font-size: 1.05rem;
+      font-weight: 800;
       color: #102c33;
-      font-size: 1.45rem;
     }
 
-    .deployment-card,
-    .institution-card,
-    .moderation-case {
-      display: grid;
-      gap: 10px;
+    .status-badge {
+      font-size: 0.72rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      padding: 3px 8px;
+      border-radius: 6px;
+      background: #f0f0f0;
+      color: #666;
     }
 
-    .deployment-card p,
-    .institution-card p,
-    .moderation-case p {
-      margin: 0;
-      color: #243f45;
-      line-height: 1.55;
+    .status-badge.released {
+      background: rgba(47, 159, 111, 0.1);
+      color: var(--gk-forest);
+    }
+
+    .status-badge.building {
+      background: rgba(247, 181, 56, 0.15);
+      color: #b78a10;
+    }
+
+    .version-label {
+      font-size: 0.82rem;
+      font-weight: 700;
+      color: var(--gk-muted);
+    }
+
+    .rollout-progress-container {
+      margin: 8px 0;
     }
 
     .rollout-track {
-      height: 9px;
-      overflow: hidden;
+      height: 8px;
+      background: #e8ecef;
       border-radius: 999px;
-      background: rgba(16, 44, 51, 0.1);
+      overflow: hidden;
     }
 
-    .rollout-track div {
+    .rollout-bar {
       height: 100%;
+      background: linear-gradient(90deg, #1d5c63 0%, var(--gk-gold) 100%);
       border-radius: inherit;
-      background: linear-gradient(90deg, #1d5c63, #f7b538);
     }
 
-    .scale-row,
-    .host-row {
-      display: grid;
-      gap: 12px;
+    .rollout-pct {
+      font-size: 0.76rem;
+      font-weight: 700;
+      color: var(--gk-muted);
+      display: block;
+      margin-top: 4px;
     }
 
-    .scale-numbers {
+    .release-notes-text {
+      margin: 4px 0 0;
+      font-size: 0.88rem;
+      color: #243f45;
+      line-height: 1.45;
+    }
+
+    /* Kubernetes scaling microservice row items */
+    .scale-row-item {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      padding: 14px 16px;
+      background: #ffffff;
+      border: 1px solid var(--gk-outline);
+      border-radius: 16px;
+      transition: all 200ms ease;
+    }
+
+    .scale-row-item:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--gk-shadow-soft);
+      border-color: var(--gk-outline-strong);
+    }
+
+    @media (min-width: 600px) {
+      .scale-row-item {
+        flex-direction: row;
+        align-items: center;
+        justify-content: space-between;
+      }
+    }
+
+    .service-meta strong {
+      display: block;
+      font-size: 0.95rem;
+      color: #102c33;
+    }
+
+    .service-type-badge {
+      font-size: 0.76rem;
+      color: var(--gk-muted);
+      font-weight: 600;
+    }
+
+    .scale-allocations {
       display: flex;
       flex-wrap: wrap;
       gap: 8px;
     }
 
-    .scale-numbers span {
-      border-radius: 999px;
-      background: rgba(29, 92, 99, 0.1);
-      padding: 6px 10px;
+    .alloc-pill {
+      font-size: 0.76rem;
+      font-weight: 800;
+      padding: 4px 10px;
+      border-radius: 99px;
+      background: rgba(29, 92, 99, 0.08);
       color: #1d5c63;
-      font-weight: 700;
     }
 
-    ion-item {
-      --background: rgba(255, 255, 255, 0.74);
-      --border-radius: 14px;
+    /* Institution partnerships list */
+    .institution-list-container {
+      max-height: 480px;
+      overflow-y: auto;
+      border: 1px solid var(--gk-outline);
+      border-radius: 16px;
+      background: rgba(16, 44, 51, 0.01);
+      padding: 10px;
+    }
+
+    .institution-card-item {
+      background: #ffffff;
       border: 1px solid var(--gk-outline);
       border-radius: 14px;
+      padding: 16px;
     }
 
-    .case-actions {
+    .partner-status-tag {
+      font-size: 0.72rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      padding: 2px 6px;
+      border-radius: 4px;
+      background: #f0f0f0;
+      color: #666;
+    }
+
+    .partner-status-tag.active {
+      background: rgba(47, 159, 111, 0.1);
+      color: var(--gk-forest);
+    }
+
+    .location-label {
+      font-size: 0.8rem;
+      font-weight: 700;
+      color: var(--gk-muted);
+    }
+
+    .seat-allocation-progress {
+      margin: 10px 0;
       display: flex;
-      flex-wrap: wrap;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .seat-bar-track {
+      height: 6px;
+      background: #e8ecef;
+      border-radius: 99px;
+      overflow: hidden;
+    }
+
+    .seat-bar-fill {
+      height: 100%;
+      background: #1d5c63;
+      border-radius: inherit;
+    }
+
+    .seat-stats-labels {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.76rem;
+    }
+
+    .seat-stats-labels span {
+      color: var(--gk-muted);
+    }
+
+    .seat-stats-labels strong {
+      color: #102c33;
+    }
+
+    .partner-form-wrapper {
+      background: rgba(29, 92, 99, 0.02);
+      border: 1px solid rgba(29, 92, 99, 0.08);
+      border-radius: 16px;
+      padding: 20px;
+      margin-top: 16px;
+    }
+
+    .partner-form-wrapper h3 {
+      font-size: 1.05rem;
+      font-weight: 800;
+      margin: 0 0 14px 0;
+      border-left: none;
+      padding-left: 0;
+    }
+
+    /* Hosted Exam keys list */
+    .hosted-tests-list {
+      display: flex;
+      flex-direction: column;
       gap: 10px;
     }
 
-    @media (min-width: 768px) {
-      .metric-grid,
-      .deployment-grid,
-      .institution-grid,
-      .moderation-stats {
-        grid-template-columns: repeat(3, minmax(0, 1fr));
-      }
+    .hosted-test-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 12px 14px;
+      background: #ffffff;
+      border: 1px solid var(--gk-outline);
+      border-radius: 14px;
+      gap: 12px;
+    }
 
-      .partner-form {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-      }
+    .hosted-info strong {
+      display: block;
+      font-size: 0.88rem;
+      color: #102c33;
+    }
 
-      .partner-form h3,
-      .partner-form ion-button {
-        grid-column: 1 / -1;
-      }
+    .hosted-info span {
+      display: block;
+      font-size: 0.78rem;
+      color: var(--gk-muted);
+    }
 
-      .scale-row,
-      .host-row {
-        grid-template-columns: minmax(0, 1fr) auto;
-        align-items: center;
-      }
+    .access-key-tag {
+      font-size: 0.82rem;
+      font-weight: 800;
+      background: rgba(247, 181, 56, 0.12);
+      color: #b78a10;
+      padding: 4px 10px;
+      border-radius: 6px;
+      letter-spacing: 0.04em;
+    }
+
+    /* Content Moderation dashboard elements */
+    .moderation-metrics-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    .mod-pill {
+      background: #ffffff;
+      border: 1px solid var(--gk-outline);
+      border-radius: 14px;
+      padding: 12px 16px;
+    }
+
+    .mod-pill span {
+      font-size: 0.72rem;
+      font-weight: 850;
+      text-transform: uppercase;
+      color: var(--gk-muted);
+      display: block;
+    }
+
+    .mod-pill strong {
+      font-size: 1.25rem;
+      display: block;
+      margin-top: 2px;
+    }
+
+    .mod-pill.critical {
+      border-color: rgba(232, 93, 63, 0.3);
+      color: var(--gk-saffron);
+    }
+
+    .mod-pill.active-mod {
+      border-color: rgba(247, 181, 56, 0.35);
+      color: #b78a10;
+    }
+
+    .moderation-report-form {
+      background: rgba(232, 93, 63, 0.01);
+      border: 1px solid rgba(232, 93, 63, 0.08);
+      border-radius: 16px;
+      padding: 16px;
+    }
+
+    .moderation-report-form h3 {
+      font-size: 1rem;
+      border-left: 3px solid var(--gk-saffron);
+      padding-left: 10px;
+      margin: 0;
+    }
+
+    .moderation-report-form ion-textarea {
+      --background: #ffffff;
+      --border-radius: 12px;
+      border: 1px solid var(--gk-outline);
+      border-radius: 12px;
+      --padding-start: 12px;
+      --padding-top: 10px;
+    }
+
+    .moderation-queue-list {
+      border-top: 1px dashed var(--gk-outline);
+      padding-top: 16px;
+    }
+
+    .moderation-cases-wrapper {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .moderation-case-card {
+      background: #ffffff;
+      border: 1px solid var(--gk-outline);
+      border-radius: 14px;
+      padding: 16px;
+    }
+
+    .severity-badge {
+      font-size: 0.68rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      padding: 2px 6px;
+      border-radius: 4px;
+      background: rgba(247, 181, 56, 0.1);
+      color: #b78a10;
+    }
+
+    .severity-badge.critical-sev {
+      background: rgba(232, 93, 63, 0.12);
+      color: var(--gk-saffron);
+    }
+
+    .excerpt-box {
+      margin: 8px 0;
+      padding: 10px 14px;
+      border-radius: 10px;
+      background: #f8f9fa;
+      border: 1px solid var(--gk-outline);
+      font-size: 0.88rem;
+      color: #243f45;
+      font-style: italic;
+    }
+
+    .ai-verdict {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.78rem;
+      color: var(--gk-muted);
+      border-bottom: 1px solid var(--gk-outline);
+      padding-bottom: 10px;
+      margin-bottom: 10px;
+    }
+
+    .moderator-actions-group {
+      display: flex;
+      gap: 10px;
+    }
+
+    .moderator-actions-group ion-button {
+      margin: 0;
+    }
+
+    .empty-state-text {
+      font-size: 0.86rem;
+      color: var(--gk-muted);
+      text-align: center;
+      margin: 0;
     }
   `],
 })

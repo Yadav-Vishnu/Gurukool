@@ -1,51 +1,54 @@
 :root {
-  --ion-font-family: "Aptos", "Manrope", "Segoe UI", sans-serif;
+  --ion-font-family: "Inter", "Segoe UI", sans-serif;
+  --font-family-heading: "Outfit", "Inter", sans-serif;
 
-  --ion-color-primary: #e85d3f;
-  --ion-color-primary-rgb: 232, 93, 63;
-  --ion-color-primary-contrast: #fffaf5;
-  --ion-color-primary-shade: #cc5238;
-  --ion-color-primary-tint: #ea6d52;
+  --ion-color-primary: #f05a28;
+  --ion-color-primary-rgb: 240, 90, 40;
+  --ion-color-primary-contrast: #ffffff;
+  --ion-color-primary-shade: #d34f23;
+  --ion-color-primary-tint: #f26b3e;
 
-  --ion-color-secondary: #1d5c63;
-  --ion-color-secondary-rgb: 29, 92, 99;
+  --ion-color-secondary: #00796b;
+  --ion-color-secondary-rgb: 0, 121, 107;
   --ion-color-secondary-contrast: #ffffff;
-  --ion-color-secondary-shade: #195158;
-  --ion-color-secondary-tint: #346c73;
+  --ion-color-secondary-shade: #006a5e;
+  --ion-color-secondary-tint: #1a867a;
 
-  --ion-color-tertiary: #f7b538;
-  --ion-color-tertiary-rgb: 247, 181, 56;
-  --ion-color-tertiary-contrast: #1f211c;
-  --ion-color-tertiary-shade: #d99f31;
-  --ion-color-tertiary-tint: #f8bc4c;
+  --ion-color-tertiary: #ffb300;
+  --ion-color-tertiary-rgb: 255, 179, 0;
+  --ion-color-tertiary-contrast: #1a1c23;
+  --ion-color-tertiary-shade: #e09d00;
+  --ion-color-tertiary-tint: #ffbb1a;
 
-  --ion-color-success: #2f9f6f;
-  --ion-color-warning: #f2a541;
-  --ion-color-danger: #c84656;
-  --ion-color-dark: #102c33;
-  --ion-color-medium: #66797f;
-  --ion-color-light: #f8f4ea;
+  --ion-color-success: #00bfa5;
+  --ion-color-warning: #ff9100;
+  --ion-color-danger: #ff1744;
+  --ion-color-dark: #12182b;
+  --ion-color-medium: #7a8291;
+  --ion-color-light: #f7f9fc;
 
   --ion-background-color: transparent;
-  --ion-toolbar-background: rgba(255, 252, 244, 0.78);
-  --ion-card-background: rgba(255, 252, 244, 0.88);
-  --ion-text-color: #102c33;
+  --ion-toolbar-background: rgba(255, 255, 255, 0.85);
+  --ion-card-background: rgba(255, 255, 255, 0.9);
+  --ion-text-color: #12182b;
 
-  --gk-ink: #102c33;
-  --gk-forest: #1d5c63;
-  --gk-saffron: #e85d3f;
-  --gk-gold: #f7b538;
-  --gk-mint: #dff2ea;
-  --gk-cream: #fffaf0;
-  --gk-paper: #fffcf4;
-  --gk-surface: rgba(255, 252, 244, 0.82);
-  --gk-surface-strong: rgba(255, 252, 244, 0.94);
-  --gk-muted: #60777e;
-  --gk-primary-strong: #b94732;
-  --gk-outline: rgba(16, 44, 51, 0.12);
-  --gk-outline-strong: rgba(16, 44, 51, 0.2);
-  --gk-shadow-soft: 0 18px 46px rgba(16, 44, 51, 0.12);
-  --gk-shadow-lifted: 0 28px 80px rgba(16, 44, 51, 0.18);
-  --gk-radius-lg: 28px;
-  --gk-radius-md: 18px;
+  --gk-ink: #12182b;
+  --gk-forest: #00796b;
+  --gk-saffron: #f05a28;
+  --gk-gold: #ffb300;
+  --gk-mint: #e0f2f1;
+  --gk-cream: #f8fafc;
+  --gk-paper: #ffffff;
+  --gk-surface: rgba(255, 255, 255, 0.85);
+  --gk-surface-strong: rgba(255, 255, 255, 0.95);
+  --gk-muted: #7a8291;
+  --gk-primary-strong: #d34f23;
+  --gk-outline: rgba(18, 24, 43, 0.08);
+  --gk-outline-strong: rgba(18, 24, 43, 0.16);
+  --gk-shadow-soft: 0 10px 30px rgba(18, 24, 43, 0.06);
+  --gk-shadow-lifted: 0 20px 40px rgba(18, 24, 43, 0.12);
+  --gk-shadow-deep: 0 30px 60px rgba(18, 24, 43, 0.18);
+  --gk-radius-lg: 24px;
+  --gk-radius-md: 16px;
+  --gk-radius-sm: 10px;
 }

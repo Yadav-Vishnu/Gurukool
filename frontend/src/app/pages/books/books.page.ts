@@ -5,188 +5,262 @@ import { IonicModule } from '@ionic/angular';
 import { AuthService } from '../../core/services/auth.service';
 import { BooksNotesService } from '../../core/services/books-notes.service';
 import { BookRecord, NotebookEntry, SubjectOption } from '../../core/models/books.models';
+import { AppHeaderComponent } from '../../shared/app-header.component';
+import { AppFooterComponent } from '../../shared/app-footer.component';
 
 @Component({
   selector: 'app-books-page',
   standalone: true,
-  imports: [CommonModule, FormsModule, IonicModule],
+  imports: [CommonModule, FormsModule, IonicModule, AppHeaderComponent, AppFooterComponent],
   template: `
-    <ion-header translucent="true">
-      <ion-toolbar>
-        <ion-title>Books & Notes</ion-title>
-        <ion-buttons slot="end">
-          <ion-button fill="outline" (click)="refreshData()">Refresh</ion-button>
-          <ion-button fill="outline" color="secondary" (click)="syncOffline()" [disabled]="syncing()">
-            {{ syncing() ? 'Syncing...' : 'Sync Offline' }}
-          </ion-button>
-        </ion-buttons>
-      </ion-toolbar>
-    </ion-header>
-
+    <app-header></app-header>
     <ion-content [fullscreen]="true">
       <div class="page-shell stack books-shell">
+        
+        <!-- Hero Header -->
         <section class="glass-card hero-card stack">
-          <span class="section-kicker">Phase 4 - Books & Notes</span>
-          <h1>Upload PDFs, confirm subject, and build revision notebooks.</h1>
-          <p class="muted-copy">
-            Connection status:
-            <strong>{{ online() ? 'Online' : 'Offline' }}</strong>.
-            Highlights and manual notes can queue offline and auto-sync later.
+          <span class="section-kicker">AI Notebook Workspace</span>
+          <h1>Books & Revision Notebooks</h1>
+          <p class="subtitle-copy">
+            Upload textbook PDFs to run automated subject classification. Take notes, copy highlights, and trigger AI paraphrasing to build your revision sheets.
+            Connection status: <strong [class.online-text]="online()">{{ online() ? 'Online & Syncing' : 'Offline Mode' }}</strong>.
           </p>
         </section>
 
-        <ion-note color="success" *ngIf="successMessage()">{{ successMessage() }}</ion-note>
-        <ion-note color="danger" *ngIf="errorMessage()">{{ errorMessage() }}</ion-note>
+        <!-- System Warning Messages -->
+        <div class="msg-box success-msg" *ngIf="successMessage()">
+          <span class="bullet-dot success-dot"></span>
+          <span>{{ successMessage() }}</span>
+        </div>
+        <div class="msg-box error-msg" *ngIf="errorMessage()">
+          <span class="bullet-dot error-dot"></span>
+          <span>{{ errorMessage() }}</span>
+        </div>
 
+        <!-- 1) Upload PDF Section -->
         <section class="glass-card stack">
-          <h2>1) Upload PDF + Subject Detection</h2>
-          <input
-            type="file"
-            accept="application/pdf"
-            (change)="onFileSelected($event)"
-          />
-          <p class="muted-copy" *ngIf="selectedFileName()">
-            Selected: {{ selectedFileName() }}
-          </p>
+          <h2 class="section-subtitle-title">1) PDF Textbook Upload</h2>
+          <p class="muted-copy">Select a reference book PDF to extract core concepts automatically.</p>
+          
+          <div class="file-uploader-box">
+            <input
+              type="file"
+              id="pdf-file-input"
+              class="hidden-file-input"
+              accept="application/pdf"
+              (change)="onFileSelected($event)"
+            />
+            <label for="pdf-file-input" class="custom-file-label">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" class="upload-svg">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+              </svg>
+              <span>{{ selectedFileName() || 'Click to select exam PDF file' }}</span>
+            </label>
+          </div>
+
+          <div class="highlight-pro-text">
+            <span>💡 <strong>Free tier limit: 5MB per upload.</strong> Gurukool Pro supports up to <strong>100MB textbooks</strong> for full syllabus indexing.</span>
+          </div>
+
           <ion-button
             expand="block"
+            color="primary"
             (click)="uploadBook()"
             [disabled]="!selectedFile() || uploading()">
-            {{ uploading() ? 'Uploading...' : 'Upload & Detect Subject' }}
+            {{ uploading() ? 'Uploading and indexing...' : 'Upload & Detect Subject' }}
           </ion-button>
         </section>
 
+        <!-- 2) Confirm Subject Section -->
         <section class="glass-card stack">
-          <h2>2) Confirm Subject</h2>
+          <h2 class="section-subtitle-title">2) Confirm Document Classification</h2>
+          <p class="muted-copy">Assign a specific syllabus category to index notes correctly.</p>
+
           <div class="book-list" *ngIf="books().length; else noBooks">
-            <div class="book-row" *ngFor="let book of books()">
+            <article class="book-row" *ngFor="let book of books()">
               <div class="book-meta">
-                <strong>{{ book.fileName }}</strong>
-                <span>Status: {{ book.status }}</span>
-                <span *ngIf="book.detectedSubject">
-                  Detected: {{ book.detectedSubject.code }} ({{ book.detectedSubject.confidence }}%)
-                </span>
-                <span *ngIf="book.confirmedSubject">
-                  Confirmed: {{ book.confirmedSubject.code }}
-                </span>
+                <div class="book-title-line">
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" class="book-svg">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                  </svg>
+                  <strong>{{ book.fileName }}</strong>
+                </div>
+                <div class="book-status-badge">
+                  <span class="status-indicator" [class.confirmed-status]="book.status === 'confirmed'"></span>
+                  <span>Status: {{ book.status | titlecase }}</span>
+                </div>
+                <div class="detected-box" *ngIf="book.detectedSubject">
+                  <span>Detected subject: <strong>{{ book.detectedSubject.code }}</strong> (Confidence: {{ book.detectedSubject.confidence }}%)</span>
+                </div>
+                <div class="confirmed-box" *ngIf="book.confirmedSubject">
+                  <span>Confirmed track: <strong>{{ book.confirmedSubject.code }}</strong></span>
+                </div>
               </div>
 
               <div class="book-actions" *ngIf="book.status !== 'confirmed'">
-                <ion-select
-                  interface="popover"
-                  [ngModel]="subjectSelectionMap()[book.id] || book.detectedSubject?.code || null"
-                  (ngModelChange)="setSubjectSelection(book.id, $event)"
-                  placeholder="Select subject">
-                  <ion-select-option *ngFor="let subject of subjects()" [value]="subject.code">
-                    {{ subject.code }} - {{ subject.name }}
-                  </ion-select-option>
-                </ion-select>
+                <ion-item lines="none" class="custom-field small-select">
+                  <ion-select
+                    interface="popover"
+                    [ngModel]="subjectSelectionMap()[book.id] || book.detectedSubject?.code || null"
+                    (ngModelChange)="setSubjectSelection(book.id, $event)"
+                    placeholder="Select subject">
+                    <ion-select-option *ngFor="let subject of subjects()" [value]="subject.code">
+                      {{ subject.code }} - {{ subject.name }}
+                    </ion-select-option>
+                  </ion-select>
+                </ion-item>
                 <ion-button
                   size="small"
+                  color="secondary"
                   (click)="confirmSubject(book.id)"
                   [disabled]="confirmingBookId() === book.id">
                   {{ confirmingBookId() === book.id ? 'Saving...' : 'Confirm' }}
                 </ion-button>
               </div>
-            </div>
+            </article>
           </div>
         </section>
 
+        <!-- 3) Highlight -> Auto Notebook Section -->
         <section class="glass-card stack">
-          <h2>3) Highlight -> Auto Notebook</h2>
-          <ion-item lines="none">
-            <ion-label position="stacked">Book</ion-label>
-            <ion-select
-              interface="popover"
-              [ngModel]="highlightBookId()"
-              (ngModelChange)="setHighlightBookId($event)">
-              <ion-select-option *ngFor="let book of books()" [value]="book.id">
-                {{ book.fileName }}
-              </ion-select-option>
-            </ion-select>
-          </ion-item>
-          <ion-item lines="none">
-            <ion-label position="stacked">Page number (optional)</ion-label>
-            <ion-input
-              type="number"
-              [ngModel]="highlightPageNumber()"
-              (ngModelChange)="highlightPageNumber.set(toNumber($event))">
-            </ion-input>
-          </ion-item>
-          <ion-item lines="none">
-            <ion-label position="stacked">Highlight text</ion-label>
-            <ion-textarea
-              auto-grow="true"
-              [ngModel]="highlightText()"
-              (ngModelChange)="highlightText.set(toText($event))">
-            </ion-textarea>
-          </ion-item>
-          <ion-button expand="block" (click)="saveHighlight()">
+          <h2 class="section-subtitle-title">3) Copy Highlights to Notebook</h2>
+          <p class="muted-copy">Reference specific textbook pages to build study entries.</p>
+          
+          <div class="input-container">
+            <label class="input-label">Select Source Book</label>
+            <ion-item lines="none" class="custom-field">
+              <ion-select
+                interface="popover"
+                [ngModel]="highlightBookId()"
+                (ngModelChange)="setHighlightBookId($event)">
+                <ion-select-option *ngFor="let book of books()" [value]="book.id">
+                  {{ book.fileName }}
+                </ion-select-option>
+              </ion-select>
+            </ion-item>
+          </div>
+
+          <div class="input-container">
+            <label class="input-label">Page Number</label>
+            <ion-item lines="none" class="custom-field">
+              <ion-input
+                type="number"
+                placeholder="e.g., 42"
+                [ngModel]="highlightPageNumber()"
+                (ngModelChange)="highlightPageNumber.set(toNumber($event))">
+              </ion-input>
+            </ion-item>
+          </div>
+
+          <div class="input-container">
+            <label class="input-label">Highlight Text Content</label>
+            <ion-item lines="none" class="custom-field">
+              <ion-textarea
+                placeholder="Paste formula derivations or core definitions here..."
+                auto-grow="true"
+                [ngModel]="highlightText()"
+                (ngModelChange)="highlightText.set(toText($event))">
+              </ion-textarea>
+            </ion-item>
+          </div>
+
+          <ion-button expand="block" color="primary" (click)="saveHighlight()">
             Save Highlight to Notebook
           </ion-button>
         </section>
 
+        <!-- 4) Manual Notes Section -->
         <section class="glass-card stack">
-          <h2>4) Manual Notes</h2>
-          <ion-item lines="none">
-            <ion-label position="stacked">Subject (optional)</ion-label>
-            <ion-select
-              interface="popover"
-              [ngModel]="manualSubjectCode()"
-              (ngModelChange)="setManualSubjectCode($event)">
-              <ion-select-option [value]="null">No subject</ion-select-option>
-              <ion-select-option *ngFor="let subject of subjects()" [value]="subject.code">
-                {{ subject.code }} - {{ subject.name }}
-              </ion-select-option>
-            </ion-select>
-          </ion-item>
-          <ion-item lines="none">
-            <ion-label position="stacked">Title (optional)</ion-label>
-            <ion-input
-              [ngModel]="manualTitle()"
-              (ngModelChange)="manualTitle.set(toText($event))">
-            </ion-input>
-          </ion-item>
-          <ion-item lines="none">
-            <ion-label position="stacked">Note</ion-label>
-            <ion-textarea
-              auto-grow="true"
-              [ngModel]="manualNoteText()"
-              (ngModelChange)="manualNoteText.set(toText($event))">
-            </ion-textarea>
-          </ion-item>
-          <ion-button expand="block" (click)="saveManualNote()">
+          <h2 class="section-subtitle-title">4) Quick Notebook Entry</h2>
+          <p class="muted-copy">Write custom study notes or formulas manually.</p>
+
+          <div class="input-container">
+            <label class="input-label">Subject Category</label>
+            <ion-item lines="none" class="custom-field">
+              <ion-select
+                interface="popover"
+                [ngModel]="manualSubjectCode()"
+                (ngModelChange)="setManualSubjectCode($event)">
+                <ion-select-option [value]="null">No Subject (General Note)</ion-select-option>
+                <ion-select-option *ngFor="let subject of subjects()" [value]="subject.code">
+                  {{ subject.code }} - {{ subject.name }}
+                </ion-select-option>
+              </ion-select>
+            </ion-item>
+          </div>
+
+          <div class="input-container">
+            <label class="input-label">Note Title</label>
+            <ion-item lines="none" class="custom-field">
+              <ion-input
+                placeholder="e.g., Dijkstra algorithm complexity proofs"
+                [ngModel]="manualTitle()"
+                (ngModelChange)="manualTitle.set(toText($event))">
+              </ion-input>
+            </ion-item>
+          </div>
+
+          <div class="input-container">
+            <label class="input-label">Note Text</label>
+            <ion-item lines="none" class="custom-field">
+              <ion-textarea
+                placeholder="Write your study notes, definitions, or equations here..."
+                auto-grow="true"
+                [ngModel]="manualNoteText()"
+                (ngModelChange)="manualNoteText.set(toText($event))">
+              </ion-textarea>
+            </ion-item>
+          </div>
+
+          <ion-button expand="block" color="primary" (click)="saveManualNote()">
             Save Manual Note
           </ion-button>
         </section>
 
+        <!-- 5) AI Paraphrase Section -->
         <section class="glass-card stack">
-          <h2>5) Paraphrase</h2>
-          <ion-item lines="none">
-            <ion-label position="stacked">Source text</ion-label>
-            <ion-textarea
-              auto-grow="true"
-              [ngModel]="paraphraseSourceText()"
-              (ngModelChange)="paraphraseSourceText.set(toText($event))">
-            </ion-textarea>
-          </ion-item>
-          <ion-item lines="none">
-            <ion-label position="stacked">Style</ion-label>
-            <ion-select
-              interface="popover"
-              [ngModel]="paraphraseStyle()"
-              (ngModelChange)="setParaphraseStyle($event)">
-              <ion-select-option value="exam-ready">Exam-ready</ion-select-option>
-              <ion-select-option value="concise">Concise</ion-select-option>
-              <ion-select-option value="memory-hook">Memory hook</ion-select-option>
-            </ion-select>
-          </ion-item>
+          <div class="ai-header-row">
+            <h2 class="section-subtitle-title">5) AI Paraphraser & Memory Hook 🔒 Pro</h2>
+          </div>
+          <p class="muted-copy">Converts long paragraphs into short exam summaries or catchy memory hooks.</p>
+
+          <div class="highlight-pro-text secondary-highlight">
+            <span>💡 <strong>AI paraphrasing requires Gurukool Pro.</strong> Transform complex theories into bite-sized exam cards instantly.</span>
+          </div>
+
+          <div class="input-container">
+            <label class="input-label">Source Text to Paraphrase</label>
+            <ion-item lines="none" class="custom-field">
+              <ion-textarea
+                placeholder="Paste theoretical paragraphs to summarize..."
+                auto-grow="true"
+                [ngModel]="paraphraseSourceText()"
+                (ngModelChange)="paraphraseSourceText.set(toText($event))">
+              </ion-textarea>
+            </ion-item>
+          </div>
+
+          <div class="input-container">
+            <label class="input-label">AI Summary Style</label>
+            <ion-item lines="none" class="custom-field">
+              <ion-select
+                interface="popover"
+                [ngModel]="paraphraseStyle()"
+                (ngModelChange)="setParaphraseStyle($event)">
+                <ion-select-option value="exam-ready">Exam-Ready (Formula focus)</ion-select-option>
+                <ion-select-option value="concise">Concise Bulletpoints</ion-select-option>
+                <ion-select-option value="memory-hook">Memory Hook (Acronyms & Mnemonics)</ion-select-option>
+              </ion-select>
+            </ion-item>
+          </div>
+
           <ion-button expand="block" color="secondary" (click)="paraphraseAndSave()">
-            Paraphrase + Save
+            Paraphrase & Save to Notebook
           </ion-button>
-          <ion-card *ngIf="latestParaphrase()" class="result-card">
+
+          <ion-card *ngIf="latestParaphrase()" class="result-card glass-card">
             <ion-card-header>
-              <ion-card-title>Latest Paraphrase</ion-card-title>
+              <ion-card-title>AI Result Output</ion-card-title>
             </ion-card-header>
             <ion-card-content>
               <pre>{{ latestParaphrase() }}</pre>
@@ -194,124 +268,415 @@ import { BookRecord, NotebookEntry, SubjectOption } from '../../core/models/book
           </ion-card>
         </section>
 
+        <!-- Notebook Entries Section -->
         <section class="glass-card stack">
-          <h2>Notebook Entries</h2>
-          <ion-item lines="none">
-            <ion-label position="stacked">Filter by subject</ion-label>
-            <ion-select
-              interface="popover"
-              [ngModel]="subjectFilter()"
-              (ngModelChange)="setSubjectFilter($event)">
-              <ion-select-option [value]="null">All</ion-select-option>
-              <ion-select-option *ngFor="let subject of subjects()" [value]="subject.code">
-                {{ subject.code }} - {{ subject.name }}
-              </ion-select-option>
-            </ion-select>
-          </ion-item>
-          <div class="note-list" *ngIf="visibleNotebookEntries().length; else noNotes">
-            <div class="note-row" *ngFor="let entry of visibleNotebookEntries()">
-              <strong>{{ entry.title || 'Notebook entry' }}</strong>
-              <span>
-                {{ entry.sourceType }}
-                <span *ngIf="entry.subject"> - {{ entry.subject.code }}</span>
-                <span *ngIf="entry.sourceBook"> - {{ entry.sourceBook.fileName }}</span>
-              </span>
-              <p>{{ entry.noteText }}</p>
+          <div class="notebook-section-header">
+            <h2 class="section-subtitle-title">Your Revision Notebook</h2>
+            <div class="filter-item-wrapper">
+              <ion-item lines="none" class="custom-field small-select-filter">
+                <ion-select
+                  interface="popover"
+                  [ngModel]="subjectFilter()"
+                  (ngModelChange)="setSubjectFilter($event)"
+                  placeholder="All subjects">
+                  <ion-select-option [value]="null">All subjects</ion-select-option>
+                  <ion-select-option *ngFor="let subject of subjects()" [value]="subject.code">
+                    {{ subject.code }} - {{ subject.name }}
+                  </ion-select-option>
+                </ion-select>
+              </ion-item>
             </div>
           </div>
+
+          <div class="note-list" *ngIf="visibleNotebookEntries().length; else noNotes">
+            <article class="note-row" *ngFor="let entry of visibleNotebookEntries()">
+              <header class="note-header">
+                <strong>{{ entry.title || 'Notebook entry' }}</strong>
+                <div class="note-tags">
+                  <span class="note-source-badge">{{ entry.sourceType | uppercase }}</span>
+                  <span class="note-subject-badge" *ngIf="entry.subject">{{ entry.subject.code }}</span>
+                </div>
+              </header>
+              <p class="note-text-body">{{ entry.noteText }}</p>
+              <footer class="note-footer-meta" *ngIf="entry.sourceBook">
+                <span>Book source: {{ entry.sourceBook.fileName }}</span>
+              </footer>
+            </article>
+          </div>
         </section>
+
       </div>
+      <app-footer></app-footer>
     </ion-content>
 
     <ng-template #noBooks>
-      <p class="muted-copy">No books uploaded yet.</p>
+      <div class="empty-list-placeholder">
+        <p>No books uploaded yet. Select a PDF file above to get started.</p>
+      </div>
     </ng-template>
 
     <ng-template #noNotes>
-      <p class="muted-copy">No notebook entries yet.</p>
+      <div class="empty-list-placeholder">
+        <p>No notebook entries created yet. Type manual notes or save highlights to fill your revision sheet.</p>
+      </div>
     </ng-template>
   `,
   styles: [`
+    /* === Page Shell === */
     .books-shell {
-      padding-top: 88px;
+      padding-top: 28px;
+      padding-bottom: 48px;
+      gap: var(--space-lg, 24px);
+    }
+
+    /* All glass-card sections get consistent inner padding */
+    :host .glass-card {
+      padding: 24px;
     }
 
     .hero-card {
+      background: linear-gradient(135deg, rgba(253, 246, 230, 0.8) 0%, rgba(255, 255, 255, 0.9) 100%);
+      border: 1px solid rgba(var(--ion-color-primary-rgb), 0.2);
+      padding: 32px;
       margin: 0;
+      animation: gk-rise 600ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
     }
 
     h1 {
-      margin: 12px 0 8px;
-      font-size: clamp(1.9rem, 4.8vw, 3.2rem);
-      line-height: 1;
-      letter-spacing: -0.04em;
-      color: var(--ion-color-dark);
+      margin: 8px 0 12px;
+      font-size: clamp(2rem, 4.5vw, 3rem);
+      font-weight: 850;
+      line-height: 1.1;
+      letter-spacing: -0.03em;
+      background: linear-gradient(135deg, var(--ion-color-dark) 30%, var(--ion-color-primary) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
     }
 
-    h2 {
+    .subtitle-copy {
+      color: var(--gk-muted);
+      font-size: 0.95rem;
+      line-height: 1.5;
+      margin: 4px 0 0;
+    }
+
+    .online-text {
+      color: var(--ion-color-success-shade);
+    }
+
+    /* Message Boxes */
+    .msg-box {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 12px 16px;
+      border-radius: 12px;
+      font-size: 0.9rem;
       margin: 0;
-      color: var(--ion-color-dark);
-      font-size: 1.15rem;
     }
 
-    .book-list,
-    .note-list {
+    .success-msg {
+      background: rgba(var(--ion-color-success-rgb), 0.1);
+      border: 1px solid rgba(var(--ion-color-success-rgb), 0.2);
+      color: var(--ion-color-success-shade);
+    }
+
+    .error-msg {
+      background: rgba(var(--ion-color-danger-rgb), 0.1);
+      border: 1px solid rgba(var(--ion-color-danger-rgb), 0.2);
+      color: var(--ion-color-danger-shade);
+    }
+
+    .bullet-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+    }
+    .success-dot { background: var(--ion-color-success); }
+    .error-dot { background: var(--ion-color-danger); }
+
+    /* Section Typography */
+    .section-subtitle-title {
+      font-size: 1.2rem;
+      font-weight: 850;
+      color: var(--gk-ink);
+      margin: 0 0 6px;
+    }
+
+    .muted-copy {
+      margin: 0 0 16px;
+      font-size: 0.9rem;
+      color: var(--gk-muted);
+    }
+
+    /* Custom Input fields */
+    .input-container {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      margin-bottom: 16px;
+    }
+
+    .input-label {
+      font-size: 0.82rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--gk-muted);
+    }
+
+    .custom-field {
+      --background: #ffffff;
+      --border-radius: 12px;
+      border: 1px solid var(--gk-outline);
+      border-radius: 12px;
+      transition: all 200ms ease;
+    }
+    .custom-field:focus-within {
+      border-color: var(--ion-color-primary);
+      box-shadow: 0 0 0 3px rgba(var(--ion-color-primary-rgb), 0.15);
+    }
+
+    /* File uploader box */
+    .file-uploader-box {
+      margin-bottom: 14px;
+    }
+
+    .hidden-file-input {
+      display: none;
+    }
+
+    .custom-file-label {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+      border: 2px dashed var(--gk-outline-strong);
+      border-radius: 16px;
+      padding: 24px;
+      background: #ffffff;
+      cursor: pointer;
+      transition: all 200ms ease;
+      color: var(--gk-muted);
+    }
+    .custom-file-label:hover {
+      border-color: var(--ion-color-primary);
+      background: rgba(var(--ion-color-primary-rgb), 0.02);
+      color: var(--ion-color-primary-shade);
+    }
+
+    .upload-svg {
+      width: 32px;
+      height: 32px;
+    }
+
+    .highlight-pro-text {
+      background: rgba(var(--ion-color-secondary-rgb), 0.08);
+      border-left: 3px solid var(--ion-color-secondary);
+      padding: 10px 14px;
+      border-radius: 6px;
+      font-size: 0.86rem;
+      color: var(--gk-ink);
+      margin-bottom: 16px;
+      line-height: 1.45;
+    }
+
+    .secondary-highlight {
+      background: rgba(var(--ion-color-tertiary-rgb), 0.08);
+      border-left: 3px solid var(--ion-color-tertiary-shade);
+    }
+
+    /* Confirm Document Classification list */
+    .book-list {
       display: grid;
-      gap: 12px;
+      gap: 16px;
     }
 
-    .book-row,
-    .note-row {
+    .book-row {
+      background: #ffffff;
       border: 1px solid var(--gk-outline);
       border-radius: 16px;
-      background: rgba(248, 250, 255, 0.78);
-      padding: 12px;
-      display: grid;
-      gap: 8px;
+      padding: 20px;
+      box-shadow: var(--gk-shadow-soft);
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
     }
 
     .book-meta {
-      display: grid;
-      gap: 4px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
     }
 
-    .book-meta span,
-    .note-row span {
+    .book-title-line {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--gk-ink);
+    }
+    .book-title-line strong {
+      font-size: 1rem;
+      word-break: break-all;
+    }
+
+    .book-svg {
+      width: 20px;
+      height: 20px;
+      color: var(--ion-color-primary);
+      flex-shrink: 0;
+    }
+
+    .book-status-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.8rem;
+      font-weight: 700;
       color: var(--gk-muted);
-      font-size: 0.86rem;
+    }
+
+    .status-indicator {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--ion-color-warning);
+    }
+    .confirmed-status {
+      background: var(--ion-color-success);
+    }
+
+    .detected-box, .confirmed-box {
+      font-size: 0.84rem;
+      color: var(--gk-muted);
     }
 
     .book-actions {
       display: grid;
-      gap: 10px;
-      grid-template-columns: minmax(0, 1fr) auto;
+      grid-template-columns: 1fr auto;
+      gap: 12px;
       align-items: center;
     }
 
-    .note-row p {
+    .small-select {
       margin: 0;
-      color: var(--ion-color-dark);
-      line-height: 1.6;
     }
 
-    ion-item {
-      --background: rgba(255, 255, 255, 0.7);
-      --border-radius: 14px;
-      border: 1px solid var(--gk-outline);
-      border-radius: 14px;
-    }
-
+    /* AI Output Card */
     .result-card {
-      margin: 0;
-      border: 1px dashed rgba(30, 136, 229, 0.35);
-      background: rgba(230, 242, 255, 0.58);
+      margin: 16px 0 0 0;
+      border: 1px dashed rgba(var(--ion-color-secondary-rgb), 0.4);
+      background: rgba(var(--ion-color-secondary-rgb), 0.03);
+      padding: 16px;
     }
 
     pre {
       margin: 0;
       white-space: pre-wrap;
-      font-family: "Poppins", "Segoe UI", sans-serif;
-      color: var(--ion-color-dark);
+      font-family: var(--font-family-base);
+      color: var(--gk-ink);
+      font-size: 0.9rem;
+      line-height: 1.6;
+    }
+
+    /* Revision list */
+    .notebook-section-header {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+
+    .small-select-filter {
+      width: 180px;
+      margin: 0;
+    }
+
+    .note-list {
+      display: grid;
+      gap: 16px;
+    }
+
+    .note-row {
+      background: #ffffff;
+      border: 1px solid var(--gk-outline);
+      border-radius: 16px;
+      padding: 20px;
+      box-shadow: var(--gk-shadow-soft);
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      transition: all 200ms ease;
+    }
+    .note-row:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--gk-shadow-lifted);
+      border-color: var(--gk-outline-strong);
+    }
+
+    .note-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .note-header strong {
+      font-size: 1.05rem;
+      color: var(--gk-ink);
+    }
+
+    .note-tags {
+      display: flex;
+      gap: 6px;
+    }
+
+    .note-source-badge, .note-subject-badge {
+      font-size: 0.7rem;
+      font-weight: 700;
+      padding: 2px 8px;
+      border-radius: 6px;
+    }
+
+    .note-source-badge { background: #f0f0f0; color: #555555; }
+    .note-subject-badge { background: rgba(var(--ion-color-primary-rgb), 0.1); color: var(--ion-color-primary-shade); }
+
+    .note-text-body {
+      margin: 0;
+      font-size: 0.92rem;
+      color: var(--gk-muted);
+      line-height: 1.6;
+    }
+
+    .note-footer-meta {
+      font-size: 0.78rem;
+      color: var(--gk-muted);
+      border-top: 1px solid var(--gk-outline);
+      padding-top: 8px;
+    }
+
+    /* Placeholders */
+    .empty-list-placeholder {
+      padding: 24px;
+      text-align: center;
+      background: rgba(var(--ion-color-dark-rgb), 0.02);
+      border-radius: 12px;
+      border: 1px solid var(--gk-outline);
+      color: var(--gk-muted);
+      font-size: 0.9rem;
+    }
+
+    /* === Responsive — Desktop === */
+    @media (min-width: 768px) {
+      :host .glass-card {
+        padding: 32px;
+      }
+
+      .hero-card {
+        padding: 40px;
+      }
     }
   `],
 })
@@ -484,6 +849,14 @@ export class BooksPage implements OnInit, OnDestroy {
 
     if (file.type && file.type !== 'application/pdf') {
       this.errorMessage.set('Please choose a PDF file.');
+      this.selectedFile.set(null);
+      this.selectedFileName.set(null);
+      return;
+    }
+
+    // Free tier size limit: 5MB (5 * 1024 * 1024 bytes)
+    if (file.size > 5 * 1024 * 1024) {
+      this.errorMessage.set('Free tier limit is 5MB per PDF. Upgrade to Pro for 100MB uploads.');
       this.selectedFile.set(null);
       this.selectedFileName.set(null);
       return;

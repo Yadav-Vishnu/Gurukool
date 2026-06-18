@@ -4,34 +4,36 @@ import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { IonicModule } from '@ionic/angular';
 import { AuthService } from '../../core/services/auth.service';
+import { AppHeaderComponent } from '../../shared/app-header.component';
+import { AppFooterComponent } from '../../shared/app-footer.component';
 
 @Component({
   selector: 'app-auth-page',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, RouterLink, IonicModule],
+  imports: [CommonModule, ReactiveFormsModule, RouterLink, IonicModule, AppHeaderComponent, AppFooterComponent],
   template: `
+    <app-header></app-header>
     <ion-content [fullscreen]="true">
       <div class="page-shell auth-layout">
         <section class="login-hero glass-card">
-          <span class="section-kicker">Secure Access</span>
-          <h1>Welcome back to Gurukool.</h1>
+          <span class="section-kicker">Join Serious Aspirants</span>
+          <h1>Accelerate Your Exam Preparation.</h1>
           <p class="muted-copy">
-            Sign in once and continue your tests, books, notes, community, streaks, and mentor
-            roadmap from the same protected student workspace.
+            Sign in to access mock tests, formulas, community study sessions, and your personal revision notebooks. Gurukool Premium unlocks unlimited adaptive practice, deep weak-area analysis, and Dynamic AI Mentor Roadmaps.
           </p>
 
           <div class="trust-grid">
             <article>
-              <span>Session</span>
-              <strong>Single active device</strong>
+              <span>Mock Engine</span>
+              <strong>Fixed & Adaptive Tests</strong>
             </article>
             <article>
-              <span>Login</span>
-              <strong>Google or OTP</strong>
+              <span>Revision Space</span>
+              <strong>Auto Notebook from PDFs</strong>
             </article>
             <article>
-              <span>Privacy</span>
-              <strong>Token-protected APIs</strong>
+              <span>Study Rooms</span>
+              <strong>WebRTC Peer Audio Calls</strong>
             </article>
           </div>
         </section>
@@ -113,6 +115,7 @@ import { AuthService } from '../../core/services/auth.service';
           </ion-card>
         </section>
       </div>
+      <app-footer></app-footer>
     </ion-content>
   `,
   styles: [`
@@ -128,15 +131,20 @@ import { AuthService } from '../../core/services/auth.service';
       display: grid;
       gap: 18px;
       margin: 0;
-      padding: 24px;
+      padding: 32px 24px;
+      animation: gk-rise 700ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
     }
 
     .login-hero h1 {
-      margin: 0;
-      color: var(--gk-ink);
-      font-size: clamp(2.4rem, 8vw, 4.4rem);
-      line-height: 0.92;
-      letter-spacing: -0.06em;
+      margin: 0 0 16px;
+      font-size: clamp(2.6rem, 8vw, 4.6rem);
+      line-height: 1;
+      letter-spacing: -0.04em;
+      color: var(--ion-color-dark);
+      font-weight: 900;
+      background: linear-gradient(135deg, var(--ion-color-dark) 0%, var(--ion-color-secondary) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
       text-wrap: balance;
     }
 
@@ -148,9 +156,16 @@ import { AuthService } from '../../core/services/auth.service';
     .trust-grid article {
       border: 1px solid var(--gk-outline);
       border-radius: 18px;
-      padding: 14px;
-      background: rgba(255, 252, 244, 0.68);
-      box-shadow: 0 10px 24px rgba(16, 44, 51, 0.08);
+      padding: 16px;
+      background: #ffffff;
+      box-shadow: var(--gk-shadow-soft);
+      transition: transform 200ms ease, box-shadow 200ms ease, border-color 200ms ease;
+    }
+    
+    .trust-grid article:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--gk-shadow-lifted);
+      border-color: var(--gk-outline-strong);
     }
 
     .trust-grid span {
@@ -176,13 +191,20 @@ import { AuthService } from '../../core/services/auth.service';
 
     .auth-card {
       margin: 0;
+      animation: gk-rise 800ms cubic-bezier(0.2, 0.8, 0.2, 1) 100ms both;
     }
 
     .field-shell {
-      --background: rgba(246, 248, 255, 0.96);
-      --border-radius: 18px;
-      --padding-start: 14px;
+      position: relative;
+      border-radius: var(--gk-radius-md);
+      background: #ffffff;
       border: 1px solid var(--gk-outline);
+      box-shadow: var(--gk-shadow-soft);
+      transition: border-color 200ms ease, box-shadow 200ms ease;
+    }
+    .field-shell:focus-within {
+      border-color: var(--ion-color-primary);
+      box-shadow: 0 0 0 3px rgba(var(--ion-color-primary-rgb), 0.15);
     }
 
     .divider {
@@ -204,10 +226,10 @@ import { AuthService } from '../../core/services/auth.service';
     }
 
     .otp-panel {
-      padding: 16px;
+      padding: 20px;
       border-radius: 20px;
-      background: rgba(255, 247, 238, 0.72);
-      border: 1px solid rgba(244, 109, 67, 0.16);
+      background: rgba(var(--ion-color-tertiary-rgb), 0.1);
+      border: 1px solid rgba(var(--ion-color-tertiary-rgb), 0.2);
     }
 
     @media (min-width: 860px) {

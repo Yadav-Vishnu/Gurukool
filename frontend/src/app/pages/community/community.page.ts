@@ -23,493 +23,1176 @@ import {
   PeerSearchResult,
   QuestionDiscussion,
 } from '../../core/models/community.models';
+import { AppHeaderComponent } from '../../shared/app-header.component';
+import { AppFooterComponent } from '../../shared/app-footer.component';
 
 @Component({
   selector: 'app-community-page',
   standalone: true,
-  imports: [CommonModule, FormsModule, IonicModule],
+  imports: [CommonModule, FormsModule, IonicModule, AppHeaderComponent, AppFooterComponent],
   template: `
-    <ion-header translucent="true">
-      <ion-toolbar>
-        <ion-title>Community</ion-title>
-        <ion-buttons slot="end">
-          <ion-button fill="outline" (click)="refreshAll()" [disabled]="loading()">
-            {{ loading() ? 'Refreshing...' : 'Refresh' }}
-          </ion-button>
-        </ion-buttons>
-      </ion-toolbar>
-    </ion-header>
-
+    <app-header></app-header>
     <ion-content [fullscreen]="true">
       <div class="page-shell stack community-shell">
+        
+        <!-- Hero Header -->
         <section class="glass-card hero-card stack">
           <span class="section-kicker">Phase 5 - Community & Collaboration</span>
-          <h1>Discuss questions, connect with peers, and schedule study calls.</h1>
+          <h1>GATE & ESE Aspirant Sanctuary Forums</h1>
           <p class="muted-copy">
-            Forums are question-tagged, peer access is approval-based, and audio signaling is
-            protected by your active Gurukool session.
+            Discuss complex engineering questions, connect with peer study groups, and schedule secure, low-latency WebRTC study rooms to crack ESE/GATE together.
           </p>
         </section>
 
-        <ion-note color="success" *ngIf="successMessage()">{{ successMessage() }}</ion-note>
-        <ion-note color="danger" *ngIf="errorMessage()">{{ errorMessage() }}</ion-note>
+        <!-- System Alerts -->
+        <div class="alert-bar success-alert" *ngIf="successMessage()">
+          <svg class="alert-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          <span>{{ successMessage() }}</span>
+        </div>
+        <div class="alert-bar error-alert" *ngIf="errorMessage()">
+          <svg class="alert-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+          </svg>
+          <span>{{ errorMessage() }}</span>
+        </div>
 
-        <section class="glass-card stack">
-          <div class="section-header">
-            <div>
-              <h2>Question Forum</h2>
-              <p class="muted-copy">Pick a tagged question and join its discussion.</p>
-            </div>
-            <ion-button size="small" fill="outline" (click)="loadQuestions()">Search</ion-button>
-          </div>
-
-          <ion-item lines="none">
-            <ion-label position="stacked">Search questions</ion-label>
-            <ion-input
-              [ngModel]="questionSearch()"
-              (ngModelChange)="questionSearch.set(toText($event))"
-              placeholder="ONGC, ESE, matrices, aptitude">
-            </ion-input>
-          </ion-item>
-
-          <div class="question-list">
-            <button
-              type="button"
-              class="question-row"
-              *ngFor="let question of questions()"
-              [class.active]="selectedQuestionId() === question.id"
-              (click)="selectQuestion(question.id)">
-              <strong>{{ question.subject.code }} - {{ question.sourceTag.examCode }}</strong>
-              <span>
-                {{ question.sourceTag.companyName || 'General' }}
-                <ng-container *ngIf="question.sourceTag.examYear">
-                  - {{ question.sourceTag.examYear }}
-                </ng-container>
-                - {{ question.discussionCount }} replies
-              </span>
-              <p>{{ question.prompt }}</p>
-            </button>
-          </div>
-
-          <div class="discussion-panel" *ngIf="selectedDiscussion() as discussion">
-            <h3>{{ discussion.question.subject.name }}</h3>
-            <div class="post-list" *ngIf="discussion.posts.length; else noDiscussionPosts">
-              <article class="post-row" *ngFor="let post of discussion.posts">
-                <strong>{{ post.author.fullName }}</strong>
-                <span>{{ formatDate(post.createdAt) }}</span>
-                <p>{{ post.content }}</p>
-              </article>
-            </div>
-
-            <ion-item lines="none">
-              <ion-label position="stacked">Reply</ion-label>
-              <ion-textarea
-                auto-grow="true"
-                [ngModel]="discussionReply()"
-                (ngModelChange)="discussionReply.set(toText($event))"
-                placeholder="Ask a doubt, explain your method, or add a reference.">
-              </ion-textarea>
-            </ion-item>
-            <ion-button expand="block" (click)="postDiscussionReply()">Post Reply</ion-button>
-          </div>
-        </section>
-
-        <section class="glass-card stack">
-          <div class="section-header">
-            <div>
-              <h2>Peer Connect</h2>
-              <p class="muted-copy">Find students, send requests, and approve incoming invites.</p>
-            </div>
-            <ion-button size="small" fill="outline" (click)="loadPeers()">Search</ion-button>
-          </div>
-
-          <ion-item lines="none">
-            <ion-label position="stacked">Search peers</ion-label>
-            <ion-input
-              [ngModel]="peerSearch()"
-              (ngModelChange)="peerSearch.set(toText($event))"
-              placeholder="Name or email">
-            </ion-input>
-          </ion-item>
-
-          <div class="peer-grid">
-            <article class="compact-row" *ngFor="let peer of peerResults()">
-              <div>
-                <strong>{{ peer.fullName }}</strong>
-                <span>{{ peer.connectionStatus || 'not connected' }}</span>
-              </div>
-              <ion-button
-                size="small"
-                [disabled]="!!peer.connectionStatus"
-                (click)="sendPeerRequest(peer)">
-                Connect
-              </ion-button>
-            </article>
-          </div>
-
-          <div class="connection-list">
-            <article class="compact-row" *ngFor="let connection of connections()">
-              <div>
-                <strong>{{ connection.peer.fullName }}</strong>
-                <span>{{ connection.status }} - {{ connection.direction }}</span>
-              </div>
-              <div class="inline-actions" *ngIf="connection.status === 'pending' && connection.direction === 'incoming'">
-                <ion-button size="small" (click)="respondPeer(connection, 'accept')">Accept</ion-button>
-                <ion-button size="small" fill="outline" color="medium" (click)="respondPeer(connection, 'decline')">
-                  Decline
-                </ion-button>
-              </div>
-            </article>
-          </div>
-        </section>
-
-        <section class="glass-card stack">
-          <div class="section-header">
-            <div>
-              <h2>Secure Audio Calls</h2>
-              <p class="muted-copy">Start or join a WebRTC audio room with an accepted peer.</p>
-            </div>
-            <ion-badge color="secondary">{{ callStatus() }}</ion-badge>
-          </div>
-
-          <ion-item lines="none">
-            <ion-label position="stacked">Peer</ion-label>
-            <ion-select
-              interface="popover"
-              [ngModel]="callPeerId()"
-              (ngModelChange)="setCallPeerId($event)">
-              <ion-select-option *ngFor="let connection of acceptedConnections()" [value]="connection.peer.id">
-                {{ connection.peer.fullName }}
-              </ion-select-option>
-            </ion-select>
-          </ion-item>
-
-          <div class="actions-two">
-            <ion-button expand="block" (click)="startAudioCall()">Start Call</ion-button>
-            <ion-button expand="block" fill="outline" color="medium" (click)="endAudioCall()" [disabled]="!activeCall()">
-              End Call
-            </ion-button>
-          </div>
-
-          <audio #remoteAudio autoplay></audio>
-
-          <div class="call-list">
-            <article class="compact-row" *ngFor="let call of audioCalls()">
-              <div>
-                <strong>{{ call.peer.fullName }}</strong>
-                <span>{{ call.status }} - {{ formatDate(call.createdAt) }}</span>
-              </div>
-              <ion-button
-                size="small"
-                fill="outline"
-                [disabled]="call.status === 'ended'"
-                (click)="joinAudioCall(call)">
-                Join
-              </ion-button>
-            </article>
-          </div>
-        </section>
-
-        <section class="glass-card stack">
-          <div class="section-header">
-            <div>
-              <h2>Study Calendar</h2>
-              <p class="muted-copy">Propose, confirm, reschedule, and queue external calendar syncs.</p>
-            </div>
-          </div>
-
-          <ion-item lines="none">
-            <ion-label position="stacked">Peer</ion-label>
-            <ion-select
-              interface="popover"
-              [ngModel]="eventPeerId()"
-              (ngModelChange)="setEventPeerId($event)">
-              <ion-select-option *ngFor="let connection of acceptedConnections()" [value]="connection.peer.id">
-                {{ connection.peer.fullName }}
-              </ion-select-option>
-            </ion-select>
-          </ion-item>
-          <ion-item lines="none">
-            <ion-label position="stacked">Title</ion-label>
-            <ion-input [ngModel]="eventTitle()" (ngModelChange)="eventTitle.set(toText($event))"></ion-input>
-          </ion-item>
-          <ion-item lines="none">
-            <ion-label position="stacked">Agenda</ion-label>
-            <ion-textarea
-              auto-grow="true"
-              [ngModel]="eventAgenda()"
-              (ngModelChange)="eventAgenda.set(toText($event))">
-            </ion-textarea>
-          </ion-item>
-
-          <div class="datetime-grid">
-            <ion-item lines="none">
-              <ion-label position="stacked">Starts</ion-label>
-              <ion-input
-                type="datetime-local"
-                [ngModel]="eventStartsAt()"
-                (ngModelChange)="eventStartsAt.set(toText($event))">
-              </ion-input>
-            </ion-item>
-            <ion-item lines="none">
-              <ion-label position="stacked">Ends</ion-label>
-              <ion-input
-                type="datetime-local"
-                [ngModel]="eventEndsAt()"
-                (ngModelChange)="eventEndsAt.set(toText($event))">
-              </ion-input>
-            </ion-item>
-          </div>
-
-          <ion-button expand="block" (click)="proposeEvent()">Propose Study Session</ion-button>
-
-          <div class="event-list">
-            <article class="event-row" *ngFor="let event of calendarEvents()">
-              <div>
-                <strong>{{ event.title }}</strong>
-                <span>{{ event.peer.fullName }} - {{ event.status }}</span>
-                <p>{{ formatDate(event.startsAt) }} to {{ formatTime(event.endsAt) }}</p>
-              </div>
-
-              <div class="actions-two">
-                <ion-button size="small" (click)="confirmEvent(event)" [disabled]="event.status === 'confirmed'">
-                  Confirm
-                </ion-button>
-                <ion-button size="small" fill="outline" color="secondary" (click)="showReschedule(event)">
-                  Reschedule
-                </ion-button>
-              </div>
-
-              <div class="actions-two">
-                <ion-button size="small" fill="outline" (click)="syncCalendar(event, 'google')">
-                  Google Sync
-                </ion-button>
-                <ion-button size="small" fill="outline" (click)="syncCalendar(event, 'outlook')">
-                  Outlook Sync
-                </ion-button>
-              </div>
-
-              <div class="reschedule-box" *ngIf="rescheduleEventId() === event.id">
-                <div class="datetime-grid">
-                  <ion-item lines="none">
-                    <ion-label position="stacked">New starts</ion-label>
-                    <ion-input
-                      type="datetime-local"
-                      [ngModel]="rescheduleStartsAt()"
-                      (ngModelChange)="rescheduleStartsAt.set(toText($event))">
-                    </ion-input>
-                  </ion-item>
-                  <ion-item lines="none">
-                    <ion-label position="stacked">New ends</ion-label>
-                    <ion-input
-                      type="datetime-local"
-                      [ngModel]="rescheduleEndsAt()"
-                      (ngModelChange)="rescheduleEndsAt.set(toText($event))">
-                    </ion-input>
-                  </ion-item>
+        <!-- Main Dashboard Split Layout -->
+        <div class="community-dashboard-grid">
+          
+          <!-- LEFT SIDE: Question Forum & Discussions -->
+          <div class="grid-column-left stack">
+            
+            <!-- Question Forum Card -->
+            <section class="glass-card panel-card stack">
+              <div class="panel-header">
+                <div>
+                  <span class="panel-subtitle">GATE / ESE Subject Doubts</span>
+                  <h2>Interactive Question Forum</h2>
                 </div>
-                <ion-item lines="none">
-                  <ion-label position="stacked">Reason</ion-label>
-                  <ion-input
-                    [ngModel]="rescheduleReason()"
-                    (ngModelChange)="rescheduleReason.set(toText($event))">
-                  </ion-input>
-                </ion-item>
-                <ion-button expand="block" color="secondary" (click)="requestReschedule(event)">
-                  Send Reschedule
+                <ion-button size="small" fill="outline" color="primary" (click)="loadQuestions()">
+                  <ion-icon name="sync-outline" slot="start"></ion-icon>
+                  Refresh
                 </ion-button>
               </div>
 
-              <div class="reschedule-box" *ngIf="event.pendingReschedule as pending">
-                <strong>Pending reschedule</strong>
-                <p>{{ formatDate(pending.proposedStartsAt) }} to {{ formatTime(pending.proposedEndsAt) }}</p>
-                <div class="actions-two" *ngIf="pending.requestedByUserId !== userId()">
-                  <ion-button size="small" (click)="respondReschedule(pending.id, 'accept')">Accept</ion-button>
-                  <ion-button size="small" fill="outline" color="medium" (click)="respondReschedule(pending.id, 'decline')">
-                    Decline
+              <!-- Search Bar -->
+              <div class="custom-input-group">
+                <label class="input-label">Filter Questions by Topic or Keyword</label>
+                <div class="search-input-wrapper">
+                  <ion-input
+                    [ngModel]="questionSearch()"
+                    (ngModelChange)="questionSearch.set(toText($event))"
+                    placeholder="e.g. matrices, thermodynamics, ONGC 2023, aptitude">
+                  </ion-input>
+                  <ion-button size="small" fill="clear" (click)="loadQuestions()" class="search-inside-btn">
+                    Search
                   </ion-button>
                 </div>
               </div>
-            </article>
-          </div>
-        </section>
 
-        <section class="glass-card stack">
-          <div class="section-header">
-            <div>
-              <h2>Notifications</h2>
-              <p class="muted-copy">In-app notifications are stored in PostgreSQL and queued in Redis.</p>
-            </div>
-          </div>
-
-          <div class="notification-list" *ngIf="notifications().length; else noNotifications">
-            <article class="compact-row" *ngFor="let notification of notifications()" [class.unread]="!notification.isRead">
-              <div>
-                <strong>{{ notification.title }}</strong>
-                <span>{{ notification.body }}</span>
+              <!-- Question Feed List -->
+              <div class="question-list-container">
+                <div class="question-list" *ngIf="questions().length; else noQuestionsFound">
+                  <button
+                    type="button"
+                    class="question-row-btn"
+                    *ngFor="let question of questions()"
+                    [class.active-question]="selectedQuestionId() === question.id"
+                    (click)="selectQuestion(question.id)">
+                    <div class="question-meta">
+                      <span class="badge-subject">{{ question.subject.code }}</span>
+                      <span class="badge-exam">{{ question.sourceTag.examCode }}</span>
+                      <span class="badge-source" *ngIf="question.sourceTag.companyName">{{ question.sourceTag.companyName }}</span>
+                      <span class="badge-year" *ngIf="question.sourceTag.examYear">{{ question.sourceTag.examYear }}</span>
+                    </div>
+                    <p class="question-prompt-excerpt">{{ question.prompt }}</p>
+                    <div class="question-row-footer">
+                      <span>💬 {{ question.discussionCount }} responses</span>
+                    </div>
+                  </button>
+                </div>
+                <ng-template #noQuestionsFound>
+                  <div class="empty-state-small">
+                    <p>No forum discussions match your query.</p>
+                  </div>
+                </ng-template>
               </div>
-              <ion-button
-                size="small"
-                fill="outline"
-                [disabled]="notification.isRead"
-                (click)="markNotificationRead(notification)">
-                Read
-              </ion-button>
-            </article>
+
+              <!-- Active Discussion Feed Panel -->
+              <div class="active-discussion-panel stack" *ngIf="selectedDiscussion() as discussion">
+                <div class="discussion-divider"></div>
+                <div class="discussion-header">
+                  <h4>Discussion: {{ discussion.question.subject.name }}</h4>
+                  <span class="thread-status">Active Thread</span>
+                </div>
+
+                <div class="posts-timeline" *ngIf="discussion.posts.length; else noDiscussionPosts">
+                  <div class="post-bubble" *ngFor="let post of discussion.posts">
+                    <div class="post-meta">
+                      <strong class="author-name">{{ post.author.fullName }}</strong>
+                      <span class="post-time">{{ formatDate(post.createdAt) }}</span>
+                    </div>
+                    <p class="post-content-text">{{ post.content }}</p>
+                  </div>
+                </div>
+
+                <!-- Post Reply Panel -->
+                <div class="reply-editor-wrapper">
+                  <label class="input-label">Contribute to discussion</label>
+                  <ion-textarea
+                    auto-grow="true"
+                    rows="3"
+                    [ngModel]="discussionReply()"
+                    (ngModelChange)="discussionReply.set(toText($event))"
+                    placeholder="Offer your calculation steps, clarify formulas, or ask a follow-up query...">
+                  </ion-textarea>
+                  <ion-button expand="block" color="primary" class="btn-post-reply" (click)="postDiscussionReply()">
+                    Post Answer Reply
+                  </ion-button>
+                </div>
+              </div>
+            </section>
+
+            <!-- Study Calendar & Room Scheduler -->
+            <section class="glass-card panel-card stack">
+              <div class="panel-header">
+                <div>
+                  <span class="panel-subtitle">Plan Study Rooms</span>
+                  <h2>Study Calendar & Co-Revision</h2>
+                </div>
+              </div>
+
+              <div class="calendar-form-card stack">
+                <h3>Propose a Shared Session</h3>
+                
+                <div class="input-grid-2">
+                  <div class="custom-input-group">
+                    <label class="input-label">Select Connected Peer</label>
+                    <ion-item lines="none" class="custom-field">
+                      <ion-select
+                        interface="popover"
+                        [ngModel]="eventPeerId()"
+                        (ngModelChange)="setEventPeerId($event)">
+                        <ion-select-option *ngFor="let connection of acceptedConnections()" [value]="connection.peer.id">
+                          {{ connection.peer.fullName }}
+                        </ion-select-option>
+                      </ion-select>
+                    </ion-item>
+                  </div>
+                  <div class="custom-input-group">
+                    <label class="input-label">Session Topic Title</label>
+                    <ion-item lines="none" class="custom-field">
+                      <ion-input [ngModel]="eventTitle()" (ngModelChange)="eventTitle.set(toText($event))"></ion-input>
+                    </ion-item>
+                  </div>
+                </div>
+
+                <div class="custom-input-group">
+                  <label class="input-label">Session Agenda / Revision Focus</label>
+                  <ion-item lines="none" class="custom-field">
+                    <ion-textarea
+                      auto-grow="true"
+                      rows="2"
+                      [ngModel]="eventAgenda()"
+                      (ngModelChange)="eventAgenda.set(toText($event))"
+                      placeholder="e.g. Solving 15 ESE Calculus questions and discussing weak concepts...">
+                    </ion-textarea>
+                  </ion-item>
+                </div>
+
+                <div class="input-grid-2">
+                  <div class="custom-input-group">
+                    <label class="input-label">Starts At</label>
+                    <ion-item lines="none" class="custom-field">
+                      <ion-input
+                        type="datetime-local"
+                        [ngModel]="eventStartsAt()"
+                        (ngModelChange)="eventStartsAt.set(toText($event))">
+                      </ion-input>
+                    </ion-item>
+                  </div>
+                  <div class="custom-input-group">
+                    <label class="input-label">Ends At</label>
+                    <ion-item lines="none" class="custom-field">
+                      <ion-input
+                        type="datetime-local"
+                        [ngModel]="eventEndsAt()"
+                        (ngModelChange)="eventEndsAt.set(toText($event))">
+                      </ion-input>
+                    </ion-item>
+                  </div>
+                </div>
+
+                <ion-button expand="block" color="secondary" (click)="proposeEvent()">
+                  Schedule Session Invitation
+                </ion-button>
+              </div>
+
+              <!-- Scheduled Events Timeline -->
+              <div class="events-list-container stack">
+                <h3>Scheduled Study Sessions</h3>
+                <div class="event-list" *ngIf="calendarEvents().length; else noEventsScheduled">
+                  <div class="event-card-item stack" *ngFor="let event of calendarEvents()">
+                    <div class="event-card-header">
+                      <strong>{{ event.title }}</strong>
+                      <span class="status-badge" [class.confirmed]="event.status === 'confirmed'">
+                        {{ event.status }}
+                      </span>
+                    </div>
+                    <span class="event-peer">With: {{ event.peer.fullName }}</span>
+                    <p class="event-time-span">
+                      📅 {{ formatDate(event.startsAt) }} — {{ formatTime(event.endsAt) }}
+                    </p>
+                    <p class="event-agenda-text" *ngIf="event.agenda">{{ event.agenda }}</p>
+
+                    <div class="event-actions-grid">
+                      <ion-button size="small" color="success" (click)="confirmEvent(event)" [disabled]="event.status === 'confirmed'">
+                        Confirm Room
+                      </ion-button>
+                      <ion-button size="small" fill="outline" color="secondary" (click)="showReschedule(event)">
+                        Reschedule
+                      </ion-button>
+                    </div>
+
+                    <!-- Calendar Provider Integration Sync -->
+                    <div class="sync-actions-row">
+                      <span>Sync to Calendar:</span>
+                      <button type="button" class="btn-sync-link google" (click)="syncCalendar(event, 'google')">Google Sync</button>
+                      <button type="button" class="btn-sync-link outlook" (click)="syncCalendar(event, 'outlook')">Outlook Sync</button>
+                    </div>
+
+                    <!-- Inline Reschedule Box -->
+                    <div class="reschedule-form-box stack" *ngIf="rescheduleEventId() === event.id">
+                      <h4>Suggest Reschedule Timing</h4>
+                      <div class="input-grid-2">
+                        <div class="custom-input-group">
+                          <label class="input-label">Proposed Start</label>
+                          <ion-item lines="none" class="custom-field">
+                            <ion-input
+                              type="datetime-local"
+                              [ngModel]="rescheduleStartsAt()"
+                              (ngModelChange)="rescheduleStartsAt.set(toText($event))">
+                            </ion-input>
+                          </ion-item>
+                        </div>
+                        <div class="custom-input-group">
+                          <label class="input-label">Proposed End</label>
+                          <ion-item lines="none" class="custom-field">
+                            <ion-input
+                              type="datetime-local"
+                              [ngModel]="rescheduleEndsAt()"
+                              (ngModelChange)="rescheduleEndsAt.set(toText($event))">
+                            </ion-input>
+                          </ion-item>
+                        </div>
+                      </div>
+                      <div class="custom-input-group">
+                        <label class="input-label">Reason for reschedule</label>
+                        <ion-item lines="none" class="custom-field">
+                          <ion-input
+                            placeholder="e.g. coaching class conflict"
+                            [ngModel]="rescheduleReason()"
+                            (ngModelChange)="rescheduleReason.set(toText($event))">
+                          </ion-input>
+                        </ion-item>
+                      </div>
+                      <ion-button expand="block" color="secondary" size="small" (click)="requestReschedule(event)">
+                        Send Reschedule Request
+                      </ion-button>
+                    </div>
+
+                    <!-- Reschedule Pending Action Bar -->
+                    <div class="reschedule-pending-alert stack" *ngIf="event.pendingReschedule as pending">
+                      <strong>Reschedule Proposed by {{ pending.requestedByUserId === userId() ? 'You' : 'Peer' }}</strong>
+                      <p>Proposed: {{ formatDate(pending.proposedStartsAt) }} to {{ formatTime(pending.proposedEndsAt) }}</p>
+                      <div class="action-buttons-inline" *ngIf="pending.requestedByUserId !== userId()">
+                        <ion-button size="small" color="success" (click)="respondReschedule(pending.id, 'accept')">Accept</ion-button>
+                        <ion-button size="small" fill="outline" color="danger" (click)="respondReschedule(pending.id, 'decline')">Decline</ion-button>
+                      </div>
+                    </div>
+
+                  </div>
+                </div>
+                <ng-template #noEventsScheduled>
+                  <p class="empty-text-copy">No upcoming study sessions proposed yet.</p>
+                </ng-template>
+              </div>
+            </section>
+
           </div>
-        </section>
+
+          <!-- RIGHT SIDE: Peer Connect, Audio Rooms & Notifications -->
+          <div class="grid-column-right stack">
+
+            <!-- Secure Audio Rooms WebRTC -->
+            <section class="glass-card panel-card premium-call-card stack">
+              <div class="panel-header">
+                <div>
+                  <span class="panel-subtitle">Low-Latency Signaling</span>
+                  <h2>WebRTC Study Rooms</h2>
+                </div>
+                <span class="call-badge" [class.active-call-badge]="activeCall()">{{ callStatus() }}</span>
+              </div>
+
+              <!-- Subscription restriction notification -->
+              <div class="upsell-cue-mini">
+                <svg class="icon-key" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                </svg>
+                <div class="cue-content">
+                  <strong>Free Audio Limit: 10 mins / day</strong>
+                  <p>Upgrade to Gurukool Pro for unlimited high-fidelity group sessions.</p>
+                </div>
+              </div>
+
+              <div class="call-dialer-widget stack">
+                <div class="custom-input-group">
+                  <label class="input-label">Select Peer to Call</label>
+                  <ion-item lines="none" class="custom-field">
+                    <ion-select
+                      interface="popover"
+                      [ngModel]="callPeerId()"
+                      (ngModelChange)="setCallPeerId($event)"
+                      placeholder="Select connected peer">
+                      <ion-select-option *ngFor="let connection of acceptedConnections()" [value]="connection.peer.id">
+                        {{ connection.peer.fullName }}
+                      </ion-select-option>
+                    </ion-select>
+                  </ion-item>
+                </div>
+
+                <div class="dialer-actions">
+                  <ion-button expand="block" color="secondary" (click)="startAudioCall()" [disabled]="activeCall()">
+                    <ion-icon name="call-outline" slot="start"></ion-icon>
+                    Start Room
+                  </ion-button>
+                  <ion-button expand="block" fill="outline" color="danger" (click)="endAudioCall()" [disabled]="!activeCall()">
+                    <ion-icon name="close-circle-outline" slot="start"></ion-icon>
+                    End Session
+                  </ion-button>
+                </div>
+
+                <audio #remoteAudio autoplay class="hidden-audio-tag"></audio>
+              </div>
+
+              <!-- Active/Joinable Calls -->
+              <div class="active-calls-container stack">
+                <h3>Live Audio Rooms</h3>
+                <div class="call-list" *ngIf="audioCalls().length; else noCallsAvailable">
+                  <div class="call-row-item" *ngFor="let call of audioCalls()">
+                    <div class="call-row-info">
+                      <strong>{{ call.peer.fullName }}</strong>
+                      <span>Status: {{ call.status }}</span>
+                    </div>
+                    <ion-button
+                      size="small"
+                      fill="solid"
+                      color="secondary"
+                      [disabled]="call.status === 'ended'"
+                      (click)="joinAudioCall(call)">
+                      Join Room
+                    </ion-button>
+                  </div>
+                </div>
+                <ng-template #noCallsAvailable>
+                  <p class="empty-text-copy">No active audio channels detected.</p>
+                </ng-template>
+              </div>
+            </section>
+            
+            <!-- Peer Connect Card -->
+            <section class="glass-card panel-card stack">
+              <div class="panel-header">
+                <div>
+                  <span class="panel-subtitle">Find serious aspirants</span>
+                  <h2>Peer Connect Network</h2>
+                </div>
+                <ion-button size="small" fill="outline" color="primary" (click)="loadPeers()">
+                  <ion-icon name="search-outline" slot="start"></ion-icon>
+                  Search
+                </ion-button>
+              </div>
+
+              <!-- Peer Search Input -->
+              <div class="custom-input-group">
+                <label class="input-label">Search Students by Name or Email</label>
+                <div class="search-input-wrapper">
+                  <ion-input
+                    [ngModel]="peerSearch()"
+                    (ngModelChange)="peerSearch.set(toText($event))"
+                    placeholder="Enter name, email, or college/batch...">
+                  </ion-input>
+                </div>
+              </div>
+
+              <!-- Peer Results list -->
+              <div class="peer-grid-list stack">
+                <h3>Find New Peers</h3>
+                <div class="peer-grid-list stack">
+                  <div class="peer-results-grid" *ngIf="peerResults().length; else noPeersFound">
+                    <div class="peer-profile-tile" *ngFor="let peer of peerResults()">
+                      <div class="tile-avatar">
+                        {{ peer.fullName.charAt(0) }}
+                      </div>
+                      <div class="tile-info">
+                        <strong>{{ peer.fullName }}</strong>
+                        <span class="peer-status">{{ peer.connectionStatus || 'not connected' }}</span>
+                      </div>
+                      <ion-button
+                        size="small"
+                        color="primary"
+                        [disabled]="!!peer.connectionStatus"
+                        (click)="sendPeerRequest(peer)">
+                        Connect
+                      </ion-button>
+                    </div>
+                  </div>
+                  <ng-template #noPeersFound>
+                    <p class="empty-text-copy">No students found matching search string.</p>
+                  </ng-template>
+                </div>
+              </div>
+
+              <!-- Active Peer Connections list -->
+              <div class="connections-list-wrapper stack">
+                <h3>My Connections</h3>
+                <div class="connections-grid" *ngIf="connections().length; else noConnections">
+                  <div class="peer-profile-tile" *ngFor="let connection of connections()">
+                    <div class="tile-avatar border-glow">
+                      {{ connection.peer.fullName.charAt(0) }}
+                    </div>
+                    <div class="tile-info">
+                      <strong>{{ connection.peer.fullName }}</strong>
+                      <span class="peer-status-tag" [class.accepted]="connection.status === 'accepted'">
+                        {{ connection.status }} ({{ connection.direction }})
+                      </span>
+                    </div>
+                    
+                    <div class="action-buttons-inline" *ngIf="connection.status === 'pending' && connection.direction === 'incoming'">
+                      <ion-button size="small" color="success" (click)="respondPeer(connection, 'accept')">Accept</ion-button>
+                      <ion-button size="small" fill="outline" color="danger" (click)="respondPeer(connection, 'decline')">Decline</ion-button>
+                    </div>
+                  </div>
+                </div>
+                <ng-template #noConnections>
+                  <p class="empty-text-copy">You haven't added any study peers yet.</p>
+                </ng-template>
+              </div>
+            </section>
+
+            <!-- Notifications Card -->
+            <section class="glass-card panel-card stack">
+              <div class="panel-header">
+                <div>
+                  <span class="panel-subtitle">Activity Updates</span>
+                  <h2>Collaboration Notifications</h2>
+                </div>
+              </div>
+
+              <div class="notification-list-wrapper">
+                <div class="notification-grid" *ngIf="notifications().length; else noNotifications">
+                  <div class="notification-item-card" *ngFor="let notification of notifications()" [class.unread-notif]="!notification.isRead">
+                    <div class="notif-body">
+                      <strong>{{ notification.title }}</strong>
+                      <p>{{ notification.body }}</p>
+                    </div>
+                    <ion-button
+                      size="small"
+                      fill="clear"
+                      color="secondary"
+                      [disabled]="notification.isRead"
+                      (click)="markNotificationRead(notification)">
+                      Mark Read
+                    </ion-button>
+                  </div>
+                </div>
+                <ng-template #noNotifications>
+                  <p class="empty-text-copy">Your collaboration inbox is clear.</p>
+                </ng-template>
+              </div>
+            </section>
+
+          </div>
+
+        </div>
+
       </div>
+      <app-footer></app-footer>
     </ion-content>
 
     <ng-template #noDiscussionPosts>
-      <p class="muted-copy">No replies yet. Start the discussion.</p>
-    </ng-template>
-
-    <ng-template #noNotifications>
-      <p class="muted-copy">No notifications yet.</p>
+      <div class="empty-state-timeline">
+        <p>No replies yet. Be the first to start the discussion for this question!</p>
+      </div>
     </ng-template>
   `,
   styles: [`
     .community-shell {
-      padding-top: 88px;
+      padding-top: 24px;
+      padding-bottom: 40px;
     }
 
     .hero-card {
+      background: linear-gradient(135deg, rgba(240, 248, 244, 0.85) 0%, rgba(255, 255, 255, 0.95) 100%);
+      border: 1px solid rgba(47, 159, 111, 0.2);
+      padding: 32px;
       margin: 0;
+      animation: gk-rise 500ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
     }
 
     h1 {
-      margin: 12px 0 8px;
-      font-size: clamp(1.9rem, 4.8vw, 3.15rem);
-      line-height: 1;
-      color: var(--ion-color-dark);
+      margin: 8px 0 12px;
+      font-size: clamp(2rem, 4.5vw, 3rem);
+      font-weight: 850;
+      line-height: 1.1;
+      letter-spacing: -0.03em;
+      background: linear-gradient(135deg, var(--ion-color-dark) 30%, var(--ion-color-primary) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
     }
 
-    h2,
-    h3 {
-      margin: 0;
-      color: var(--ion-color-dark);
-    }
-
-    h2 {
-      font-size: 1.15rem;
-    }
-
-    h3 {
-      font-size: 1rem;
-    }
-
-    .section-header {
+    /* System Alert Bars */
+    .alert-bar {
       display: flex;
+      align-items: center;
       gap: 12px;
-      align-items: flex-start;
-      justify-content: space-between;
+      padding: 14px 20px;
+      border-radius: 16px;
+      font-weight: 600;
+      font-size: 0.92rem;
+      animation: gk-rise 400ms ease;
     }
 
-    .question-list,
-    .post-list,
-    .peer-grid,
-    .connection-list,
-    .call-list,
-    .event-list,
-    .notification-list {
+    .success-alert {
+      background: rgba(47, 159, 111, 0.08);
+      border: 1px solid rgba(47, 159, 111, 0.25);
+      color: var(--gk-forest);
+    }
+
+    .error-alert {
+      background: rgba(232, 93, 63, 0.08);
+      border: 1px solid rgba(232, 93, 63, 0.25);
+      color: var(--gk-saffron);
+    }
+
+    .alert-icon {
+      width: 22px;
+      height: 22px;
+      flex-shrink: 0;
+    }
+
+    /* Split Grid Layout */
+    .community-dashboard-grid {
       display: grid;
-      gap: 12px;
+      grid-template-columns: 1fr;
+      gap: 24px;
+      animation: gk-rise 600ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
     }
 
-    .question-row,
-    .compact-row,
-    .post-row,
-    .event-row {
+    @media (min-width: 1024px) {
+      .community-dashboard-grid {
+        grid-template-columns: 1.15fr 0.85fr;
+        align-items: start;
+      }
+    }
+
+    /* Panel Card Design */
+    .panel-card {
+      padding: 24px;
+      border: 1px solid var(--gk-outline);
+    }
+
+    .panel-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+
+    .panel-subtitle {
+      font-size: 0.76rem;
+      font-weight: 800;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--gk-muted);
+      display: block;
+      margin-bottom: 4px;
+    }
+
+    .panel-card h2 {
+      font-size: 1.35rem;
+      font-weight: 850;
+      color: var(--gk-ink);
+      margin: 0;
+    }
+
+    .panel-card h3 {
+      font-size: 1.05rem;
+      font-weight: 800;
+      color: var(--gk-ink);
+      margin: 0 0 14px 0;
+      border-left: 3px solid var(--ion-color-secondary);
+      padding-left: 10px;
+    }
+
+    .panel-card h4 {
+      font-size: 0.95rem;
+      font-weight: 750;
+      color: var(--gk-ink);
+      margin: 0;
+    }
+
+    /* Form Fields Styling */
+    .custom-input-group {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .input-label {
+      font-size: 0.78rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      color: var(--gk-muted);
+    }
+
+    .custom-field {
+      --background: #ffffff;
+      --border-radius: 12px;
+      border: 1px solid var(--gk-outline);
+      border-radius: 12px;
+      transition: all 200ms ease;
+    }
+
+    .custom-field:focus-within {
+      border-color: var(--ion-color-primary);
+      box-shadow: 0 0 0 3px rgba(var(--ion-color-primary-rgb), 0.12);
+    }
+
+    .input-grid-2 {
+      display: grid;
+      gap: 16px;
+      grid-template-columns: 1fr;
+    }
+
+    @media (min-width: 600px) {
+      .input-grid-2 {
+        grid-template-columns: 1fr 1fr;
+      }
+    }
+
+    /* Search Box Wrapper */
+    .search-input-wrapper {
+      display: flex;
+      align-items: center;
+      border: 1px solid var(--gk-outline);
+      border-radius: 12px;
+      background: #ffffff;
+      padding-right: 8px;
+    }
+
+    .search-input-wrapper ion-input {
+      --padding-start: 12px;
+    }
+
+    .search-inside-btn {
+      margin: 0;
+      font-weight: 700;
+    }
+
+    /* Question forum list */
+    .question-list-container {
+      max-height: 340px;
+      overflow-y: auto;
       border: 1px solid var(--gk-outline);
       border-radius: 14px;
-      background: rgba(248, 250, 255, 0.78);
-      padding: 12px;
+      background: rgba(16, 44, 51, 0.01);
+      padding: 10px;
     }
 
-    .question-row {
-      display: grid;
-      gap: 6px;
+    .question-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .question-row-btn {
       width: 100%;
+      background: #ffffff;
+      border: 1px solid var(--gk-outline);
+      border-radius: 12px;
+      padding: 14px;
       text-align: left;
-      color: inherit;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      transition: all 200ms ease;
     }
 
-    .question-row.active {
-      border-color: rgba(30, 136, 229, 0.62);
-      background: rgba(230, 242, 255, 0.72);
+    .question-row-btn:hover {
+      border-color: var(--gk-outline-strong);
+      transform: translateY(-1px);
+      box-shadow: var(--gk-shadow-soft);
     }
 
-    .question-row span,
-    .compact-row span,
-    .post-row span,
-    .event-row span {
+    .question-row-btn.active-question {
+      border-color: var(--ion-color-primary);
+      background: rgba(var(--ion-color-primary-rgb), 0.04);
+      box-shadow: 0 4px 12px rgba(var(--ion-color-primary-rgb), 0.08);
+      border-left: 4px solid var(--ion-color-primary);
+    }
+
+    .question-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+
+    .question-meta span {
+      font-size: 0.68rem;
+      font-weight: 800;
+      padding: 2px 8px;
+      border-radius: 6px;
+      text-transform: uppercase;
+    }
+
+    .badge-subject { background: rgba(47, 159, 111, 0.1); color: var(--gk-forest); }
+    .badge-exam { background: rgba(232, 93, 63, 0.1); color: var(--gk-saffron); }
+    .badge-source { background: rgba(247, 181, 56, 0.1); color: #b78a10; }
+    .badge-year { background: #f0f0f0; color: #555555; }
+
+    .question-prompt-excerpt {
+      margin: 0;
+      font-size: 0.88rem;
+      color: var(--gk-ink);
+      line-height: 1.45;
+      font-weight: 550;
+    }
+
+    .question-row-footer {
+      font-size: 0.74rem;
+      color: var(--gk-muted);
+      font-weight: 600;
+    }
+
+    /* Discussion Thread Panel */
+    .active-discussion-panel {
+      padding-top: 10px;
+    }
+
+    .discussion-divider {
+      height: 1px;
+      border-top: 1px dashed var(--gk-outline);
+      margin: 8px 0;
+    }
+
+    .discussion-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .thread-status {
+      font-size: 0.72rem;
+      background: rgba(47, 159, 111, 0.1);
+      color: var(--gk-forest);
+      padding: 3px 8px;
+      border-radius: 999px;
+      font-weight: 700;
+    }
+
+    .posts-timeline {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      max-height: 380px;
+      overflow-y: auto;
+      padding: 4px;
+    }
+
+    .post-bubble {
+      background: #f7f9f8;
+      border: 1px solid var(--gk-outline);
+      border-radius: 14px;
+      padding: 12px 16px;
+    }
+
+    .post-meta {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 6px;
+      font-size: 0.8rem;
+    }
+
+    .author-name {
+      color: var(--gk-ink);
+    }
+
+    .post-time {
+      color: var(--gk-muted);
+    }
+
+    .post-content-text {
+      margin: 0;
+      font-size: 0.88rem;
+      color: var(--gk-ink);
+      line-height: 1.5;
+    }
+
+    .reply-editor-wrapper {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      border-top: 1px solid var(--gk-outline);
+      padding-top: 16px;
+    }
+
+    .reply-editor-wrapper ion-textarea {
+      --background: #ffffff;
+      --border-radius: 12px;
+      border: 1px solid var(--gk-outline);
+      border-radius: 12px;
+      --padding-start: 12px;
+      --padding-top: 10px;
+    }
+
+    .btn-post-reply {
+      margin: 0;
+    }
+
+    /* Study Calendar Event Cards */
+    .calendar-form-card {
+      background: rgba(var(--ion-color-secondary-rgb), 0.02);
+      border: 1px solid rgba(var(--ion-color-secondary-rgb), 0.1);
+      padding: 20px;
+      border-radius: 16px;
+    }
+
+    .events-list-container {
+      border-top: 1px dashed var(--gk-outline);
+      padding-top: 20px;
+    }
+
+    .event-card-item {
+      padding: 16px;
+      background: #ffffff;
+      border: 1px solid var(--gk-outline);
+      border-radius: 14px;
+    }
+
+    .event-card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .status-badge {
+      font-size: 0.72rem;
+      font-weight: 750;
+      text-transform: uppercase;
+      padding: 2px 8px;
+      border-radius: 6px;
+      background: #f0f0f0;
+      color: #666;
+    }
+
+    .status-badge.confirmed {
+      background: rgba(47, 159, 111, 0.1);
+      color: var(--gk-forest);
+    }
+
+    .event-peer {
+      font-size: 0.82rem;
+      font-weight: 700;
+      color: var(--gk-muted);
+    }
+
+    .event-time-span {
+      margin: 4px 0 0 0;
+      font-size: 0.88rem;
+      font-weight: 700;
+      color: var(--gk-ink);
+    }
+
+    .event-agenda-text {
+      margin: 6px 0 0 0;
+      font-size: 0.86rem;
+      color: var(--gk-muted);
+      line-height: 1.4;
+    }
+
+    .event-actions-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-top: 10px;
+    }
+
+    .event-actions-grid ion-button {
+      margin: 0;
+    }
+
+    .sync-actions-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.76rem;
+      font-weight: 700;
+      color: var(--gk-muted);
+      border-top: 1px solid var(--gk-outline);
+      padding-top: 10px;
+      margin-top: 6px;
+    }
+
+    .btn-sync-link {
+      background: none;
+      border: none;
+      font-size: 0.76rem;
+      font-weight: 700;
+      cursor: pointer;
+      padding: 2px 6px;
+      border-radius: 4px;
+    }
+
+    .btn-sync-link.google { color: #ea4335; background: rgba(234, 67, 53, 0.08); }
+    .btn-sync-link.outlook { color: #0078d4; background: rgba(0, 120, 212, 0.08); }
+
+    .reschedule-form-box {
+      border: 1px solid var(--gk-outline);
+      background: #fdfdfd;
+      padding: 12px;
+      border-radius: 12px;
+      margin-top: 10px;
+    }
+
+    .reschedule-form-box h4 {
+      font-size: 0.88rem;
+      margin: 0 0 8px 0;
+      color: var(--gk-ink);
+    }
+
+    .reschedule-pending-alert {
+      border: 1px solid rgba(247, 181, 56, 0.4);
+      background: rgba(247, 181, 56, 0.05);
+      padding: 12px;
+      border-radius: 12px;
+      margin-top: 10px;
+    }
+
+    .reschedule-pending-alert p {
+      margin: 4px 0;
+      font-size: 0.82rem;
+      color: var(--gk-muted);
+    }
+
+    /* WebRTC Audio Styling */
+    .premium-call-card {
+      border: 1px solid rgba(247, 181, 56, 0.35);
+      background: linear-gradient(135deg, rgba(255, 252, 244, 0.9) 0%, rgba(255, 255, 255, 0.95) 100%);
+    }
+
+    .call-badge {
+      font-size: 0.72rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      padding: 4px 10px;
+      border-radius: 99px;
+      background: #f0f0f0;
+      color: #666;
+    }
+
+    .call-badge.active-call-badge {
+      background: var(--ion-color-secondary);
+      color: #ffffff;
+      box-shadow: 0 0 10px rgba(var(--ion-color-secondary-rgb), 0.3);
+      animation: gk-pulse 2s infinite;
+    }
+
+    .upsell-cue-mini {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      background: rgba(247, 181, 56, 0.08);
+      border-left: 3px solid var(--gk-gold);
+      padding: 10px 14px;
+      border-radius: 8px;
+    }
+
+    .icon-key {
+      width: 20px;
+      height: 20px;
+      color: #b78a10;
+      flex-shrink: 0;
+    }
+
+    .cue-content strong {
+      font-size: 0.82rem;
+      color: #b78a10;
+      display: block;
+    }
+
+    .cue-content p {
+      margin: 0;
+      font-size: 0.78rem;
+      color: var(--gk-muted);
+      line-height: 1.3;
+    }
+
+    .dialer-actions {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    .dialer-actions ion-button {
+      margin: 0;
+    }
+
+    .hidden-audio-tag {
+      display: none;
+    }
+
+    .call-row-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px 14px;
+      background: #ffffff;
+      border: 1px solid var(--gk-outline);
+      border-radius: 12px;
+    }
+
+    .call-row-info strong {
+      display: block;
+      font-size: 0.86rem;
+      color: var(--gk-ink);
+    }
+
+    .call-row-info span {
+      font-size: 0.76rem;
+      color: var(--gk-muted);
+    }
+
+    /* Peer Search Grid Lists */
+    .peer-profile-tile {
+      display: grid;
+      grid-template-columns: auto minmax(0, 1fr) auto;
+      gap: 12px;
+      align-items: center;
+      padding: 12px 14px;
+      background: #ffffff;
+      border: 1px solid var(--gk-outline);
+      border-radius: 14px;
+    }
+
+    .tile-avatar {
+      width: 38px;
+      height: 38px;
+      border-radius: 50%;
+      background: rgba(47, 159, 111, 0.1);
+      color: var(--gk-forest);
+      display: grid;
+      place-items: center;
+      font-weight: 800;
+      font-size: 1.1rem;
+      text-transform: uppercase;
+    }
+
+    .tile-avatar.border-glow {
+      box-shadow: 0 0 0 2px rgba(29, 92, 99, 0.15);
+    }
+
+    .tile-info strong {
+      display: block;
+      font-size: 0.88rem;
+      color: var(--gk-ink);
+    }
+
+    .peer-status {
+      font-size: 0.74rem;
+      color: var(--gk-muted);
+    }
+
+    .peer-status-tag {
+      font-size: 0.72rem;
+      font-weight: 800;
+      color: var(--gk-muted);
+      text-transform: uppercase;
+    }
+
+    .peer-status-tag.accepted {
+      color: var(--gk-forest);
+    }
+
+    .action-buttons-inline {
+      display: flex;
+      gap: 8px;
+    }
+
+    .action-buttons-inline ion-button {
+      margin: 0;
+    }
+
+    /* Notifications feed */
+    .notification-item-card {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 12px 14px;
+      border: 1px solid var(--gk-outline);
+      background: #ffffff;
+      border-radius: 14px;
+      gap: 12px;
+    }
+
+    .notification-item-card.unread-notif {
+      border-left: 4px solid var(--ion-color-secondary);
+      background: rgba(var(--ion-color-secondary-rgb), 0.01);
+    }
+
+    .notif-body strong {
+      display: block;
+      font-size: 0.86rem;
+      color: var(--gk-ink);
+    }
+
+    .notif-body p {
+      margin: 2px 0 0 0;
+      font-size: 0.8rem;
+      color: var(--gk-muted);
+      line-height: 1.35;
+    }
+
+    /* Empty states */
+    .empty-state-small,
+    .empty-state-timeline {
+      padding: 20px;
+      text-align: center;
       color: var(--gk-muted);
       font-size: 0.86rem;
     }
 
-    .question-row p,
-    .post-row p,
-    .event-row p {
+    .empty-text-copy {
+      color: var(--gk-muted);
+      font-size: 0.86rem;
       margin: 0;
-      color: var(--ion-color-dark);
-      line-height: 1.55;
+      text-align: center;
     }
 
-    .discussion-panel {
-      display: grid;
-      gap: 12px;
-      border-top: 1px dashed var(--gk-outline);
-      padding-top: 14px;
-    }
-
-    .compact-row {
-      display: grid;
-      gap: 10px;
-      grid-template-columns: minmax(0, 1fr) auto;
-      align-items: center;
-    }
-
-    .compact-row.unread {
-      border-color: rgba(244, 109, 67, 0.42);
-      background: rgba(255, 244, 235, 0.7);
-    }
-
-    .inline-actions,
-    .actions-two,
-    .datetime-grid {
-      display: grid;
-      gap: 10px;
-    }
-
-    .event-row {
-      display: grid;
-      gap: 12px;
-    }
-
-    .reschedule-box {
-      display: grid;
-      gap: 10px;
-      border-top: 1px dashed var(--gk-outline);
-      padding-top: 12px;
-    }
-
-    ion-item {
-      --background: rgba(255, 255, 255, 0.72);
-      --border-radius: 14px;
-      border: 1px solid var(--gk-outline);
-      border-radius: 14px;
-    }
-
-    audio {
-      width: 100%;
-      min-height: 44px;
-    }
-
-    @media (min-width: 768px) {
-      .actions-two,
-      .datetime-grid {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
+    @keyframes gk-pulse {
+      0% {
+        box-shadow: 0 0 0 0 rgba(var(--ion-color-secondary-rgb), 0.4);
+      }
+      70% {
+        box-shadow: 0 0 0 8px rgba(var(--ion-color-secondary-rgb), 0);
+      }
+      100% {
+        box-shadow: 0 0 0 0 rgba(var(--ion-color-secondary-rgb), 0);
       }
     }
   `],
@@ -559,7 +1242,7 @@ export class CommunityPage implements OnInit, OnDestroy {
 
   private peerConnection: RTCPeerConnection | null = null;
   private localStream: MediaStream | null = null;
-  private pollTimer: ReturnType<typeof window.setInterval> | null = null;
+  private pollTimer: any = null;
   private lastSignalAt: string | null = null;
 
   async ngOnInit(): Promise<void> {

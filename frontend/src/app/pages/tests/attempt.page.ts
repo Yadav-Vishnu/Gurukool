@@ -206,7 +206,7 @@ type DraftMap = Record<string, AttemptQuestionResponse>;
   `,
   styles: [`
     .attempt-shell {
-      padding-top: 88px;
+      padding-top: 16px;
     }
 
     .status-strip {
@@ -430,8 +430,8 @@ export class AttemptPage implements OnInit, OnDestroy {
     'guesswork',
   ];
 
-  private timerId: ReturnType<typeof window.setInterval> | null = null;
-  private saveTimeout: ReturnType<typeof window.setTimeout> | null = null;
+  private timerId: any = null;
+  private saveTimeout: any = null;
   private activeQuestionStartedAt = Date.now();
 
   async ngOnInit(): Promise<void> {
