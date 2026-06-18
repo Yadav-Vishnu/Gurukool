@@ -637,7 +637,7 @@ type CatalogFilter = "all" | TestType;
 
               <div
                 class="instructions-accordion"
-                *ngIf="test.instructions?.length"
+                *ngIf="test.instructions.length"
               >
                 <span class="accordion-title">Guidelines:</span>
                 <ul class="accordion-list">
