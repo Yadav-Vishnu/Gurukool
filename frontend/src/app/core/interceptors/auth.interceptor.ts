@@ -6,6 +6,7 @@ import {
   HttpRequest,
 } from '@angular/common/http';
 import { inject } from '@angular/core';
+import { Router } from '@angular/router';
 import { catchError, from, Observable, switchMap, throwError } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { AuthService } from '../services/auth.service';
@@ -40,9 +41,14 @@ const handleUnauthorized = (
   request: HttpRequest<unknown>,
   next: HttpHandlerFn,
   error: HttpErrorResponse,
-  authService: AuthService
+  authService: AuthService,
+  router: Router
 ): Observable<HttpEvent<unknown>> => {
   if (error.status !== 401 || shouldSkipAuth(request) || !authService.currentRefreshToken()) {
+    if (error.status === 401 && !shouldSkipAuth(request)) {
+      void authService.clearSession();
+      void router.navigateByUrl('/auth', { replaceUrl: true });
+    }
     return throwError(() => error);
   }
 
@@ -51,6 +57,8 @@ const handleUnauthorized = (
       const nextToken = authService.currentAccessToken();
 
       if (!refreshed || !nextToken) {
+        void authService.clearSession();
+        void router.navigateByUrl('/auth', { replaceUrl: true });
         return throwError(() => error);
       }
 
@@ -58,6 +66,7 @@ const handleUnauthorized = (
     }),
     catchError((refreshError) => {
       void authService.clearSession();
+      void router.navigateByUrl('/auth', { replaceUrl: true });
       return throwError(() => refreshError);
     })
   );
@@ -68,6 +77,7 @@ export const authInterceptor: HttpInterceptorFn = (
   next: HttpHandlerFn
 ) => {
   const authService = inject(AuthService);
+  const router = inject(Router);
 
   const isApiRequest = request.url.startsWith(environment.apiBaseUrl);
   if (!isApiRequest) {
@@ -80,7 +90,7 @@ export const authInterceptor: HttpInterceptorFn = (
 
   return next(requestWithAuth).pipe(
     catchError((error: HttpErrorResponse) =>
-      handleUnauthorized(request, next, error, authService)
+      handleUnauthorized(request, next, error, authService, router)
     )
   );
 };

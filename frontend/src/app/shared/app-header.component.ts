@@ -141,7 +141,7 @@ import { SessionRecord } from '../core/models/auth.models';
         <main class="settings-main-body">
           <div class="settings-scroll-content">
 
-            <!-- ═══════ SECTION 1: Profile Card ═══════ -->
+            <!-- â•â•â•â•â•â•â• SECTION 1: Profile Card â•â•â•â•â•â•â• -->
             <div class="user-profile-glass-card">
               <div class="user-card-banner">
                 <div class="banner-circle"></div>
@@ -177,7 +177,7 @@ import { SessionRecord } from '../core/models/auth.models';
                     <span class="plan-icon">{{ isPro() ? '👑' : '🎓' }}</span>
                     <span class="plan-text">{{ isPro() ? 'Gurukool Pro' : 'Basic Plan' }}</span>
                   </div>
-                  <button type="button" class="plan-upgrade-action" *ngIf="!isPro()" (click)="activateProNow()">
+                  <button type="button" class="plan-upgrade-action" *ngIf="!isPro()" (click)="openCheckout()">
                     Upgrade to Pro
                   </button>
                   <span class="plan-expiry-text" *ngIf="isPro()">Active ✓</span>
@@ -194,7 +194,7 @@ import { SessionRecord } from '../core/models/auth.models';
               (change)="onAvatarFileSelected($event)"
             />
 
-            <!-- ═══════ SECTION 2: Edit Name ═══════ -->
+            <!-- ── ── ── ── ── ── ── SECTION 2: Edit Name ── ── ── ── ── ── ── -->
             <div class="settings-section">
               <label class="section-label">Student Name</label>
               <ion-item lines="none" class="custom-field">
@@ -205,7 +205,7 @@ import { SessionRecord } from '../core/models/auth.models';
               </ion-item>
             </div>
 
-            <!-- ═══════ SECTION 3: Avatar Motifs ═══════ -->
+            <!-- ── ── ── ── ── ── ── SECTION 3: Avatar Motifs ── ── ── ── ── ── ── -->
             <div class="settings-section">
               <label class="section-label">Avatar Motif</label>
               <div class="avatars-picker-grid">
@@ -228,7 +228,7 @@ import { SessionRecord } from '../core/models/auth.models';
               <span class="preview-label">{{ uploadedFileName() }}</span>
             </div>
 
-            <!-- ═══════ SECTION 4: Appearance ═══════ -->
+            <!-- ── ── ── ── ── ── ── SECTION 4: Appearance ── ── ── ── ── ── ── -->
             <div class="settings-section-divider"></div>
             <div class="settings-section">
               <label class="section-label">Appearance</label>
@@ -292,7 +292,7 @@ import { SessionRecord } from '../core/models/auth.models';
               </div>
             </div>
 
-            <!-- ═══════ SECTION 5: Active Sessions ═══════ -->
+            <!-- ── ── ── ── ── ── ── SECTION 5: Active Sessions ── ── ── ── ── ── ── -->
             <div class="settings-section-divider"></div>
             <div class="settings-section">
               <label class="section-label">Active Devices</label>
@@ -315,7 +315,7 @@ import { SessionRecord } from '../core/models/auth.models';
               </ion-list>
             </div>
 
-            <!-- ═══════ SECTION 6: Actions ═══════ -->
+            <!-- ── ── ── ── ── ── ── SECTION 6: Actions ── ── ── ── ── ── ── -->
             <div class="settings-section-divider"></div>
             <div class="session-actions-footer">
               <ion-button fill="outline" color="medium" size="small" (click)="logoutAll()">
@@ -336,905 +336,79 @@ import { SessionRecord } from '../core/models/auth.models';
           </ion-button>
         </footer>
       </div>
+
+      <!-- Simulated Checkout Modal -->
+      <div class="modal-backdrop" *ngIf="showCheckoutModal()" (click)="closeCheckout(); $event.stopPropagation()">
+        <div class="checkout-modal glass-card" (click)="$event.stopPropagation()">
+          <button class="modal-close-btn" (click)="closeCheckout(); $event.stopPropagation()">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+          
+          <div class="checkout-header">
+            <span class="pro-tag-badge">GURUKOOL PRO PASS</span>
+            <h2>Unlock Lifetime Access</h2>
+            <p>Practice adaptively, analyze your weaknesses, and simulation exam tracks without limits.</p>
+          </div>
+
+          <div class="checkout-body">
+            <div class="price-row">
+              <span class="price-label">Upgrade Fee</span>
+              <span class="price-value">₹999 <small>/ lifetime</small></span>
+            </div>
+
+            <!-- Payment Methods -->
+            <div class="payment-methods-grid">
+              <button class="payment-method-card" [class.active]="selectedPaymentMethod() === 'upi'" (click)="setPaymentMethod('upi'); $event.stopPropagation()">
+                <div class="method-icon">📱</div>
+                <span>UPI (GPay / PhonePe)</span>
+              </button>
+              <button class="payment-method-card" [class.active]="selectedPaymentMethod() === 'card'" (click)="setPaymentMethod('card'); $event.stopPropagation()">
+                <div class="method-icon">💳</div>
+                <span>Credit / Debit Card</span>
+              </button>
+              <button class="payment-method-card" [class.active]="selectedPaymentMethod() === 'net'" (click)="setPaymentMethod('net'); $event.stopPropagation()">
+                <div class="method-icon">🏦</div>
+                <span>Net Banking</span>
+              </button>
+            </div>
+
+            <!-- Simulated UPI inputs or details -->
+            <div class="method-details-panel">
+              <div *ngIf="selectedPaymentMethod() === 'upi'" class="detail-row stack">
+                <label class="input-label">Enter UPI ID</label>
+                <input type="text" value="student@okhdfcbank" class="checkout-input" disabled />
+              </div>
+              <div *ngIf="selectedPaymentMethod() === 'card'" class="detail-row stack">
+                <label class="input-label">Card Number</label>
+                <input type="text" value="•••• •••• •••• 4242" class="checkout-input" disabled />
+              </div>
+              <div *ngIf="selectedPaymentMethod() === 'net'" class="detail-row stack">
+                <label class="input-label">Selected Bank</label>
+                <input type="text" value="State Bank of India (SBI)" class="checkout-input" disabled />
+              </div>
+            </div>
+          </div>
+
+          <div class="checkout-footer">
+            <button 
+              class="btn-checkout-confirm" 
+              [disabled]="isProcessingPayment()"
+              (click)="processCheckout(); $event.stopPropagation()">
+              <span *ngIf="!isProcessingPayment()">Pay ₹999 & Activate Pass</span>
+              <span *ngIf="isProcessingPayment()" class="spinner-row">
+                <span class="checkout-spinner"></span>
+                Processing Secure Payment...
+              </span>
+            </button>
+            <p class="secure-checkout-notice">🔒 256-bit SSL encrypted transaction</p>
+          </div>
+        </div>
+      </div>
     </div>
   `,
-  styles: [`
-    ion-toolbar {
-      --background: #ffffff;
-      --border-width: 0;
-      --min-height: 56px;
-      --padding-start: 16px;
-      --padding-end: 16px;
-      border-bottom: 1px solid rgba(16, 44, 51, 0.08);
-    }
-
-    .logo-link {
-      text-decoration: none;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-
-    .gk-header-icon {
-      width: 32px;
-      height: 32px;
-      transition: transform 300ms cubic-bezier(0.4, 0, 0.2, 1);
-    }
-
-    .logo-link:hover .gk-header-icon {
-      transform: scale(1.1) rotate(6deg);
-    }
-
-    .logo-text {
-      font-family: var(--font-family-heading);
-      font-size: 1.35rem;
-      font-weight: 900;
-      letter-spacing: -0.03em;
-      color: var(--gk-ink);
-    }
-
-    .nav-links {
-      display: flex;
-      align-items: center;
-      gap: 4px;
-      margin: 0 auto;
-      padding: 0 16px;
-    }
-
-    .nav-item {
-      text-decoration: none;
-      padding: 6px 14px;
-      border-radius: 999px;
-      font-size: 0.85rem;
-      font-weight: 600;
-      color: var(--gk-muted);
-      transition: color 200ms ease, background 200ms ease;
-      white-space: nowrap;
-    }
-
-    .nav-item:hover {
-      color: var(--gk-ink);
-      background: rgba(16, 44, 51, 0.05);
-    }
-
-    .nav-item.active {
-      color: var(--ion-color-primary);
-      background: rgba(var(--ion-color-primary-rgb), 0.1);
-      font-weight: 700;
-    }
-
-    ion-button {
-      --border-radius: 999px;
-      font-weight: 700;
-      text-transform: none;
-      letter-spacing: 0;
-    }
-
-    /* ============================== */
-    /* Premium Header Avatar Button   */
-    /* ============================== */
-    .header-avatar-trigger {
-      position: relative;
-      cursor: pointer;
-      margin-left: 8px;
-      padding: 3px;
-      border-radius: 50%;
-      transition: all 250ms cubic-bezier(0.2, 0.8, 0.2, 1);
-    }
-
-    .header-avatar-trigger:hover {
-      transform: scale(1.08);
-    }
-
-    .header-avatar-trigger:active {
-      transform: scale(0.96);
-    }
-
-    .header-avatar-circle {
-      width: 38px;
-      height: 38px;
-      border-radius: 50%;
-      overflow: hidden;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      background: linear-gradient(135deg, var(--ion-color-primary) 0%, var(--ion-color-tertiary) 100%);
-      border: 2.5px solid rgba(255, 255, 255, 0.9);
-      box-shadow: 0 2px 12px rgba(var(--ion-color-primary-rgb), 0.25), 0 0 0 1px rgba(var(--ion-color-primary-rgb), 0.12);
-      transition: box-shadow 250ms ease, border-color 250ms ease;
-    }
-
-    .header-avatar-trigger:hover .header-avatar-circle {
-      box-shadow: 0 4px 18px rgba(var(--ion-color-primary-rgb), 0.35), 0 0 0 2px rgba(var(--ion-color-primary-rgb), 0.2);
-      border-color: var(--ion-color-primary-tint);
-    }
-
-    .header-avatar-img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-    }
-
-    .header-avatar-svg {
-      width: 100%;
-      height: 100%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-
-    .header-avatar-initials {
-      font-size: 0.95rem;
-      font-weight: 850;
-      color: #ffffff;
-      text-transform: uppercase;
-      letter-spacing: -0.03em;
-      line-height: 1;
-    }
-
-    .header-avatar-status-dot {
-      position: absolute;
-      bottom: 2px;
-      right: 2px;
-      width: 10px;
-      height: 10px;
-      border-radius: 50%;
-      background: var(--ion-color-success, #00bfa5);
-      border: 2px solid #ffffff;
-      animation: gk-status-pulse 2.5s infinite;
-    }
-
-    @keyframes gk-status-pulse {
-      0%, 100% { box-shadow: 0 0 0 0 rgba(0, 191, 165, 0.4); }
-      50% { box-shadow: 0 0 0 4px rgba(0, 191, 165, 0); }
-    }
-
-    /* ============================== */
-    /* Settings Modal Panel           */
-    /* ============================== */
-    /* ============================== */
-    /* Settings Modal Panel           */
-    /* ============================== */
-    .settings-modal-backdrop {
-      position: fixed;
-      inset: 0;
-      z-index: 999;
-      background: rgba(10, 15, 30, 0.45);
-      backdrop-filter: blur(12px);
-      opacity: 0;
-      pointer-events: none;
-      transition: opacity 350ms cubic-bezier(0.4, 0, 0.2, 1);
-      display: flex;
-      justify-content: flex-end;
-    }
-
-    .settings-modal-backdrop.open {
-      opacity: 1;
-      pointer-events: auto;
-    }
-
-    .settings-modal-panel {
-      width: min(480px, 100vw);
-      height: 100%;
-      background: rgba(255, 255, 255, 0.85);
-      backdrop-filter: blur(30px);
-      border-radius: 0;
-      border-left: 1px solid rgba(18, 24, 43, 0.08);
-      box-shadow: -15px 0 50px rgba(10, 15, 30, 0.18);
-      display: flex;
-      flex-direction: column;
-      transform: translateX(100%);
-      transition: transform 380ms cubic-bezier(0.16, 1, 0.3, 1);
-      overflow: hidden;
-      margin: 0;
-    }
-
-    .settings-modal-backdrop.open .settings-modal-panel {
-      transform: translateX(0);
-    }
-
-    .settings-header {
-      padding: 24px;
-      border-bottom: 1px solid var(--gk-outline);
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-start;
-      gap: 16px;
-    }
-
-    .header-titles h2 {
-      font-size: 1.35rem;
-      font-weight: 900;
-      letter-spacing: -0.02em;
-      color: var(--gk-ink);
-      margin: 0 0 4px;
-    }
-
-    .header-titles p {
-      margin: 0;
-      font-size: 0.84rem;
-      color: var(--gk-muted);
-    }
-
-    .settings-close-btn {
-      width: 36px;
-      height: 36px;
-      border-radius: 50%;
-      border: 1px solid var(--gk-outline);
-      background: rgba(18, 24, 43, 0.03);
-      color: var(--gk-ink);
-      display: grid;
-      place-items: center;
-      cursor: pointer;
-      transition: all 200ms ease;
-    }
-
-    .settings-close-btn:hover {
-      background: rgba(18, 24, 43, 0.08);
-      transform: scale(1.08) rotate(90deg);
-    }
-
-    .settings-close-btn svg {
-      width: 18px;
-      height: 18px;
-    }
-
-    /* Settings Tabs Navigation - REMOVED (merged into single scroll) */
-    .settings-nav-tabs { display: none; }
-
-    /* Tab main content body */
-    .settings-main-body {
-      flex: 1;
-      overflow-y: auto;
-      padding: 0;
-    }
-
-    .settings-scroll-content {
-      display: flex;
-      flex-direction: column;
-      gap: 18px;
-      padding: 20px;
-      animation: gk-fade 250ms cubic-bezier(0.16, 1, 0.3, 1) both;
-    }
-
-    /* Section styles */
-    .settings-section {
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-    }
-
-    .section-label {
-      font-size: 0.72rem;
-      font-weight: 800;
-      text-transform: uppercase;
-      letter-spacing: 0.08em;
-      color: var(--gk-muted);
-      padding-bottom: 4px;
-    }
-
-    .settings-section-divider {
-      height: 1px;
-      background: var(--gk-outline, rgba(18, 24, 43, 0.08));
-      margin: 4px 0;
-    }
-
-    @keyframes gk-fade {
-      from { opacity: 0; transform: translateY(12px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-
-
-    /* Redesigned Glassmorphic User Profile Card */
-    .user-profile-glass-card {
-      position: relative;
-      background: linear-gradient(135deg, rgba(240, 90, 40, 0.04) 0%, rgba(255, 179, 0, 0.06) 100%);
-      border: 1px solid rgba(240, 90, 40, 0.1);
-      border-radius: 20px;
-      padding: 20px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 16px;
-      overflow: hidden;
-      box-shadow: 0 8px 32px rgba(18, 24, 43, 0.04);
-      margin-bottom: 8px;
-    }
-
-    .user-card-banner {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 60px;
-      background: linear-gradient(90deg, rgba(240, 90, 40, 0.15), rgba(255, 179, 0, 0.15));
-      z-index: 1;
-    }
-
-    .banner-circle {
-      position: absolute;
-      right: -20px;
-      top: -20px;
-      width: 80px;
-      height: 80px;
-      border-radius: 50%;
-      background: var(--ion-color-tertiary);
-      filter: blur(25px);
-      opacity: 0.4;
-    }
-
-    .user-card-avatar-wrapper {
-      position: relative;
-      margin-top: 20px;
-      z-index: 2;
-    }
-
-    .user-card-avatar-circle {
-      width: 84px;
-      height: 84px;
-      border-radius: 50%;
-      overflow: hidden;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      background: linear-gradient(135deg, var(--ion-color-primary) 0%, var(--ion-color-tertiary) 100%);
-      border: 4px solid #ffffff;
-      box-shadow: 0 6px 16px rgba(18, 24, 43, 0.12);
-      transition: all 300ms ease;
-    }
-
-    .user-card-avatar-circle.pro-glow {
-      border-color: #ffd700;
-      box-shadow: 0 0 20px rgba(255, 179, 0, 0.4), 0 6px 16px rgba(18, 24, 43, 0.15);
-    }
-
-    .user-card-avatar-wrapper:hover .user-card-avatar-circle {
-      transform: scale(1.03);
-    }
-
-    .card-avatar-img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-    }
-
-    .card-avatar-svg {
-      width: 100%;
-      height: 100%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-
-    .card-avatar-initials {
-      font-size: 2.2rem;
-      font-weight: 900;
-      color: #ffffff;
-      text-transform: uppercase;
-      letter-spacing: -0.02em;
-    }
-
-    .avatar-edit-overlay {
-      position: absolute;
-      inset: 4px;
-      border-radius: 50%;
-      background: rgba(0, 0, 0, 0.5);
-      color: #ffffff;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      cursor: pointer;
-      opacity: 0;
-      transition: opacity 250ms ease;
-      z-index: 3;
-    }
-
-    .user-card-avatar-wrapper:hover .avatar-edit-overlay {
-      opacity: 1;
-    }
-
-    .camera-icon {
-      width: 24px;
-      height: 24px;
-      transform: scale(0.8);
-      transition: transform 250ms cubic-bezier(0.175, 0.885, 0.32, 1.275);
-    }
-
-    .user-card-avatar-wrapper:hover .camera-icon {
-      transform: scale(1);
-    }
-
-    .avatar-card-status-dot {
-      position: absolute;
-      bottom: 2px;
-      right: 4px;
-      width: 14px;
-      height: 14px;
-      border-radius: 50%;
-      background: var(--ion-color-success, #00bfa5);
-      border: 3px solid #ffffff;
-      z-index: 4;
-      animation: gk-status-pulse 2s infinite;
-    }
-
-    .user-card-details {
-      width: 100%;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 4px;
-      text-align: center;
-      z-index: 2;
-    }
-
-    .user-card-name {
-      font-size: 1.15rem;
-      font-weight: 850;
-      color: var(--gk-ink);
-      margin: 0;
-    }
-
-    .user-card-email {
-      font-size: 0.82rem;
-      color: var(--gk-muted);
-      margin: 0 0 10px;
-    }
-
-    /* Plan status container */
-    .user-card-plan-box {
-      width: 100%;
-      background: rgba(18, 24, 43, 0.04);
-      border: 1px solid var(--gk-outline);
-      border-radius: 14px;
-      padding: 10px 14px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 12px;
-      transition: all 250ms ease;
-    }
-
-    .user-card-plan-box.pro {
-      background: linear-gradient(135deg, rgba(255, 179, 0, 0.12) 0%, rgba(240, 90, 40, 0.08) 100%);
-      border-color: rgba(255, 179, 0, 0.28);
-      box-shadow: 0 4px 12px rgba(255, 179, 0, 0.06);
-    }
-
-    .plan-badge-container {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-    }
-
-    .plan-icon {
-      font-size: 1rem;
-      display: inline-block;
-    }
-
-    .plan-text {
-      font-size: 0.82rem;
-      font-weight: 800;
-      color: var(--gk-ink);
-    }
-
-    .user-card-plan-box.pro .plan-text {
-      color: #b37d00;
-    }
-
-    .plan-upgrade-action {
-      background: linear-gradient(135deg, var(--ion-color-primary) 0%, var(--ion-color-tertiary) 100%);
-      color: #ffffff;
-      border: none;
-      padding: 6px 12px;
-      border-radius: 80px;
-      font-size: 0.76rem;
-      font-weight: 800;
-      cursor: pointer;
-      box-shadow: 0 3px 8px rgba(240, 90, 40, 0.25);
-      transition: all 200ms ease;
-    }
-
-    .plan-upgrade-action:hover {
-      transform: translateY(-1px);
-      box-shadow: 0 5px 12px rgba(240, 90, 40, 0.35);
-    }
-
-    .plan-upgrade-action:active {
-      transform: translateY(1px);
-    }
-
-    .plan-expiry-text {
-      font-size: 0.72rem;
-      font-weight: 700;
-      color: #00796b;
-      background: rgba(0, 191, 165, 0.12);
-      padding: 4px 10px;
-      border-radius: 80px;
-    }
-
-    /* Inputs styling */
-    .input-container {
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
-    }
-
-    .input-label {
-      font-size: 0.8rem;
-      font-weight: 800;
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-      color: var(--gk-muted);
-    }
-
-    .custom-field {
-      --background: #ffffff;
-      --border-radius: 12px;
-      border: 1px solid var(--gk-outline);
-      border-radius: 12px;
-      transition: all 200ms ease;
-    }
-
-    .custom-field:focus-within {
-      border-color: var(--ion-color-primary);
-      box-shadow: 0 0 0 3px rgba(var(--ion-color-primary-rgb), 0.15);
-    }
-
-    /* Predefined Avatars Gallery */
-    .predefined-avatars-section {
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-      margin-top: 8px;
-    }
-
-    .avatars-picker-grid {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 10px;
-    }
-
-    .avatar-picker-tile {
-      border: 1px solid var(--gk-outline);
-      border-radius: 16px;
-      padding: 10px 6px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 6px;
-      cursor: pointer;
-      background: #ffffff;
-      transition: all 250ms cubic-bezier(0.2, 0.8, 0.2, 1);
-    }
-
-    .avatar-picker-tile:hover {
-      transform: translateY(-2px);
-      border-color: var(--gk-outline-strong);
-      box-shadow: var(--gk-shadow-soft);
-    }
-
-    .avatar-picker-tile.selected {
-      border-color: var(--ion-color-primary);
-      background: rgba(var(--ion-color-primary-rgb), 0.03);
-      box-shadow: 0 0 0 3px rgba(var(--ion-color-primary-rgb), 0.12);
-    }
-
-    .picker-svg-holder {
-      width: 44px;
-      height: 44px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      border-radius: 50%;
-      overflow: hidden;
-    }
-
-    .picker-label {
-      font-size: 0.68rem;
-      font-weight: 700;
-      color: var(--gk-muted);
-      text-align: center;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      width: 100%;
-    }
-
-    .avatar-picker-tile.selected .picker-label {
-      color: var(--ion-color-primary-shade);
-    }
-
-    /* Hidden file input */
-    .hidden-avatar-file-input {
-      display: none;
-    }
-
-    .custom-avatar-file-label {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
-      border: 1px dashed var(--gk-outline-strong);
-      border-radius: 12px;
-      padding: 12px;
-      background: rgba(18, 24, 43, 0.02);
-      cursor: pointer;
-      transition: all 150ms ease;
-      color: var(--gk-muted);
-      font-size: 0.86rem;
-      font-weight: 700;
-    }
-
-    .custom-avatar-file-label:hover {
-      border-color: var(--ion-color-primary);
-      background: rgba(var(--ion-color-primary-rgb), 0.02);
-      color: var(--ion-color-primary-shade);
-    }
-
-    .upload-icon-svg {
-      width: 18px;
-      height: 18px;
-    }
-
-    /* Preview avatar image */
-    .avatar-upload-preview-box {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      padding: 10px;
-      border: 1px solid var(--gk-outline);
-      border-radius: 12px;
-      background: rgba(18, 24, 43, 0.01);
-    }
-
-    .preview-label {
-      font-size: 0.8rem;
-      font-weight: 700;
-      color: var(--gk-muted);
-    }
-
-    .preview-avatar-circle {
-      width: 44px;
-      height: 44px;
-      border-radius: 50%;
-      overflow: hidden;
-      border: 2px solid var(--ion-color-primary);
-    }
-
-    .preview-avatar-circle img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-    }
-
-    /* Save profile details btn / footer */
-    .settings-panel-footer {
-      padding: 16px 24px;
-      border-top: 1px solid var(--gk-outline);
-      background: #ffffff;
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-      z-index: 10;
-    }
-
-    .save-profile-btn {
-      margin: 0;
-      font-weight: 700;
-    }
-
-    /* Theme Option Tiles */
-    .theme-selection-grid {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 12px;
-    }
-
-    .theme-tile-option {
-      border: 1px solid var(--gk-outline);
-      border-radius: 16px;
-      padding: 12px;
-      cursor: pointer;
-      background: #ffffff;
-      transition: all 250ms cubic-bezier(0.2, 0.8, 0.2, 1);
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
-    }
-
-    .theme-tile-option:hover {
-      border-color: var(--gk-outline-strong);
-      transform: translateY(-2px);
-      box-shadow: var(--gk-shadow-soft);
-    }
-
-    .theme-tile-option.active {
-      border-color: var(--ion-color-primary);
-      background: rgba(var(--ion-color-primary-rgb), 0.02);
-      box-shadow: 0 0 0 3px rgba(var(--ion-color-primary-rgb), 0.12);
-    }
-
-    .theme-visual-box {
-      height: 48px;
-      border-radius: 10px;
-      background: #f7f9fc;
-      border: 1px solid var(--gk-outline);
-      margin-bottom: 4px;
-      display: flex;
-      align-items: center;
-      padding-left: 12px;
-      overflow: hidden;
-    }
-
-    .dark-opt .theme-visual-box {
-      background: #0f172a;
-    }
-
-    .saffron-opt .theme-visual-box {
-      background: #fffcf4;
-      border-color: rgba(240, 90, 40, 0.15);
-    }
-
-    .forest-opt .theme-visual-box {
-      background: #0b2219;
-      border-color: rgba(16, 185, 129, 0.15);
-    }
-
-    .ocean-opt .theme-visual-box {
-      background: #081124;
-      border-color: rgba(20, 184, 166, 0.15);
-    }
-
-    .visual-dots {
-      display: flex;
-      gap: 6px;
-      align-items: center;
-      width: 100%;
-    }
-
-    .vis-dot {
-      width: 10px;
-      height: 10px;
-      border-radius: 50%;
-      border: 1px solid rgba(255, 255, 255, 0.1);
-    }
-
-    .vis-dot.orange { background: #f05a28; }
-    .vis-dot.green { background: #00796b; }
-    .vis-dot.white { background: #ffffff; }
-    .vis-dot.primary { background: #f05a28; }
-    .vis-dot.gold { background: #ffb300; }
-    .vis-dot.tertiary { background: #ffb300; }
-    
-    .vis-dot.forest-primary { background: #10b981; }
-    .vis-dot.forest-secondary { background: #86efac; }
-    .vis-dot.ocean-primary { background: #14b8a6; }
-    .vis-dot.ocean-secondary { background: #38bdf8; }
-
-    .vis-dot.bg-light-preview { background: #f8fafc; border-color: rgba(0,0,0,0.1); }
-    .vis-dot.bg-dark-preview { background: #1e293b; }
-    .vis-dot.bg-saffron-preview { background: #fffcf4; border-color: rgba(240, 90, 40, 0.15); }
-    .vis-dot.bg-forest-preview { background: #143527; }
-    .vis-dot.bg-ocean-preview { background: #0c1a36; }
-
-    .theme-tile-option strong {
-      font-size: 0.86rem;
-      font-weight: 800;
-      color: var(--gk-ink);
-    }
-
-    .theme-tile-option p {
-      margin: 0;
-      font-size: 0.72rem;
-      line-height: 1.35;
-      color: var(--gk-muted);
-    }
-
-    /* Security list snapshots */
-    .profile-snapshot-innerstack {
-      background: rgba(18, 24, 43, 0.02);
-      border: 1px solid var(--gk-outline);
-      border-radius: 16px;
-      padding: 16px;
-    }
-
-    .stack {
-      display: flex;
-      flex-direction: column;
-      gap: var(--space-md, 16px);
-    }
-
-    .profile-info-row {
-      display: flex;
-      justify-content: space-between;
-      padding: 10px 4px;
-      border-bottom: 1px solid var(--gk-outline);
-    }
-
-    .profile-info-row:last-child {
-      border-bottom: none;
-    }
-
-    .info-label {
-      font-size: 0.84rem;
-      color: var(--gk-muted);
-    }
-
-    .info-value {
-      font-size: 0.88rem;
-      color: var(--gk-ink);
-      font-weight: 750;
-    }
-
-    /* Sessions in panel */
-    .session-list {
-      background: transparent;
-      padding: 0;
-    }
-
-    .session-item {
-      --background: #ffffff;
-      --border-radius: 16px;
-      margin-bottom: 10px;
-      border: 1px solid var(--gk-outline);
-      box-shadow: var(--gk-shadow-soft);
-    }
-
-    .session-device-icon {
-      width: 36px;
-      height: 36px;
-      border-radius: 10px;
-      background: rgba(var(--ion-color-dark-rgb), 0.04);
-      color: var(--gk-ink);
-      display: grid;
-      place-items: center;
-    }
-
-    .icon-device {
-      width: 18px;
-      height: 18px;
-    }
-
-    .device-title {
-      font-size: 0.88rem;
-      font-weight: 750;
-      margin: 0;
-    }
-
-    .device-browser {
-      font-size: 0.76rem;
-      color: var(--gk-muted);
-      margin: 1px 0 0;
-    }
-
-    .device-time {
-      font-size: 0.72rem;
-      color: var(--gk-muted);
-      margin: 1px 0 0;
-    }
-
-    .active-badge {
-      font-weight: 700;
-      font-size: 0.7rem;
-    }
-
-    .session-actions-footer {
-      display: flex;
-      gap: 12px;
-      margin-top: 20px;
-    }
-
-    .session-actions-footer ion-button {
-      flex: 1;
-      margin: 0;
-    }
-
-    @media (max-width: 767px) {
-      .nav-links {
-        display: none;
-      }
-    }
-  `],
+  styleUrls: ['./app-header.component.scss'],
 })
 export class AppHeaderComponent implements OnInit {
   readonly authService = inject(AuthService);
@@ -1248,6 +422,11 @@ export class AppHeaderComponent implements OnInit {
   readonly currentTheme = signal<'light' | 'dark' | 'saffron' | 'forest' | 'ocean'>('light');
   readonly errorMessage = signal<string | null>(null);
   readonly isPro = signal(false);
+
+  // Checkout Signals
+  readonly showCheckoutModal = signal(false);
+  readonly selectedPaymentMethod = signal<'upi' | 'card' | 'net'>('upi');
+  readonly isProcessingPayment = signal(false);
 
   // Input bindings
   nameInput = signal('');
@@ -1422,6 +601,7 @@ export class AppHeaderComponent implements OnInit {
       this.currentTheme.set(savedTheme);
       this.applyThemeClass(savedTheme);
     }
+    this.isPro.set(localStorage.getItem('gk_pro_active') === 'true');
   }
 
   isActive(path: string): boolean {
@@ -1496,9 +676,25 @@ export class AppHeaderComponent implements OnInit {
     this.settingsOpen.set(false);
   }
 
-  activateProNow(): void {
+  openCheckout(): void {
+    this.showCheckoutModal.set(true);
+  }
+
+  closeCheckout(): void {
+    this.showCheckoutModal.set(false);
+  }
+
+  setPaymentMethod(method: 'upi' | 'card' | 'net'): void {
+    this.selectedPaymentMethod.set(method);
+  }
+
+  async processCheckout(): Promise<void> {
+    this.isProcessingPayment.set(true);
+    await new Promise((resolve) => setTimeout(resolve, 1500));
     localStorage.setItem('gk_pro_active', 'true');
     this.isPro.set(true);
+    this.isProcessingPayment.set(false);
+    this.showCheckoutModal.set(false);
   }
 
   selectPredefinedAvatar(id: string): void {

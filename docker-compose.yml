@@ -54,6 +54,8 @@ services:
       REDIS_HOST: redis
       REDIS_PORT: 6379
       REDIS_PASSWORD: gurukool_redis_2025
+      FRONTEND_URL: http://localhost:4200
+    command: sh -c "node dist/scripts/migrate.js && node dist/scripts/seed.js && node dist/app.js"
     depends_on:
       - postgres
       - redis

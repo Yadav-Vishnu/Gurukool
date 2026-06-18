@@ -63,8 +63,11 @@ export class AuthService {
       );
       return response.message;
     } catch (error) {
-      console.warn('Backend offline, using mock OTP sending');
-      return 'OTP sent successfully (Demo Mode: Enter any 6-digit code to log in)';
+      if (error instanceof HttpErrorResponse && error.status === 0) {
+        console.warn('Backend offline, using mock OTP sending');
+        return 'OTP sent successfully (Demo Mode: Enter any 6-digit code to log in)';
+      }
+      throw error;
     }
   }
 
@@ -85,25 +88,30 @@ export class AuthService {
       await this.persistSession(payload.tokens, payload.user);
       await this.loadSessions();
     } catch (error) {
-      console.warn('Backend offline, bypass verification with mock session');
-      const mockUser: UserProfile = {
-        id: 'mock-user-123',
-        email: 'satyakama.jabala@gurukool.edu',
-        phone: phone,
-        full_name: 'Satyakama Jabala',
-        avatar_url: null,
-        auth_provider: 'phone',
-        is_verified: true,
-        is_active: true,
-        role: 'student',
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString()
-      };
-      const mockTokens: TokenPair = {
-        accessToken: 'mock-access-token',
-        refreshToken: 'mock-refresh-token'
-      };
-      await this.persistSession(mockTokens, mockUser);
+      if (error instanceof HttpErrorResponse && error.status === 0) {
+        console.warn('Backend offline, bypass verification with mock session');
+        const mockUser: UserProfile = {
+          id: 'mock-user-123',
+          email: 'satyakama.jabala@gurukool.edu',
+          phone: phone,
+          full_name: 'Satyakama Jabala',
+          avatar_url: null,
+          auth_provider: 'phone',
+          is_verified: true,
+          is_active: true,
+          role: 'student',
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString()
+        };
+        const mockTokens: TokenPair = {
+          accessToken: 'mock-access-token',
+          refreshToken: 'mock-refresh-token'
+        };
+        await this.persistSession(mockTokens, mockUser);
+      } else {
+        await this.clearSession();
+        throw error;
+      }
     }
   }
 
@@ -144,8 +152,13 @@ export class AuthService {
       return;
     }
 
-    await this.persistSession({ accessToken, refreshToken });
-    await this.loadSessions();
+    try {
+      await this.persistSession({ accessToken, refreshToken });
+      await this.loadSessions();
+    } catch (error) {
+      await this.clearSession();
+      throw error;
+    }
   }
 
   async refreshSession(): Promise<boolean> {
