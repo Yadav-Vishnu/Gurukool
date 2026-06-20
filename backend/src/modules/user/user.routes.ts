@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import { getMyProfile, updateMyProfile, deactivateMyAccount } from './user.controller';
 import { authMiddleware } from '../auth/auth.middleware';
+import { validate, updateProfileSchema } from './user.validators';
 
 /**
  * User Routes
@@ -12,7 +13,7 @@ const router = Router();
 router.use(authMiddleware);
 
 router.get('/me', getMyProfile);
-router.put('/me', updateMyProfile);
+router.put('/me', validate(updateProfileSchema), updateMyProfile);
 router.delete('/me', deactivateMyAccount);
 
 export default router;

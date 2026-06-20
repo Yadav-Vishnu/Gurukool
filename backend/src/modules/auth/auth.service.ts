@@ -147,20 +147,30 @@ export class AuthService {
   }
 
   // ============================================================
-  // Google OAuth Flow
+  // OAuth Flow (Google, GitHub, LinkedIn)
   // ============================================================
 
   /**
-   * Process Google OAuth callback.
-   * Called by Passport after successful Google authentication.
-   * The user object is already created/found by passport.ts strategy.
+   * Process OAuth callback.
+   * Called by Passport after successful OAuth authentication.
+   * The user object is already created/found by strategy.
    */
-  async processGoogleAuth(
+  async processOAuthAuth(
     user: User,
     deviceInfo: DeviceInfo
   ): Promise<{ user: User; tokens: TokenPair }> {
     const tokens = await this.createAuthSession(user, deviceInfo);
     return { user, tokens };
+  }
+
+  /**
+   * Keep compatibility for any existing code calling processGoogleAuth.
+   */
+  async processGoogleAuth(
+    user: User,
+    deviceInfo: DeviceInfo
+  ): Promise<{ user: User; tokens: TokenPair }> {
+    return this.processOAuthAuth(user, deviceInfo);
   }
 
   // ============================================================

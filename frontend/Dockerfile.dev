@@ -1,0 +1,19 @@
+FROM node:22-alpine
+
+# Set development environment
+ENV NODE_ENV=development
+
+WORKDIR /app
+
+# Install dependencies including devDependencies (Angular CLI, builder, etc.)
+COPY package*.json ./
+RUN npm install
+
+# Copy application source files
+COPY . .
+
+# Expose Angular development server port
+EXPOSE 4200
+
+# Start hot-reload server with binding and polling enabled for Windows file sharing compatibility
+CMD ["npx", "ng", "serve", "--host", "0.0.0.0", "--poll", "2000"]

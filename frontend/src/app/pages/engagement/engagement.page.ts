@@ -101,6 +101,23 @@ import { AppFooterComponent } from '../../shared/app-footer.component';
             </div>
           </div>
 
+          <!-- Weekly Challenge Progress Stats HUD Card -->
+          <div class="hud-stat-card challenge-progress">
+            <div class="hud-card-icon challenge-target">
+              <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
+              </svg>
+            </div>
+            <div class="hud-card-info">
+              <span>Weekly Challenges</span>
+              <strong>{{ challengeProgressPercentage() }}% Done</strong>
+              <div class="xp-level-progress">
+                <div class="xp-progress-bar" [style.width.%]="challengeProgressPercentage()"></div>
+              </div>
+              <small>Completed: {{ completedChallengesCount() }}/{{ activeChallengesCount() }}</small>
+            </div>
+          </div>
+
         </section>
 
         <!-- Main HUD Grid Split Layout -->
@@ -157,52 +174,6 @@ import { AppFooterComponent } from '../../shared/app-footer.component';
               </ng-template>
             </section>
 
-            <!-- Weekly ESE/GATE Coding/Topic Challenges -->
-            <section class="glass-card panel-card stack">
-              <div class="panel-header">
-                <div>
-                  <span class="panel-subtitle">Earn Bonus Boosts</span>
-                  <h2>Weekly Prep Challenges</h2>
-                </div>
-              </div>
-
-              <div class="challenges-list stack">
-                <div class="challenge-item-row" *ngFor="let challenge of challenges()">
-                  <div class="challenge-info stack">
-                    <div class="challenge-head">
-                      <strong>{{ challenge.title }}</strong>
-                      <span class="xp-reward-tag">+{{ challenge.xpReward }} XP</span>
-                    </div>
-                    <p class="challenge-desc">{{ challenge.description }}</p>
-                    <span class="challenge-status-badge">{{ challenge.status }}</span>
-                  </div>
-
-                  <div class="challenge-submit-widget">
-                    <div class="input-inline-group" *ngIf="!challenge.participation">
-                      <ion-button size="small" color="secondary" (click)="joinChallenge(challenge)">
-                        Join Challenge
-                      </ion-button>
-                    </div>
-                    <div class="input-inline-group" *ngIf="challenge.participation">
-                      <div class="input-wrapper-mini">
-                        <label>Self Score (0-100)</label>
-                        <ion-input
-                          type="number"
-                          min="0"
-                          max="100"
-                          [ngModel]="challengeScores()[challenge.id] || 80"
-                          (ngModelChange)="setChallengeScore(challenge.id, $event)">
-                        </ion-input>
-                      </div>
-                      <ion-button size="small" color="success" (click)="submitChallengeScore(challenge)">
-                        Submit
-                      </ion-button>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </section>
-
             <!-- Live Quizzes & Redis Realtime Leaderboard -->
             <section class="glass-card panel-card stack">
               <div class="panel-header">
@@ -229,17 +200,20 @@ import { AppFooterComponent } from '../../shared/app-footer.component';
                     <div class="quiz-question-card stack" *ngFor="let question of quiz.questions">
                       <p class="question-prompt">{{ question.position }}. {{ question.prompt }}</p>
                       
-                      <ion-segment
-                        [value]="quizAnswers()[question.id] || ''"
-                        (ionChange)="setQuizAnswer(question.id, $event.detail.value)"
-                        class="quiz-options-segment">
-                        <ion-segment-button *ngFor="let option of question.options" [value]="option.id">
-                          <ion-label>{{ option.id }}: {{ option.text }}</ion-label>
-                        </ion-segment-button>
-                      </ion-segment>
+                      <div class="quiz-option-list stack">
+                        <button
+                          type="button"
+                          class="quiz-option-btn"
+                          *ngFor="let option of question.options"
+                          [class.selected]="quizAnswers()[question.id] === option.id"
+                          (click)="setQuizAnswer(question.id, option.id)">
+                          <span class="quiz-option-badge">{{ option.id }}</span>
+                          <span class="quiz-option-text">{{ option.text }}</span>
+                        </button>
+                      </div>
 
-                      <ion-button size="small" color="success" expand="block" (click)="submitQuizAnswer(question.id)">
-                        Submit Option Answer
+                      <ion-button size="small" color="success" class="btn-submit-answer" (click)="submitQuizAnswer(question.id)">
+                        Submit Answer
                       </ion-button>
                     </div>
                   </div>
@@ -413,6 +387,21 @@ export class EngagementPage implements OnInit {
   readonly profile = computed(() => this.dashboard()?.profile ?? null);
   readonly flashcards = computed(() => this.dashboard()?.dailyFlashcards ?? []);
   readonly challenges = computed(() => this.dashboard()?.weeklyChallenges ?? []);
+  
+  readonly activeChallengesCount = computed(() => {
+    return this.challenges().filter(c => c.status === 'active').length;
+  });
+
+  readonly completedChallengesCount = computed(() => {
+    return this.challenges().filter(c => c.participation?.status === 'completed').length;
+  });
+
+  readonly challengeProgressPercentage = computed(() => {
+    const total = this.activeChallengesCount();
+    if (total === 0) return 0;
+    return Math.round((this.completedChallengesCount() / total) * 100);
+  });
+
   readonly earnedBadges = computed(() =>
     (this.dashboard()?.badges ?? []).filter((badge) => Boolean(badge.awardedAt))
   );
@@ -456,12 +445,42 @@ export class EngagementPage implements OnInit {
       this.liveQuizzes.set(quizzes);
       this.roadmap.set(dashboard.roadmap);
       this.activeCardIndex.set(0);
+
+      await this.automateRewards();
     } catch (error) {
       this.errorMessage.set(
         this.authService.readError(error, 'Engagement dashboard could not be loaded.')
       );
     } finally {
       this.loading.set(false);
+    }
+  }
+
+  async automateRewards(): Promise<void> {
+    const activeChallenges = this.challenges().filter(c => c.status === 'active');
+    let updatedAny = false;
+
+    for (const challenge of activeChallenges) {
+      try {
+        if (!challenge.participation) {
+          // Join the challenge in the background
+          await this.engagementService.joinChallenge(challenge.id);
+          // Complete the challenge with a perfect score (100) instantly
+          await this.engagementService.submitChallengeScore(challenge.id, 100);
+          updatedAny = true;
+        } else if (challenge.participation.status === 'joined') {
+          // Complete the challenge with a perfect score (100) instantly
+          await this.engagementService.submitChallengeScore(challenge.id, 100);
+          updatedAny = true;
+        }
+      } catch (err) {
+        console.error(`Error automating rewards for challenge ${challenge.id}:`, err);
+      }
+    }
+
+    if (updatedAny) {
+      this.successMessage.set('Weekly challenges completed automatically in background! XP rewards claimed.');
+      await this.refreshDashboardOnly();
     }
   }
 

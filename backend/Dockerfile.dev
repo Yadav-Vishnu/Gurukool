@@ -1,0 +1,19 @@
+FROM node:22-alpine
+
+# Set development environment
+ENV NODE_ENV=development
+
+WORKDIR /app
+
+# Install development dependencies first to leverage Docker cache
+COPY package*.json ./
+RUN npm install
+
+# Copy application source files
+COPY . .
+
+# Expose backend API port
+EXPOSE 3000
+
+# Start watcher using nodemon
+CMD ["npm", "run", "dev"]

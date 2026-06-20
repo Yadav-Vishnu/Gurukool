@@ -612,6 +612,15 @@ import { AppFooterComponent } from '../../shared/app-footer.component';
         max-width: 260px !important;
         align-self: center !important;
       }
+      .premium-banner-card {
+        grid-template-columns: 1fr;
+        text-align: center;
+        justify-items: center;
+        gap: 16px;
+      }
+      .banner-btn {
+        width: 100%;
+      }
     }
 
     @keyframes gk-pulse {

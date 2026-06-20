@@ -37,6 +37,20 @@ export class UserService {
   }
 
   /**
+   * Find a user by GitHub ID.
+   */
+  async findByGithubId(githubId: string): Promise<User | null> {
+    return UserModel.findByGithubId(githubId);
+  }
+
+  /**
+   * Find a user by LinkedIn ID.
+   */
+  async findByLinkedinId(linkedinId: string): Promise<User | null> {
+    return UserModel.findByLinkedinId(linkedinId);
+  }
+
+  /**
    * Create a new user.
    */
   async createUser(data: CreateUserDTO): Promise<User> {
@@ -55,11 +69,41 @@ export class UserService {
   }
 
   /**
+   * Link a GitHub account to an existing user.
+   */
+  async linkGithubAccount(
+    userId: string,
+    githubId: string,
+    avatarUrl: string | null
+  ): Promise<User> {
+    return UserModel.linkGithubAccount(userId, githubId, avatarUrl);
+  }
+
+  /**
+   * Link a LinkedIn account to an existing user.
+   */
+  async linkLinkedinAccount(
+    userId: string,
+    linkedinId: string,
+    avatarUrl: string | null
+  ): Promise<User> {
+    return UserModel.linkLinkedinAccount(userId, linkedinId, avatarUrl);
+  }
+
+  /**
    * Update user profile information.
    */
   async updateProfile(
     userId: string,
-    updates: { fullName?: string; avatarUrl?: string; phone?: string }
+    updates: {
+      fullName?: string;
+      avatarUrl?: string;
+      phone?: string;
+      profileCompleted?: boolean;
+      theme?: 'light' | 'dark' | 'saffron';
+      sidebarCollapsed?: boolean;
+      notificationsEnabled?: boolean;
+    }
   ): Promise<User> {
     return UserModel.updateProfile(userId, updates);
   }

@@ -7,11 +7,30 @@
 // User Types
 // ============================================================
 
-export type AuthProvider = 'google' | 'phone';
+export type AuthProvider = 'google' | 'phone' | 'linkedin' | 'github';
 export type UserRole = 'student' | 'admin' | 'moderator';
 export type TestType = 'topic' | 'subject' | 'full_length';
 export type AttemptStatus = 'in_progress' | 'submitted';
 export type ExamCode = 'GATE' | 'PSU' | 'ESE';
+
+export interface UserProfile {
+  id: string;
+  user_id: string;
+  name: string;
+  avatar: string | null;
+  created_at: Date;
+  updated_at: Date;
+}
+
+export interface WorkspaceSettings {
+  id: string;
+  user_id: string;
+  theme: 'light' | 'dark' | 'saffron';
+  sidebar_collapsed: boolean;
+  notifications_enabled: boolean;
+  created_at: Date;
+  updated_at: Date;
+}
 
 export interface AppUser {
   id: string;
@@ -21,11 +40,16 @@ export interface AppUser {
   avatar_url: string | null;
   auth_provider: AuthProvider;
   google_id: string | null;
+  github_id: string | null;
+  linkedin_id: string | null;
+  profile_completed: boolean;
   is_verified: boolean;
   is_active: boolean;
   role: UserRole;
   created_at: Date;
   updated_at: Date;
+  profile?: UserProfile;
+  workspaceSettings?: WorkspaceSettings;
 }
 
 export type User = AppUser;
@@ -36,6 +60,8 @@ export interface CreateUserDTO {
   fullName: string;
   avatarUrl?: string | null;
   googleId?: string;
+  githubId?: string;
+  linkedinId?: string;
   authProvider: AuthProvider;
   isVerified?: boolean;
 }

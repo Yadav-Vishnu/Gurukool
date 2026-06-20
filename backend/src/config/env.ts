@@ -34,6 +34,16 @@ const envSchema = z.object({
   GOOGLE_CLIENT_SECRET: z.string().default('placeholder-client-secret'),
   GOOGLE_CALLBACK_URL: z.string().default('http://localhost:3000/api/auth/google/callback'),
 
+  // GitHub OAuth 2.0
+  GITHUB_CLIENT_ID: z.string().default('placeholder-github-id'),
+  GITHUB_CLIENT_SECRET: z.string().default('placeholder-github-secret'),
+  GITHUB_CALLBACK_URL: z.string().default('http://localhost:3000/api/auth/github/callback'),
+
+  // LinkedIn OAuth 2.0
+  LINKEDIN_CLIENT_ID: z.string().default('placeholder-linkedin-id'),
+  LINKEDIN_CLIENT_SECRET: z.string().default('placeholder-linkedin-secret'),
+  LINKEDIN_CALLBACK_URL: z.string().default('http://localhost:3000/api/auth/linkedin/callback'),
+
   // SMS Provider
   SMS_API_KEY: z.string().default('placeholder-sms-key'),
   SMS_SENDER_ID: z.string().optional().default('GURKOL'),

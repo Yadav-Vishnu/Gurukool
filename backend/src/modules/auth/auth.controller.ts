@@ -48,7 +48,7 @@ export const verifyOTPLogin = asyncHandler(async (req: Request, res: Response) =
   const result = await authService.verifyOTPAndLogin(phone, otp, deviceInfo);
 
   // Don't expose sensitive user fields
-  const { google_id, ...safeUser } = result.user;
+  const { google_id, github_id, linkedin_id, ...safeUser } = result.user as any;
 
   sendSuccess(res, 'Login successful', {
     user: safeUser,
@@ -77,9 +77,49 @@ export const googleCallback = asyncHandler(async (req: Request, res: Response) =
   }
 
   const deviceInfo = getDeviceInfo(req);
-  const result = await authService.processGoogleAuth(req.user, deviceInfo);
+  const result = await authService.processOAuthAuth(req.user, deviceInfo);
 
   // Redirect to frontend with tokens in URL hash (not query params for security)
+  const redirectUrl = `${env.FRONTEND_URL}/auth/oauth-callback#access_token=${result.tokens.accessToken}&refresh_token=${result.tokens.refreshToken}`;
+  res.redirect(redirectUrl);
+});
+
+// ============================================================
+// GitHub OAuth Endpoints
+// ============================================================
+
+/**
+ * GET /api/auth/github/callback
+ * GitHub redirects here after user authorization.
+ */
+export const githubCallback = asyncHandler(async (req: Request, res: Response) => {
+  if (!req.user) {
+    return sendUnauthorized(res, 'GitHub authentication failed');
+  }
+
+  const deviceInfo = getDeviceInfo(req);
+  const result = await authService.processOAuthAuth(req.user, deviceInfo);
+
+  const redirectUrl = `${env.FRONTEND_URL}/auth/oauth-callback#access_token=${result.tokens.accessToken}&refresh_token=${result.tokens.refreshToken}`;
+  res.redirect(redirectUrl);
+});
+
+// ============================================================
+// LinkedIn OAuth Endpoints
+// ============================================================
+
+/**
+ * GET /api/auth/linkedin/callback
+ * LinkedIn redirects here after user authorization.
+ */
+export const linkedinCallback = asyncHandler(async (req: Request, res: Response) => {
+  if (!req.user) {
+    return sendUnauthorized(res, 'LinkedIn authentication failed');
+  }
+
+  const deviceInfo = getDeviceInfo(req);
+  const result = await authService.processOAuthAuth(req.user, deviceInfo);
+
   const redirectUrl = `${env.FRONTEND_URL}/auth/oauth-callback#access_token=${result.tokens.accessToken}&refresh_token=${result.tokens.refreshToken}`;
   res.redirect(redirectUrl);
 });

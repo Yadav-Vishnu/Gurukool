@@ -11,6 +11,7 @@ import { AnalyticsPage } from './pages/tests/analytics.page';
 import { BooksPage } from './pages/books/books.page';
 import { CommunityPage } from './pages/community/community.page';
 import { EngagementPage } from './pages/engagement/engagement.page';
+import { ProfileSetupPage } from './pages/profile-setup/profile-setup.page';
 
 export const routes: Routes = [
   {
@@ -31,6 +32,11 @@ export const routes: Routes = [
   {
     path: 'auth/oauth-callback',
     component: OauthCallbackPage,
+  },
+  {
+    path: 'profile-setup',
+    component: ProfileSetupPage,
+    canActivate: [authGuard],
   },
   {
     path: 'dashboard',

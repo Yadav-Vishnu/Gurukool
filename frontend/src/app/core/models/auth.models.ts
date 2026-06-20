@@ -1,8 +1,27 @@
-export type AuthProvider = 'google' | 'phone';
+export type AuthProvider = 'google' | 'phone' | 'linkedin' | 'github';
 
 export interface TokenPair {
   accessToken: string;
   refreshToken: string;
+}
+
+export interface UserProfileData {
+  id: string;
+  user_id: string;
+  name: string;
+  avatar: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface WorkspaceSettingsData {
+  id: string;
+  user_id: string;
+  theme: 'light' | 'dark' | 'saffron';
+  sidebar_collapsed: boolean;
+  notifications_enabled: boolean;
+  created_at: string;
+  updated_at: string;
 }
 
 export interface UserProfile {
@@ -12,11 +31,14 @@ export interface UserProfile {
   full_name: string;
   avatar_url: string | null;
   auth_provider: AuthProvider;
+  profile_completed: boolean;
   is_verified: boolean;
   is_active: boolean;
   role: 'student' | 'admin' | 'moderator';
   created_at: string;
   updated_at: string;
+  profile?: UserProfileData;
+  workspaceSettings?: WorkspaceSettingsData;
 }
 
 export interface DeviceInfo {

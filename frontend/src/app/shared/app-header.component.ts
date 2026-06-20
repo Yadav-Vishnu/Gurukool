@@ -1,11 +1,13 @@
 import { CommonModule } from '@angular/common';
-import { Component, Input, OnInit, inject, signal } from '@angular/core';
+import { Component, Input, OnInit, inject, signal, computed, HostListener } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { FormsModule } from '@angular/forms';
 import { IonicModule } from '@ionic/angular';
 import { AuthService } from '../core/services/auth.service';
 import { SessionRecord } from '../core/models/auth.models';
+import { CommunityService } from '../core/services/community.service';
+import { CollaborationNotification } from '../core/models/community.models';
 
 @Component({
   selector: 'app-header',
@@ -15,6 +17,11 @@ import { SessionRecord } from '../core/models/auth.models';
     <ion-header>
       <ion-toolbar>
         <ion-buttons slot="start">
+          <!-- Hamburger menu trigger on mobile (placed slot="start" for left side alignment) -->
+          <ion-button fill="clear" class="hamburger-btn" *ngIf="authService.isAuthenticated()" (click)="toggleMobileMenu($event)">
+            <ion-icon [src]="mobileMenuOpen() ? 'assets/svg/close-outline.svg' : 'assets/svg/menu-outline.svg'"></ion-icon>
+          </ion-button>
+
           <a routerLink="/" class="logo-link">
             <svg class="gk-header-icon" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
               <defs>
@@ -101,6 +108,43 @@ import { SessionRecord } from '../core/models/auth.models';
             Login
           </ion-button>
 
+          <!-- Notifications Bell and Dropdown -->
+          <div class="notifications-wrapper" *ngIf="authService.isAuthenticated()">
+            <ion-button fill="clear" class="bell-btn" (click)="toggleNotificationsDropdown($event)" title="Notifications">
+              <ion-icon slot="icon-only" src="assets/svg/notifications-outline.svg"></ion-icon>
+              <span class="bell-badge" *ngIf="unreadNotificationsCount() > 0">
+                {{ unreadNotificationsCount() }}
+              </span>
+            </ion-button>
+            
+            <!-- Dropdown Panel -->
+            <div class="notifications-dropdown glass-card" [class.open]="showNotificationsDropdown()" (click)="$event.stopPropagation()">
+              <div class="dropdown-header">
+                <h3>Recent Notifications</h3>
+                <span class="unread-count">{{ unreadNotificationsCount() }} unread</span>
+              </div>
+              <div class="dropdown-body">
+                <div class="notif-list" *ngIf="notifications().length > 0; else noNotifs">
+                  <div class="notif-item" *ngFor="let notif of notifications()" [class.unread]="!notif.isRead">
+                    <div class="notif-item-body">
+                      <strong>{{ notif.title }}</strong>
+                      <p>{{ notif.body }}</p>
+                    </div>
+                    <button type="button" class="btn-mark-read" *ngIf="!notif.isRead" (click)="markNotificationRead(notif, $event)" title="Mark as Read">
+                      <ion-icon name="checkmark-circle-outline"></ion-icon>
+                    </button>
+                  </div>
+                </div>
+                <ng-template #noNotifs>
+                  <div class="empty-notifications">
+                    <ion-icon src="assets/svg/notifications-off-outline.svg"></ion-icon>
+                    <p>Your notifications inbox is clear.</p>
+                  </div>
+                </ng-template>
+              </div>
+            </div>
+          </div>
+
           <!-- Premium Header Avatar Button -->
           <div class="header-avatar-trigger" *ngIf="authService.isAuthenticated()" (click)="openSettings()">
             <div class="header-avatar-circle">
@@ -119,6 +163,17 @@ import { SessionRecord } from '../core/models/auth.models';
           </div>
         </ion-buttons>
       </ion-toolbar>
+
+      <!-- Mobile dropdown inside header -->
+      <div class="mobile-nav-panel" [class.open]="mobileMenuOpen()" *ngIf="authService.isAuthenticated()">
+        <nav class="mobile-nav-links">
+          <a routerLink="/dashboard" (click)="closeMobileMenu()" [class.active]="isActive('/dashboard')" class="mobile-nav-item">Dashboard</a>
+          <a routerLink="/tests" (click)="closeMobileMenu()" [class.active]="isActive('/tests')" class="mobile-nav-item">Tests</a>
+          <a routerLink="/books" (click)="closeMobileMenu()" [class.active]="isActive('/books')" class="mobile-nav-item">Books</a>
+          <a routerLink="/community" (click)="closeMobileMenu()" [class.active]="isActive('/community')" class="mobile-nav-item">Community</a>
+          <a routerLink="/engagement" (click)="closeMobileMenu()" [class.active]="isActive('/engagement')" class="mobile-nav-item">Engagement</a>
+        </nav>
+      </div>
     </ion-header>
 
     <!-- Unified Settings Sliding Modal Overlay -->
@@ -267,28 +322,27 @@ import { SessionRecord } from '../core/models/auth.models';
                   <strong>Saffron</strong>
                 </div>
 
-                <div class="theme-tile-option forest-opt" [class.active]="currentTheme() === 'forest'" (click)="applyTheme('forest')">
-                  <div class="theme-visual-box">
-                    <div class="visual-dots">
-                      <span class="vis-dot forest-primary"></span>
-                      <span class="vis-dot forest-secondary"></span>
-                      <span class="vis-dot bg-forest-preview"></span>
-                    </div>
-                  </div>
-                  <strong>Forest</strong>
-                </div>
+              </div>
+            </div>
 
-                <div class="theme-tile-option ocean-opt" [class.active]="currentTheme() === 'ocean'" (click)="applyTheme('ocean')">
-                  <div class="theme-visual-box">
-                    <div class="visual-dots">
-                      <span class="vis-dot ocean-primary"></span>
-                      <span class="vis-dot ocean-secondary"></span>
-                      <span class="vis-dot bg-ocean-preview"></span>
-                    </div>
-                  </div>
-                  <strong>Ocean</strong>
-                </div>
+            <!-- ── ── ── ── ── ── ── Preferences Section ── ── ── ── ── ── ── -->
+            <div class="settings-section-divider"></div>
+            <div class="settings-section">
+              <label class="section-label">Preferences</label>
+              <div class="pref-toggle-row">
+                <ion-label>
+                  <strong>Push Notifications</strong>
+                  <p class="muted-copy" style="margin-top: 2px;">Get notified about test reminders & study requests</p>
+                </ion-label>
+                <ion-toggle [checked]="notificationsEnabled()" (ionChange)="toggleNotifications($event)"></ion-toggle>
+              </div>
 
+              <div class="pref-toggle-row" style="margin-top: 14px;">
+                <ion-label>
+                  <strong>Collapse Sidebar</strong>
+                  <p class="muted-copy" style="margin-top: 2px;">Keep revision tools neat and compact</p>
+                </ion-label>
+                <ion-toggle [checked]="sidebarCollapsed()" (ionChange)="toggleSidebar($event)"></ion-toggle>
               </div>
             </div>
 
@@ -414,12 +468,25 @@ export class AppHeaderComponent implements OnInit {
   readonly authService = inject(AuthService);
   private readonly router = inject(Router);
   private readonly sanitizer = inject(DomSanitizer);
+  readonly communityService = inject(CommunityService);
+
+  // Mobile Nav Signal
+  readonly mobileMenuOpen = signal(false);
+
+  // Notifications Signals
+  readonly showNotificationsDropdown = signal(false);
+  readonly notifications = signal<CollaborationNotification[]>([]);
+  readonly unreadNotificationsCount = computed(() => {
+    return this.notifications().filter(n => !n.isRead).length;
+  });
 
   // Settings Panel Signals
   readonly settingsOpen = signal(false);
   readonly activeTab = signal<'profile' | 'theme' | 'security'>('profile');
   readonly savingProfile = signal(false);
-  readonly currentTheme = signal<'light' | 'dark' | 'saffron' | 'forest' | 'ocean'>('light');
+  readonly currentTheme = signal<'light' | 'dark' | 'saffron'>('light');
+  readonly notificationsEnabled = signal(true);
+  readonly sidebarCollapsed = signal(false);
   readonly errorMessage = signal<string | null>(null);
   readonly isPro = signal(false);
 
@@ -596,12 +663,20 @@ export class AppHeaderComponent implements OnInit {
   ];
 
   ngOnInit(): void {
-    const savedTheme = localStorage.getItem('gurukool-theme') as 'light' | 'dark' | 'saffron' | 'forest' | 'ocean';
-    if (savedTheme) {
-      this.currentTheme.set(savedTheme);
-      this.applyThemeClass(savedTheme);
+    const currentUser = this.authService.user();
+    const ws = currentUser?.workspaceSettings;
+    let savedTheme = ws?.theme || (localStorage.getItem('gurukool-theme') as any) || 'light';
+    if (savedTheme === 'forest' || savedTheme === 'ocean') {
+      savedTheme = 'light';
     }
+
+    this.currentTheme.set(savedTheme);
+    this.applyThemeClass(savedTheme);
     this.isPro.set(localStorage.getItem('gk_pro_active') === 'true');
+
+    if (this.authService.isAuthenticated()) {
+      this.loadNotifications();
+    }
   }
 
   isActive(path: string): boolean {
@@ -668,12 +743,66 @@ export class AppHeaderComponent implements OnInit {
         this.selectedAvatar.set(null);
         this.customAvatarUrlInput.set(currentUser.avatar_url || '');
       }
+
+      // Load settings from database-persisted workspace settings
+      const ws = currentUser.workspaceSettings;
+      if (ws) {
+        this.currentTheme.set(ws.theme || 'light');
+        this.notificationsEnabled.set(ws.notifications_enabled !== false);
+        this.sidebarCollapsed.set(ws.sidebar_collapsed === true);
+      }
     }
     this.settingsOpen.set(true);
   }
 
   closeSettings(): void {
     this.settingsOpen.set(false);
+  }
+
+  @HostListener('document:click')
+  closeDropdowns(): void {
+    this.showNotificationsDropdown.set(false);
+  }
+
+  async loadNotifications(): Promise<void> {
+    try {
+      const notifs = await this.communityService.listNotifications();
+      this.notifications.set(notifs);
+    } catch (err) {
+      console.error('Error loading notifications:', err);
+    }
+  }
+
+  toggleNotificationsDropdown(event: Event): void {
+    event.stopPropagation();
+    // Close mobile menu if open
+    this.mobileMenuOpen.set(false);
+    this.showNotificationsDropdown.set(!this.showNotificationsDropdown());
+  }
+
+  async markNotificationRead(notif: CollaborationNotification, event: Event): Promise<void> {
+    event.stopPropagation();
+    try {
+      await this.communityService.markNotificationRead(notif.id);
+      this.notifications.update(list =>
+        list.map(n => n.id === notif.id ? { ...n, isRead: true } : n)
+      );
+    } catch (err) {
+      console.error('Error marking notification read:', err);
+    }
+  }
+
+  toggleMobileMenu(event?: Event): void {
+    if (event) {
+      event.stopPropagation();
+    }
+    // Close notifications dropdown if open
+    this.showNotificationsDropdown.set(false);
+    this.mobileMenuOpen.set(!this.mobileMenuOpen());
+  }
+
+  closeMobileMenu(): void {
+    this.mobileMenuOpen.set(false);
   }
 
   openCheckout(): void {
@@ -741,14 +870,17 @@ export class AppHeaderComponent implements OnInit {
       avatarUrl = this.customAvatarUrlInput().trim();
     }
 
-    // Also persist theme selection
+    // Also persist theme selection locally for fast bootstrap
     localStorage.setItem('gurukool-theme', this.currentTheme());
     this.applyThemeClass(this.currentTheme());
 
     try {
       await this.authService.updateProfile({
         full_name: this.nameInput().trim(),
-        avatar_url: avatarUrl
+        avatar_url: avatarUrl,
+        theme: this.currentTheme(),
+        notificationsEnabled: this.notificationsEnabled(),
+        sidebarCollapsed: this.sidebarCollapsed()
       });
       this.closeSettings();
     } catch (error) {
@@ -761,23 +893,28 @@ export class AppHeaderComponent implements OnInit {
   }
 
   // Theming
-  applyTheme(theme: 'light' | 'dark' | 'saffron' | 'forest' | 'ocean'): void {
+  applyTheme(theme: 'light' | 'dark' | 'saffron'): void {
     this.currentTheme.set(theme);
     localStorage.setItem('gurukool-theme', theme);
     this.applyThemeClass(theme);
   }
 
-  applyThemeClass(theme: 'light' | 'dark' | 'saffron' | 'forest' | 'ocean'): void {
+  applyThemeClass(theme: any): void {
     document.body.classList.remove('dark-theme', 'saffron-theme', 'forest-theme', 'ocean-theme');
-    if (theme === 'dark') {
+    const targetTheme = (theme === 'forest' || theme === 'ocean') ? 'light' : (theme || 'light');
+    if (targetTheme === 'dark') {
       document.body.classList.add('dark-theme');
-    } else if (theme === 'saffron') {
+    } else if (targetTheme === 'saffron') {
       document.body.classList.add('saffron-theme');
-    } else if (theme === 'forest') {
-      document.body.classList.add('forest-theme');
-    } else if (theme === 'ocean') {
-      document.body.classList.add('ocean-theme');
     }
+  }
+
+  toggleNotifications(event: any): void {
+    this.notificationsEnabled.set(event.detail.checked);
+  }
+
+  toggleSidebar(event: any): void {
+    this.sidebarCollapsed.set(event.detail.checked);
   }
 
   trackSession(_index: number, session: SessionRecord): string {

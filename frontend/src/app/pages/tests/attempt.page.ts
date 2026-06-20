@@ -205,6 +205,34 @@ type DraftMap = Record<string, AttemptQuestionResponse>;
     </ion-content>
   `,
   styles: [`
+    :host {
+      --border-color: rgba(23, 50, 77, 0.08);
+      --input-placeholder-color: rgba(96, 119, 126, 0.72);
+      --option-bg: rgba(248, 250, 255, 0.88);
+      --option-selected-bg: rgba(232, 242, 255, 0.95);
+      --option-selected-border: rgba(30, 136, 229, 0.38);
+      --notes-bg: rgba(255, 248, 240, 0.82);
+      --notes-border: rgba(244, 109, 67, 0.12);
+      --note-box-bg: rgba(255, 255, 255, 0.92);
+      --palette-btn-bg: white;
+      --palette-btn-visited: rgba(23, 50, 77, 0.08);
+      --palette-btn-visited-border: rgba(23, 50, 77, 0.14);
+    }
+
+    body.dark-theme :host {
+      --border-color: rgba(255, 255, 255, 0.1);
+      --input-placeholder-color: rgba(255, 255, 255, 0.5);
+      --option-bg: #111827;
+      --option-selected-bg: rgba(var(--ion-color-primary-rgb), 0.15);
+      --option-selected-border: var(--ion-color-primary);
+      --notes-bg: #111827;
+      --notes-border: rgba(244, 109, 67, 0.3);
+      --note-box-bg: #1f2937;
+      --palette-btn-bg: #111827;
+      --palette-btn-visited: rgba(255, 255, 255, 0.05);
+      --palette-btn-visited-border: rgba(255, 255, 255, 0.1);
+    }
+
     .attempt-shell {
       padding-top: 16px;
     }
@@ -262,10 +290,10 @@ type DraftMap = Record<string, AttemptQuestionResponse>;
     }
 
     .option-card {
-      border: 1px solid var(--gk-outline);
+      border: 1px solid var(--border-color);
       border-radius: 18px;
       padding: 14px 16px;
-      background: rgba(248, 250, 255, 0.88);
+      background: var(--option-bg);
       display: flex;
       align-items: center;
       gap: 12px;
@@ -275,10 +303,10 @@ type DraftMap = Record<string, AttemptQuestionResponse>;
     }
 
     .option-card.selected {
-      border-color: rgba(30, 136, 229, 0.38);
+      border-color: var(--option-selected-border);
       box-shadow: 0 16px 34px rgba(30, 136, 229, 0.14);
       transform: translateY(-1px);
-      background: rgba(232, 242, 255, 0.95);
+      background: var(--option-selected-bg);
     }
 
     .option-badge {
@@ -290,6 +318,9 @@ type DraftMap = Record<string, AttemptQuestionResponse>;
       background: rgba(23, 50, 77, 0.08);
       font-weight: 700;
     }
+    body.dark-theme :host .option-badge {
+      background: rgba(255, 255, 255, 0.08);
+    }
 
     .tool-row,
     .nav-row {
@@ -300,8 +331,8 @@ type DraftMap = Record<string, AttemptQuestionResponse>;
     .notes-panel {
       padding: 16px;
       border-radius: 20px;
-      border: 1px solid rgba(244, 109, 67, 0.12);
-      background: rgba(255, 248, 240, 0.82);
+      border: 1px solid var(--notes-border);
+      background: var(--notes-bg);
     }
 
     .panel-heading {
@@ -317,10 +348,12 @@ type DraftMap = Record<string, AttemptQuestionResponse>;
     }
 
     .note-box {
-      --background: rgba(255, 255, 255, 0.92);
+      --background: var(--note-box-bg);
       --border-radius: 18px;
       --padding-start: 14px;
-      border: 1px solid rgba(23, 50, 77, 0.08);
+      --color: var(--ion-color-dark);
+      --placeholder-color: var(--input-placeholder-color);
+      border: 1px solid var(--border-color);
     }
 
     .small-copy {
@@ -339,8 +372,8 @@ type DraftMap = Record<string, AttemptQuestionResponse>;
 
     .palette-button {
       border-radius: 14px;
-      border: 1px solid var(--gk-outline);
-      background: white;
+      border: 1px solid var(--border-color);
+      background: var(--palette-btn-bg);
       min-height: 44px;
       font-weight: 700;
       color: var(--ion-color-dark);
@@ -367,8 +400,8 @@ type DraftMap = Record<string, AttemptQuestionResponse>;
     }
 
     .palette-button.visited {
-      background: rgba(23, 50, 77, 0.08);
-      border-color: rgba(23, 50, 77, 0.14);
+      background: var(--palette-btn-visited);
+      border-color: var(--palette-btn-visited-border);
     }
 
     @media (min-width: 768px) {
@@ -386,6 +419,41 @@ type DraftMap = Record<string, AttemptQuestionResponse>;
       .layout-grid {
         grid-template-columns: minmax(0, 1.65fr) minmax(320px, 0.85fr);
         align-items: start;
+      }
+    }
+
+    @media (max-width: 576px) {
+      .option-card {
+        padding: 10.5px 12px;
+        border-radius: 12px;
+        font-size: 0.88rem;
+        gap: 8px;
+      }
+      .option-badge {
+        width: 28px;
+        height: 28px;
+        font-size: 0.85rem;
+      }
+      .note-box {
+        --padding-start: 10px;
+        font-size: 0.85rem;
+      }
+      .note-box ion-textarea {
+        font-size: 0.85rem;
+      }
+      .tag-row ion-chip {
+        font-size: 0.75rem;
+        --height: 28px;
+        margin: 2px;
+      }
+      .nav-row, .tool-row {
+        gap: 8px;
+      }
+      .status-tile {
+        padding: 10px 12px;
+      }
+      .status-tile strong {
+        font-size: 1rem;
       }
     }
   `],

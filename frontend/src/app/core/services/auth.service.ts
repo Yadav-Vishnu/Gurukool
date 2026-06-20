@@ -97,11 +97,21 @@ export class AuthService {
           full_name: 'Satyakama Jabala',
           avatar_url: null,
           auth_provider: 'phone',
+          profile_completed: false,
           is_verified: true,
           is_active: true,
           role: 'student',
           created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString()
+          updated_at: new Date().toISOString(),
+          workspaceSettings: {
+            id: 'mock-ws-123',
+            user_id: 'mock-user-123',
+            theme: 'light',
+            sidebar_collapsed: false,
+            notifications_enabled: true,
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString()
+          }
         };
         const mockTokens: TokenPair = {
           accessToken: 'mock-access-token',
@@ -117,10 +127,25 @@ export class AuthService {
 
   startGoogleLogin(): void {
     if (!navigator.onLine || this.apiBaseUrl.includes('localhost:3000')) {
-      // In local development or offline, bypass to callback with mock tokens
       window.location.href = `/auth/oauth-callback#access_token=mock-access-token&refresh_token=mock-refresh-token`;
     } else {
       window.location.href = `${this.apiBaseUrl}/auth/google`;
+    }
+  }
+
+  startGithubLogin(): void {
+    if (!navigator.onLine || this.apiBaseUrl.includes('localhost:3000')) {
+      window.location.href = `/auth/oauth-callback#access_token=mock-access-token&refresh_token=mock-refresh-token`;
+    } else {
+      window.location.href = `${this.apiBaseUrl}/auth/github`;
+    }
+  }
+
+  startLinkedinLogin(): void {
+    if (!navigator.onLine || this.apiBaseUrl.includes('localhost:3000')) {
+      window.location.href = `/auth/oauth-callback#access_token=mock-access-token&refresh_token=mock-refresh-token`;
+    } else {
+      window.location.href = `${this.apiBaseUrl}/auth/linkedin`;
     }
   }
 
@@ -131,7 +156,7 @@ export class AuthService {
     const refreshToken = params.get('refresh_token');
 
     if (!accessToken || !refreshToken) {
-      throw new Error('Google sign-in finished without the required tokens.');
+      throw new Error('OAuth sign-in finished without the required tokens.');
     }
 
     if (accessToken === 'mock-access-token') {
@@ -142,11 +167,21 @@ export class AuthService {
         full_name: 'Satyakama Jabala',
         avatar_url: null,
         auth_provider: 'google',
+        profile_completed: false,
         is_verified: true,
         is_active: true,
         role: 'student',
         created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString()
+        updated_at: new Date().toISOString(),
+        workspaceSettings: {
+          id: 'mock-ws-123',
+          user_id: 'mock-user-123',
+          theme: 'light',
+          sidebar_collapsed: false,
+          notifications_enabled: true,
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString()
+        }
       };
       await this.persistSession({ accessToken, refreshToken }, mockUser);
       return;
@@ -211,6 +246,12 @@ export class AuthService {
       }
 
       this.user.set(response.data);
+      
+      // Auto-restore database-persisted theme settings on login/bootstrap
+      if (response.data.workspaceSettings?.theme) {
+        this.applyThemeClass(response.data.workspaceSettings.theme);
+      }
+
       return response.data;
     } catch (error) {
       if (this.currentAccessToken() === 'mock-access-token') {
@@ -221,11 +262,21 @@ export class AuthService {
           full_name: 'Satyakama Jabala',
           avatar_url: null,
           auth_provider: 'phone',
+          profile_completed: false,
           is_verified: true,
           is_active: true,
           role: 'student',
           created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString()
+          updated_at: new Date().toISOString(),
+          workspaceSettings: {
+            id: 'mock-ws-123',
+            user_id: 'mock-user-123',
+            theme: 'light',
+            sidebar_collapsed: false,
+            notifications_enabled: true,
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString()
+          }
         };
         this.user.set(mockUser);
         return mockUser;
@@ -234,15 +285,37 @@ export class AuthService {
     }
   }
 
-  async updateProfile(updates: { full_name?: string; avatar_url?: string | null }): Promise<UserProfile> {
+  async updateProfile(updates: { 
+    full_name?: string; 
+    avatar_url?: string | null;
+    profileCompleted?: boolean;
+    theme?: 'light' | 'dark' | 'saffron';
+    sidebarCollapsed?: boolean;
+    notificationsEnabled?: boolean;
+  }): Promise<UserProfile> {
     try {
+      // Map frontend camelCase/snake_case to backend API schema properties
+      const bodyPayload = {
+        fullName: updates.full_name,
+        avatarUrl: updates.avatar_url,
+        profileCompleted: updates.profileCompleted,
+        theme: updates.theme,
+        sidebarCollapsed: updates.sidebarCollapsed,
+        notificationsEnabled: updates.notificationsEnabled
+      };
+
       const response = await firstValueFrom(
-        this.http.patch<ApiResponse<UserProfile>>(`${this.apiBaseUrl}/users/me`, updates)
+        this.http.put<ApiResponse<UserProfile>>(`${this.apiBaseUrl}/users/me`, bodyPayload)
       );
       if (!response.data) {
         throw new Error('The server returned an empty update response.');
       }
       this.user.set(response.data);
+
+      if (response.data.workspaceSettings?.theme) {
+        this.applyThemeClass(response.data.workspaceSettings.theme);
+      }
+
       return response.data;
     } catch (error) {
       if (this.currentAccessToken() === 'mock-access-token' || !navigator.onLine) {
@@ -252,9 +325,22 @@ export class AuthService {
             ...currentUser,
             full_name: updates.full_name ?? currentUser.full_name,
             avatar_url: updates.avatar_url !== undefined ? updates.avatar_url : currentUser.avatar_url,
-            updated_at: new Date().toISOString()
+            profile_completed: updates.profileCompleted !== undefined ? updates.profileCompleted : currentUser.profile_completed,
+            updated_at: new Date().toISOString(),
+            workspaceSettings: currentUser.workspaceSettings ? {
+              ...currentUser.workspaceSettings,
+              theme: updates.theme ?? currentUser.workspaceSettings.theme,
+              sidebar_collapsed: updates.sidebarCollapsed ?? currentUser.workspaceSettings.sidebar_collapsed,
+              notifications_enabled: updates.notificationsEnabled ?? currentUser.workspaceSettings.notifications_enabled,
+              updated_at: new Date().toISOString()
+            } : undefined
           };
           this.user.set(updatedUser);
+          
+          if (updatedUser.workspaceSettings?.theme) {
+            this.applyThemeClass(updatedUser.workspaceSettings.theme);
+          }
+          
           return updatedUser;
         }
       }
@@ -341,6 +427,17 @@ export class AuthService {
     return fallback;
   }
 
+  // Theming utility method
+  applyThemeClass(theme: any): void {
+    document.body.classList.remove('dark-theme', 'saffron-theme', 'forest-theme', 'ocean-theme');
+    const targetTheme = (theme === 'forest' || theme === 'ocean') ? 'light' : (theme || 'light');
+    if (targetTheme === 'dark') {
+      document.body.classList.add('dark-theme');
+    } else if (targetTheme === 'saffron') {
+      document.body.classList.add('saffron-theme');
+    }
+  }
+
   private async bootstrap(): Promise<void> {
     try {
       const storedTokens = await this.tokenStorage.getTokens();
@@ -375,6 +472,9 @@ export class AuthService {
 
     if (user) {
       this.user.set(user);
+      if (user.workspaceSettings?.theme) {
+        this.applyThemeClass(user.workspaceSettings.theme);
+      }
     } else {
       await this.loadProfile();
     }
