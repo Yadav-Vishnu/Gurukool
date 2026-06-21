@@ -1,6 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
+import { FormsModule } from '@angular/forms';
 import { IonicModule } from '@ionic/angular';
 import { AuthService } from '../../core/services/auth.service';
 import { TestEngineService } from '../../core/services/test-engine.service';
@@ -11,7 +12,7 @@ import { AppFooterComponent } from '../../shared/app-footer.component';
 @Component({
   selector: 'app-test-analytics-page',
   standalone: true,
-  imports: [CommonModule, IonicModule, AppHeaderComponent, AppFooterComponent],
+  imports: [CommonModule, IonicModule, FormsModule, AppHeaderComponent, AppFooterComponent],
   template: `
     <app-header></app-header>
 
@@ -44,8 +45,17 @@ import { AppFooterComponent } from '../../shared/app-footer.component';
             <p class="chart-subtitle">Your overall correctness ratio for this attempt</p>
             <div class="radial-gauge-container">
               <svg class="radial-gauge" viewBox="0 0 120 120">
+                <defs>
+                  <linearGradient id="gaugeGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" stop-color="var(--ion-color-primary)" />
+                    <stop offset="100%" stop-color="var(--ion-color-secondary)" />
+                  </linearGradient>
+                  <filter id="glow">
+                    <feDropShadow dx="0" dy="4" stdDeviation="4" flood-color="var(--ion-color-primary)" flood-opacity="0.35" />
+                  </filter>
+                </defs>
                 <circle class="gauge-bg" cx="60" cy="60" r="50"></circle>
-                <circle class="gauge-fill" cx="60" cy="60" r="50"
+                <circle class="gauge-fill" cx="60" cy="60" r="50" stroke="url(#gaugeGrad)" filter="url(#glow)"
                   [attr.stroke-dashoffset]="getStrokeDashoffset(report.summary.accuracy)"></circle>
               </svg>
               <div class="gauge-label">
@@ -63,13 +73,21 @@ import { AppFooterComponent } from '../../shared/app-footer.component';
             <div class="breakdown-chart-wrapper stack" *ngIf="getBreakdownWidths(report.summary.correctCount, report.summary.incorrectCount, report.summary.unansweredCount) as widths">
               <svg class="segmented-bar-svg" viewBox="0 0 100 8" preserveAspectRatio="none">
                 <defs>
+                  <linearGradient id="correctGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                    <stop offset="0%" stop-color="#10b981" />
+                    <stop offset="100%" stop-color="#34d399" />
+                  </linearGradient>
+                  <linearGradient id="incorrectGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                    <stop offset="0%" stop-color="#ef4444" />
+                    <stop offset="100%" stop-color="#f87171" />
+                  </linearGradient>
                   <clipPath id="bar-clip">
                     <rect x="0" y="0" width="100" height="8" rx="4" ry="4"></rect>
                   </clipPath>
                 </defs>
                 <g clip-path="url(#bar-clip)">
-                  <rect class="bar-correct" x="0" y="0" [attr.width]="widths.correctW" height="8"></rect>
-                  <rect class="bar-incorrect" [attr.x]="widths.correctW" y="0" [attr.width]="widths.incorrectW" height="8"></rect>
+                  <rect fill="url(#correctGrad)" x="0" y="0" [attr.width]="widths.correctW" height="8"></rect>
+                  <rect fill="url(#incorrectGrad)" [attr.x]="widths.correctW" y="0" [attr.width]="widths.incorrectW" height="8"></rect>
                   <rect class="bar-unanswered" [attr.x]="widths.correctW + widths.incorrectW" y="0" [attr.width]="widths.unansweredW" height="8"></rect>
                 </g>
               </svg>
@@ -226,9 +244,39 @@ import { AppFooterComponent } from '../../shared/app-footer.component';
                   </div>
                 </div>
                 
-                <div class="note-box" *ngIf="item.note">
-                  <span class="title">Personal Revision Note:</span>
-                  <p>{{ item.note }}</p>
+                <!-- Wrong Answer Tagging & Revision Notes (Interactive) -->
+                <div class="stack notes-panel p-4 md:p-6 mt-4 gap-4">
+                  <div class="panel-heading">
+                    <strong>Assign Wrong-Answer Tag</strong>
+                    <span>Identify why this question was incorrect to build focus areas.</span>
+                  </div>
+                  <div class="tag-row gap-2">
+                    <ion-chip
+                      *ngFor="let tag of wrongTags"
+                      [color]="item.wrongTag === tag ? 'primary' : 'medium'"
+                      [outline]="item.wrongTag !== tag"
+                      (click)="saveQuestionNote(item.id, item.note, tag)">
+                      <ion-label>{{ formatWrongTag(tag) }}</ion-label>
+                    </ion-chip>
+                    <ion-chip
+                      color="medium"
+                      outline="true"
+                      *ngIf="item.wrongTag"
+                      (click)="saveQuestionNote(item.id, item.note, null)">
+                      <ion-label>Clear tag</ion-label>
+                    </ion-chip>
+                  </div>
+
+                  <ion-item lines="none" class="note-box-edit">
+                    <ion-textarea
+                      #noteInput
+                      auto-grow="true"
+                      [value]="item.note || ''"
+                      (ionBlur)="saveQuestionNote(item.id, noteInput.value, item.wrongTag)"
+                      placeholder="Write the formula, shortcut, or mistake you want to revisit."
+                      class="p-2 md:p-3">
+                    </ion-textarea>
+                  </ion-item>
                 </div>
                 
                 <div class="explanation-box">
@@ -245,6 +293,39 @@ import { AppFooterComponent } from '../../shared/app-footer.component';
     </ion-content>
   `,
   styles: [`
+    :host {
+      --border-color: rgba(16, 44, 51, 0.16);
+      --card-bg: #ffffff;
+      --notes-panel-bg: rgba(29, 92, 99, 0.02);
+      --notes-panel-border: rgba(29, 92, 99, 0.15);
+      --note-box-bg: #ffffff;
+      --note-box-border: rgba(29, 92, 99, 0.25);
+      --note-box-focus-border: var(--ion-color-primary, #f05a28);
+      --textarea-placeholder-color: rgba(96, 119, 126, 0.8);
+    }
+
+    body.dark-theme :host {
+      --border-color: rgba(255, 255, 255, 0.16);
+      --card-bg: #1f2937;
+      --notes-panel-bg: rgba(255, 255, 255, 0.02);
+      --notes-panel-border: rgba(255, 255, 255, 0.15);
+      --note-box-bg: #111827;
+      --note-box-border: rgba(255, 255, 255, 0.35);
+      --note-box-focus-border: var(--ion-color-primary, #f05a28);
+      --textarea-placeholder-color: rgba(255, 255, 255, 0.55);
+    }
+
+    body.saffron-theme :host {
+      --border-color: rgba(182, 95, 50, 0.16);
+      --card-bg: #fffdf9;
+      --notes-panel-bg: rgba(240, 90, 40, 0.02);
+      --notes-panel-border: rgba(240, 90, 40, 0.15);
+      --note-box-bg: #fffcf4;
+      --note-box-border: rgba(240, 90, 40, 0.25);
+      --note-box-focus-border: var(--ion-color-primary, #f05a28);
+      --textarea-placeholder-color: rgba(140, 115, 85, 0.8);
+    }
+
     .analytics-shell {
       padding-top: 24px;
       padding-bottom: 40px;
@@ -551,12 +632,60 @@ import { AppFooterComponent } from '../../shared/app-footer.component';
     .review-card {
       padding: 18px;
       border-radius: 16px;
-      border: 1px solid var(--gk-outline);
-      background: #ffffff;
+      border: 1px solid var(--border-color);
+      background: var(--card-bg);
       display: flex;
       flex-direction: column;
       gap: 12px;
       box-shadow: 0 2px 10px rgba(16, 44, 51, 0.01);
+    }
+
+    .notes-panel {
+      border: 1px solid var(--notes-panel-border);
+      border-radius: 14px;
+      background: var(--notes-panel-bg);
+    }
+
+    .notes-panel .panel-heading strong {
+      font-size: 0.9rem;
+      color: var(--gk-ink);
+    }
+
+    .notes-panel .panel-heading span {
+      font-size: 0.76rem;
+      color: var(--gk-muted);
+      display: block;
+      margin-top: 2px;
+    }
+
+    .tag-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin: 8px 0;
+    }
+
+    .tag-row ion-chip {
+      cursor: pointer;
+    }
+
+    .note-box-edit {
+      --background: var(--note-box-bg);
+      --border-radius: 12px;
+      border: 1.5px solid var(--note-box-border);
+      border-radius: 12px;
+      margin-top: 8px;
+      transition: border-color 200ms ease;
+    }
+
+    .note-box-edit:focus-within {
+      border-color: var(--note-box-focus-border);
+    }
+
+    .note-box-edit ion-textarea {
+      --padding-start: 8px;
+      --placeholder-color: var(--textarea-placeholder-color);
+      color: var(--gk-ink);
     }
 
     .review-card-header {
@@ -724,6 +853,49 @@ export class AnalyticsPage implements OnInit {
       incorrectW: (incorrect / total) * 100,
       unansweredW: (unanswered / total) * 100,
     };
+  }
+
+  readonly wrongTags = [
+    'concept-gap',
+    'careless-mistake',
+    'formula-recall',
+    'time-pressure',
+    'guesswork',
+  ];
+
+  formatWrongTag(tag: string): string {
+    return tag
+      .split('-')
+      .map((part) => `${part.charAt(0).toUpperCase()}${part.slice(1)}`)
+      .join(' ');
+  }
+
+  async saveQuestionNote(questionId: string, note: any, wrongTag: string | null): Promise<void> {
+    const attemptId = this.route.snapshot.paramMap.get('attemptId');
+    if (!attemptId) return;
+
+    const noteStr = note ? String(note).trim() : null;
+
+    try {
+      await this.testEngineService.saveAnswer(attemptId, questionId, {
+        note: noteStr,
+        wrongTag: wrongTag,
+      });
+
+      // Update local state signal to reflect changes
+      const current = this.analytics();
+      if (current) {
+        const nextReview = current.questionReview.map((q) => {
+          if (q.id === questionId) {
+            return { ...q, note: noteStr, wrongTag: wrongTag };
+          }
+          return q;
+        });
+        this.analytics.set({ ...current, questionReview: nextReview });
+      }
+    } catch (error) {
+      this.errorMessage.set('Failed to save revision notes/tags.');
+    }
   }
 
   private async loadAnalytics(attemptId: string): Promise<void> {

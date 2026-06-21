@@ -25,6 +25,13 @@ import { AuthService } from '../core/services/auth.service';
           <a routerLink="/engagement">Engagement</a>
         </nav>
 
+        <nav class="footer-links">
+          <span class="footer-heading">Support & Info</span>
+          <a routerLink="/about-us">About Us</a>
+          <a routerLink="/contact-us">Contact Us</a>
+          <a routerLink="/feedback">Feedback</a>
+        </nav>
+
         <div class="footer-links">
           <span class="footer-heading">Prepare For</span>
           <span>GATE</span>
@@ -42,18 +49,19 @@ import { AuthService } from '../core/services/auth.service';
     .app-footer {
       background: #102c33;
       color: rgba(255, 255, 255, 0.72);
-      padding: 48px 24px 0;
+      padding: 12px 24px;
       font-size: 0.88rem;
       line-height: 1.6;
     }
 
     .footer-inner {
       display: grid;
-      grid-template-columns: 2fr 1fr 1fr;
+      grid-template-columns: 2fr 1fr 1fr 1fr;
       gap: 40px;
       max-width: 1120px;
       margin: 0 auto;
-      padding-bottom: 40px;
+      padding-top: 12px;
+      padding-bottom: 12px;
       border-bottom: 1px solid rgba(255, 255, 255, 0.1);
     }
 

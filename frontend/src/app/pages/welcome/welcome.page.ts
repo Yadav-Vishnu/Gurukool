@@ -121,31 +121,31 @@ import { AuthService } from '../../core/services/auth.service';
               <ul class="pass-features">
                 <li>
                   <div class="check-icon-wrapper">
-                    <ion-icon name="checkmark-sharp" class="check-icon"></ion-icon>
+                    <ion-icon src="assets/svg/checkmark-sharp.svg" class="check-icon"></ion-icon>
                   </div>
                   <span>Unlimited Adaptive Mock Tests</span>
                 </li>
                 <li>
                   <div class="check-icon-wrapper">
-                    <ion-icon name="checkmark-sharp" class="check-icon"></ion-icon>
+                    <ion-icon src="assets/svg/checkmark-sharp.svg" class="check-icon"></ion-icon>
                   </div>
                   <span>Advanced Weak Area Analytics</span>
                 </li>
                 <li>
                   <div class="check-icon-wrapper">
-                    <ion-icon name="checkmark-sharp" class="check-icon"></ion-icon>
+                    <ion-icon src="assets/svg/checkmark-sharp.svg" class="check-icon"></ion-icon>
                   </div>
                   <span>Weekly AI Mentor Roadmaps</span>
                 </li>
                 <li>
                   <div class="check-icon-wrapper">
-                    <ion-icon name="checkmark-sharp" class="check-icon"></ion-icon>
+                    <ion-icon src="assets/svg/checkmark-sharp.svg" class="check-icon"></ion-icon>
                   </div>
                   <span>Unlimited PDF Book Summarizer</span>
                 </li>
                 <li>
                   <div class="check-icon-wrapper">
-                    <ion-icon name="checkmark-sharp" class="check-icon"></ion-icon>
+                    <ion-icon src="assets/svg/checkmark-sharp.svg" class="check-icon"></ion-icon>
                   </div>
                   <span>Secure High-Fidelity Study Calls</span>
                 </li>
@@ -153,7 +153,7 @@ import { AuthService } from '../../core/services/auth.service';
               
               <ion-button routerLink="/auth" expand="block" color="secondary" class="pass-btn">
                 Upgrade Workspace Now
-                <ion-icon name="arrow-forward-sharp" slot="end"></ion-icon>
+                <ion-icon src="assets/svg/arrow-forward-sharp.svg" slot="end"></ion-icon>
               </ion-button>
               <p class="pass-footer">Secure 256-bit SSL checkout • 7-day moneyback guarantee</p>
             </div>
@@ -172,7 +172,7 @@ import { AuthService } from '../../core/services/auth.service';
             <ion-card class="glass-card feature-card animate-feature" style="--animation-order: 1; --feature-glow: rgba(var(--ion-color-primary-rgb), 0.12);" id="card-feature-1">
               <ion-card-header>
                 <div class="feature-icon-wrapper color-a">
-                  <ion-icon name="clipboard-outline" class="feature-card-icon"></ion-icon>
+                  <ion-icon src="assets/svg/clipboard-outline.svg" class="feature-card-icon"></ion-icon>
                 </div>
                 <ion-card-title>Practice Like The Real Exam</ion-card-title>
               </ion-card-header>
@@ -184,7 +184,7 @@ import { AuthService } from '../../core/services/auth.service';
             <ion-card class="glass-card feature-card animate-feature" style="--animation-order: 2; --feature-glow: rgba(var(--ion-color-secondary-rgb), 0.12);" id="card-feature-2">
               <ion-card-header>
                 <div class="feature-icon-wrapper color-b">
-                  <ion-icon name="book-outline" class="feature-card-icon"></ion-icon>
+                  <ion-icon src="assets/svg/book-outline.svg" class="feature-card-icon"></ion-icon>
                 </div>
                 <ion-card-title>Turn Books Into Notes</ion-card-title>
               </ion-card-header>
@@ -196,7 +196,7 @@ import { AuthService } from '../../core/services/auth.service';
             <ion-card class="glass-card feature-card animate-feature" style="--animation-order: 3; --feature-glow: rgba(var(--ion-color-tertiary-rgb), 0.16);" id="card-feature-3">
               <ion-card-header>
                 <div class="feature-icon-wrapper color-c">
-                  <ion-icon name="analytics-outline" class="feature-card-icon"></ion-icon>
+                  <ion-icon src="assets/svg/analytics-outline.svg" class="feature-card-icon"></ion-icon>
                 </div>
                 <ion-card-title>Stay Consistent Daily</ion-card-title>
               </ion-card-header>
@@ -208,7 +208,7 @@ import { AuthService } from '../../core/services/auth.service';
             <ion-card class="glass-card feature-card animate-feature" style="--animation-order: 4; --feature-glow: rgba(var(--ion-color-primary-rgb), 0.12);" id="card-feature-4">
               <ion-card-header>
                 <div class="feature-icon-wrapper color-a">
-                  <ion-icon name="people-outline" class="feature-card-icon"></ion-icon>
+                  <ion-icon src="assets/svg/people-outline.svg" class="feature-card-icon"></ion-icon>
                 </div>
                 <ion-card-title>Learn With Peers</ion-card-title>
               </ion-card-header>

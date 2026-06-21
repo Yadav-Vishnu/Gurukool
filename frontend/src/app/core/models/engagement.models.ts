@@ -60,6 +60,11 @@ export interface LiveQuizQuestion {
   options: Array<{ id: string; text: string }>;
   points: number;
   position: number;
+  userResponse: {
+    selectedOption: string;
+    isCorrect: boolean;
+    pointsAwarded: number;
+  } | null;
 }
 
 export interface LiveQuiz {

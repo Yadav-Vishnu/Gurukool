@@ -37,7 +37,7 @@ import { AppFooterComponent } from '../../shared/app-footer.component';
                 </ion-input>
               </ion-item>
               <div class="validation-error" *ngIf="setupForm.controls.fullName.touched && setupForm.controls.fullName.invalid">
-                <ion-icon name="alert-circle-outline"></ion-icon>
+                <ion-icon src="assets/svg/alert-circle-outline.svg"></ion-icon>
                 <span>Full name is required (minimum 3 characters).</span>
               </div>
             </div>
@@ -90,9 +90,8 @@ import { AppFooterComponent } from '../../shared/app-footer.component';
               </div>
             </div>
 
-            <!-- Feedback Message -->
             <div class="feedback-toast danger" *ngIf="feedback()">
-              <ion-icon name="alert-circle"></ion-icon>
+              <ion-icon src="assets/svg/alert-circle.svg"></ion-icon>
               <span>{{ feedback() }}</span>
             </div>
 
@@ -176,7 +175,8 @@ import { AppFooterComponent } from '../../shared/app-footer.component';
 
     .field-shell {
       border-radius: var(--gk-radius-sm);
-      background: #ffffff;
+      background: var(--gk-paper);
+      --background: var(--gk-paper);
       border: 1.5px solid var(--gk-outline);
       box-shadow: var(--gk-shadow-soft);
       transition: border-color 200ms ease, box-shadow 200ms ease;

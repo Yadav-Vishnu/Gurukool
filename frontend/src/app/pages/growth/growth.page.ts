@@ -44,7 +44,7 @@ type ReportForm = {
               <h1>Institutional Onboarding & Performance Control Center</h1>
             </div>
             <ion-button fill="outline" color="primary" size="small" (click)="loadDashboard()" [disabled]="loading()">
-              <ion-icon name="sync-outline" slot="start"></ion-icon>
+              <ion-icon src="assets/svg/sync-outline.svg" slot="start"></ion-icon>
               {{ loading() ? 'Refreshing...' : 'Refresh Hub' }}
             </ion-button>
           </div>

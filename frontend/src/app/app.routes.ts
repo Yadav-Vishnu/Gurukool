@@ -12,6 +12,9 @@ import { BooksPage } from './pages/books/books.page';
 import { CommunityPage } from './pages/community/community.page';
 import { EngagementPage } from './pages/engagement/engagement.page';
 import { ProfileSetupPage } from './pages/profile-setup/profile-setup.page';
+import { AboutUsPage } from './pages/about-us/about-us.page';
+import { ContactUsPage } from './pages/contact-us/contact-us.page';
+import { FeedbackPage } from './pages/feedback/feedback.page';
 
 export const routes: Routes = [
   {
@@ -72,6 +75,18 @@ export const routes: Routes = [
     path: 'engagement',
     component: EngagementPage,
     canActivate: [authGuard],
+  },
+  {
+    path: 'about-us',
+    component: AboutUsPage,
+  },
+  {
+    path: 'contact-us',
+    component: ContactUsPage,
+  },
+  {
+    path: 'feedback',
+    component: FeedbackPage,
   },
   {
     path: '**',

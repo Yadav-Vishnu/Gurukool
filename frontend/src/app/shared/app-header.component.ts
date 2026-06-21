@@ -111,7 +111,22 @@ import { CollaborationNotification } from '../core/models/community.models';
           <!-- Notifications Bell and Dropdown -->
           <div class="notifications-wrapper" *ngIf="authService.isAuthenticated()">
             <ion-button fill="clear" class="bell-btn" (click)="toggleNotificationsDropdown($event)" title="Notifications">
-              <ion-icon slot="icon-only" src="assets/svg/notifications-outline.svg"></ion-icon>
+              <svg class="cute-bell-icon" slot="icon-only" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <!-- Left Cute Sparkle -->
+                <path d="M2.5 10.5C3.2 10.5 3.8 9.9 3.8 9.2C3.8 8.5 3.2 7.9 2.5 7.9C1.8 7.9 1.2 8.5 1.2 9.2C1.2 9.9 1.8 10.5 2.5 10.5Z" fill="#f59e0b" opacity="0.8"/>
+                <!-- Right Cute Sparkle -->
+                <path d="M21.5 8.5C22.2 8.5 22.8 7.9 22.8 7.2C22.8 6.5 22.2 5.9 21.5 5.9C20.8 5.9 20.2 6.5 20.2 7.2C20.2 7.9 20.8 8.5 21.5 8.5Z" fill="#ff758c" opacity="0.8"/>
+                <!-- Bell Handle (Top Loop) -->
+                <path d="M12 2C10.9 2 10 2.9 10 4V5H14V4C14 2.9 13.1 2 12 2Z" fill="currentColor"/>
+                <!-- Bell Dome -->
+                <path d="M12 5.5C8.41 5.5 5.5 8.41 5.5 12V16H18.5V12C18.5 8.41 15.59 5.5 12 5.5Z" fill="currentColor"/>
+                <!-- Bell Bottom Lip -->
+                <path d="M19 16H5C4.45 16 4 16.45 4 17C4 17.55 4.45 18 5 18H19C19.55 18 20 17.55 20 17C20 16.45 19.55 16 19 16Z" fill="currentColor"/>
+                <!-- Clapper (Bell tongue) -->
+                <path d="M12 21C13.1 21 14 20.1 14 19H10C10 20.1 10.9 21 12 21Z" fill="currentColor"/>
+                <!-- Cute Heart Deco on center of Bell -->
+                <path d="M12 13.2C12 13.2 11.7 12.3 11 12.3C10.3 12.3 9.8 12.8 9.8 13.5C9.8 14.5 11 15.6 12 16C13 15.6 14.2 14.5 14.2 13.5C14.2 12.8 13.7 12.3 13 12.3C12.3 12.3 12 13.2 12 13.2Z" fill="#ff758c"/>
+              </svg>
               <span class="bell-badge" *ngIf="unreadNotificationsCount() > 0">
                 {{ unreadNotificationsCount() }}
               </span>
@@ -131,7 +146,7 @@ import { CollaborationNotification } from '../core/models/community.models';
                       <p>{{ notif.body }}</p>
                     </div>
                     <button type="button" class="btn-mark-read" *ngIf="!notif.isRead" (click)="markNotificationRead(notif, $event)" title="Mark as Read">
-                      <ion-icon name="checkmark-circle-outline"></ion-icon>
+                      <ion-icon src="assets/svg/checkmark-circle-outline.svg"></ion-icon>
                     </button>
                   </div>
                 </div>

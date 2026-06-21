@@ -659,7 +659,16 @@ export class TestEngineService {
   ) {
     const attempt = await this.getAttemptRecord(userId, attemptId);
     if (attempt.status === 'submitted') {
-      throw new ApiError('This attempt has already been submitted.', 400);
+      const hasRestrictedFields =
+        input.selectedOption !== undefined ||
+        input.markedForReview !== undefined ||
+        input.visited !== undefined ||
+        input.timeSpentSeconds !== undefined ||
+        input.currentQuestionIndex !== undefined;
+
+      if (hasRestrictedFields) {
+        throw new ApiError('This attempt has already been submitted.', 400);
+      }
     }
 
     const fields: string[] = [];

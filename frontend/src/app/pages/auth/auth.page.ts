@@ -93,7 +93,7 @@ import { AppFooterComponent } from '../../shared/app-footer.component';
               </ion-item>
               
               <div class="validation-error" *ngIf="phoneForm.controls.phone.touched && phoneForm.controls.phone.invalid">
-                <ion-icon name="alert-circle-outline"></ion-icon>
+                <ion-icon src="assets/svg/alert-circle-outline.svg"></ion-icon>
                 <span>Please enter a valid 10-digit Indian mobile number.</span>
               </div>
 
@@ -121,7 +121,7 @@ import { AppFooterComponent } from '../../shared/app-footer.component';
                 </ion-item>
 
                 <div class="validation-error" *ngIf="otpForm.controls.otp.touched && otpForm.controls.otp.invalid">
-                  <ion-icon name="alert-circle-outline"></ion-icon>
+                  <ion-icon src="assets/svg/alert-circle-outline.svg"></ion-icon>
                   <span>Verification code must be exactly 6 digits.</span>
                 </div>
 
@@ -144,13 +144,13 @@ import { AppFooterComponent } from '../../shared/app-footer.component';
 
           <!-- General feedback -->
           <div class="feedback-toast" *ngIf="feedback()" [class.success]="feedbackTone() === 'success'" [class.danger]="feedbackTone() === 'danger'">
-            <ion-icon [name]="feedbackTone() === 'success' ? 'checkmark-circle' : 'alert-circle'"></ion-icon>
+            <ion-icon [src]="feedbackTone() === 'success' ? 'assets/svg/checkmark-circle.svg' : 'assets/svg/alert-circle.svg'"></ion-icon>
             <span>{{ feedback() }}</span>
           </div>
 
           <div class="card-footer ion-text-center">
             <a routerLink="/welcome" class="back-link">
-              <ion-icon name="arrow-back-outline"></ion-icon>
+              <ion-icon src="assets/svg/arrow-back-outline.svg"></ion-icon>
               Back to Overview
             </a>
           </div>
@@ -270,7 +270,8 @@ import { AppFooterComponent } from '../../shared/app-footer.component';
 
     .field-shell {
       border-radius: var(--gk-radius-sm);
-      background: #ffffff;
+      background: var(--gk-paper);
+      --background: var(--gk-paper);
       border: 1.5px solid var(--gk-outline);
       box-shadow: var(--gk-shadow-soft);
       transition: border-color 200ms ease, box-shadow 200ms ease;

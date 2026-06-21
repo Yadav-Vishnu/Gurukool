@@ -104,8 +104,9 @@ export const submitChallengeScore = asyncHandler(async (req: Request, res: Respo
   sendSuccess(res, 'Weekly challenge score submitted successfully', challenge);
 });
 
-export const getLiveQuizzes = asyncHandler(async (_req: Request, res: Response) => {
-  const quizzes = await engagementService.listLiveQuizzes();
+export const getLiveQuizzes = asyncHandler(async (req: Request, res: Response) => {
+  const userId = req.user?.id;
+  const quizzes = await engagementService.listLiveQuizzes(userId);
   sendSuccess(res, 'Live quizzes loaded successfully', quizzes);
 });
 

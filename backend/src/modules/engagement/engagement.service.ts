@@ -288,7 +288,7 @@ export class EngagementService {
     return updated.rows[0];
   }
 
-  async listLiveQuizzes() {
+  async listLiveQuizzes(userId?: string) {
     const quizzes = await query(
       `SELECT *
        FROM live_quizzes
@@ -311,6 +311,17 @@ export class EngagementService {
       [quizIds]
     );
 
+    let responses: any[] = [];
+    if (userId) {
+      const respResult = await query(
+        `SELECT question_id, selected_option, is_correct, points_awarded
+         FROM live_quiz_responses
+         WHERE user_id = $1 AND quiz_id = ANY($2::uuid[])`,
+        [userId, quizIds]
+      );
+      responses = respResult.rows;
+    }
+
     return quizzes.rows.map((quiz) => ({
       id: quiz.id,
       slug: quiz.slug,
@@ -320,13 +331,23 @@ export class EngagementService {
       status: quiz.status,
       questions: questions.rows
         .filter((question) => question.quiz_id === quiz.id)
-        .map((question) => ({
-          id: question.id,
-          prompt: question.prompt,
-          options: question.options,
-          points: Number(question.points ?? 0),
-          position: question.position,
-        })),
+        .map((question) => {
+          const userResponse = responses.find((r) => r.question_id === question.id);
+          return {
+            id: question.id,
+            prompt: question.prompt,
+            options: question.options,
+            points: Number(question.points ?? 0),
+            position: question.position,
+            userResponse: userResponse
+              ? {
+                  selectedOption: userResponse.selected_option,
+                  isCorrect: userResponse.is_correct,
+                  pointsAwarded: Number(userResponse.points_awarded ?? 0),
+                }
+              : null,
+          };
+        }),
     }));
   }
 

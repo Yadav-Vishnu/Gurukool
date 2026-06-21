@@ -230,7 +230,7 @@ import { AppFooterComponent } from '../../shared/app-footer.component';
         </section>
 
         <!-- System Error Warnings -->
-        <ion-note color="danger" class="error-msg-banner" *ngIf="errorMessage()">
+        <ion-note color="danger" class="error-msg-banner mt-4" *ngIf="errorMessage()">
           {{ errorMessage() }}
         </ion-note>
 
@@ -240,8 +240,7 @@ import { AppFooterComponent } from '../../shared/app-footer.component';
   `,
   styles: [`
     .dashboard-shell {
-      padding-top: 24px;
-      padding-bottom: 40px;
+      margin: 0 auto;
     }
 
     /* Hero Banner Redesign */
@@ -252,12 +251,11 @@ import { AppFooterComponent } from '../../shared/app-footer.component';
       align-items: center;
       background: linear-gradient(135deg, rgba(253, 246, 230, 0.8) 0%, rgba(255, 255, 255, 0.9) 100%);
       border: 1px solid rgba(var(--ion-color-primary-rgb), 0.2);
-      padding: 32px;
-      margin: 0 0 12px 0;
       position: relative;
       overflow: hidden;
       animation: gk-rise 500ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
       gap: 32px;
+      padding: 24px;
     }
 
     .hero-content {
@@ -386,19 +384,18 @@ import { AppFooterComponent } from '../../shared/app-footer.component';
     /* Premium Callout Upgrade Card */
     .premium-banner-wrapper {
       animation: gk-rise 550ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
-      margin: 12px 0 24px;
     }
 
     .premium-banner-card {
       border: 1px solid rgba(var(--ion-color-secondary-rgb), 0.35);
       background: linear-gradient(135deg, rgba(235, 247, 244, 0.9) 0%, rgba(255, 255, 255, 0.95) 100%);
       box-shadow: var(--gk-shadow-lifted);
-      padding: 24px;
       display: grid;
       grid-template-columns: auto 1fr auto;
       gap: 20px;
       align-items: center;
       margin: 0;
+      padding: 24px;
     }
 
     .banner-badge-icon {
@@ -454,7 +451,7 @@ import { AppFooterComponent } from '../../shared/app-footer.component';
       font-size: 1.35rem;
       font-weight: 850;
       color: var(--gk-ink);
-      margin: 28px 0 16px;
+      margin: 24px 0 16px;
       letter-spacing: -0.02em;
     }
 
@@ -470,11 +467,11 @@ import { AppFooterComponent } from '../../shared/app-footer.component';
       border: 1px solid var(--gk-outline);
       border-radius: 20px;
       box-shadow: var(--gk-shadow-soft);
-      padding: 20px;
       display: flex;
       flex-direction: column;
       gap: 6px;
       transition: transform 300ms cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 300ms cubic-bezier(0.2, 0.8, 0.2, 1);
+      padding: 20px 24px;
     }
     
     .stat-tile:hover {
@@ -518,11 +515,10 @@ import { AppFooterComponent } from '../../shared/app-footer.component';
       grid-template-columns: auto 1fr auto;
       align-items: center;
       gap: 20px;
-      padding: 24px;
-      margin: 0;
       cursor: pointer;
       border: 1px solid var(--gk-outline);
       transition: all 250ms cubic-bezier(0.2, 0.8, 0.2, 1);
+      padding: 20px 24px;
     }
 
     .workspace-card:hover {
@@ -586,13 +582,21 @@ import { AppFooterComponent } from '../../shared/app-footer.component';
       border: 1px solid rgba(var(--ion-color-danger-rgb), 0.2);
     }
 
-    /* Responsive adjustments */
     @media (min-width: 768px) {
+      .dashboard-hero-card {
+        padding: 32px 40px;
+      }
       .workspace-grid {
         grid-template-columns: repeat(2, minmax(0, 1fr));
       }
       .premium-banner-card {
-        padding: 32px;
+        padding: 32px 40px;
+      }
+      .stat-tile {
+        padding: 28px 32px;
+      }
+      .workspace-card {
+        padding: 24px 28px;
       }
     }
 

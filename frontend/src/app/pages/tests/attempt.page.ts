@@ -19,13 +19,6 @@ import {
 } from '../../core/models/test-engine.models';
 import { ScientificCalculatorComponent } from './scientific-calculator.component';
 
-type WrongTag =
-  | 'concept-gap'
-  | 'careless-mistake'
-  | 'formula-recall'
-  | 'time-pressure'
-  | 'guesswork';
-
 type DraftMap = Record<string, AttemptQuestionResponse>;
 
 @Component({
@@ -48,21 +41,21 @@ type DraftMap = Record<string, AttemptQuestionResponse>;
     </ion-header>
 
     <ion-content [fullscreen]="true">
-      <div class="page-shell stack attempt-shell" *ngIf="detail() as currentDetail">
-        <section class="status-strip">
-          <div class="status-tile glass-card">
+      <div class="page-shell stack attempt-shell px-4 py-4 md:px-6 md:py-6 lg:px-8" *ngIf="detail() as currentDetail">
+        <section class="status-strip mb-4">
+          <div class="status-tile glass-card p-4 md:p-6 m-2 md:m-4">
             <span>Remaining</span>
             <strong>{{ formatTimer(remainingSeconds()) }}</strong>
           </div>
-          <div class="status-tile glass-card">
+          <div class="status-tile glass-card p-4 md:p-6 m-2 md:m-4">
             <span>Answered</span>
             <strong>{{ answeredCount() }}/{{ currentDetail.questions.length }}</strong>
           </div>
-          <div class="status-tile glass-card">
+          <div class="status-tile glass-card p-4 md:p-6 m-2 md:m-4">
             <span>Marked</span>
             <strong>{{ reviewCount() }}</strong>
           </div>
-          <div class="status-tile glass-card">
+          <div class="status-tile glass-card p-4 md:p-6 m-2 md:m-4">
             <span>Score Weight</span>
             <strong>{{ currentDetail.test.totalMarks }} marks</strong>
           </div>
@@ -73,7 +66,7 @@ type DraftMap = Record<string, AttemptQuestionResponse>;
 
         <section class="layout-grid" *ngIf="currentQuestion() as question">
           <div class="stack">
-            <ion-card class="glass-card question-card">
+            <ion-card class="glass-card question-card p-4 md:p-6 m-2 md:m-4">
               <ion-card-header>
                 <div class="meta-line">
                   <ion-chip color="secondary" outline="true">
@@ -92,13 +85,13 @@ type DraftMap = Record<string, AttemptQuestionResponse>;
                 </ion-card-subtitle>
               </ion-card-header>
 
-              <ion-card-content class="stack">
-                <p class="prompt">{{ question.prompt }}</p>
+              <ion-card-content class="stack gap-4">
+                <p class="prompt mb-4">{{ question.prompt }}</p>
 
-                <div class="option-list">
+                <div class="option-list gap-3 mb-4">
                   <button
                     type="button"
-                    class="option-card"
+                    class="option-card px-4 py-3"
                     *ngFor="let option of question.options"
                     [class.selected]="currentResponse().selectedOption === option.id"
                     (click)="selectOption(option.id)">
@@ -107,7 +100,7 @@ type DraftMap = Record<string, AttemptQuestionResponse>;
                   </button>
                 </div>
 
-                <div class="tool-row">
+                <div class="tool-row gap-3">
                   <ion-button fill="outline" color="medium" (click)="clearResponse()">
                     Clear response
                   </ion-button>
@@ -119,43 +112,6 @@ type DraftMap = Record<string, AttemptQuestionResponse>;
                   </ion-button>
                 </div>
 
-                <div class="stack notes-panel">
-                  <div class="panel-heading">
-                    <strong>Wrong-answer tag</strong>
-                    <span class="muted-copy">Use this to remember why a question felt tricky.</span>
-                  </div>
-                  <div class="tag-row">
-                    <ion-chip
-                      *ngFor="let tag of wrongTags"
-                      [color]="currentResponse().wrongTag === tag ? 'primary' : 'medium'"
-                      [outline]="currentResponse().wrongTag !== tag"
-                      (click)="setWrongTag(tag)">
-                      <ion-label>{{ formatWrongTag(tag) }}</ion-label>
-                    </ion-chip>
-                    <ion-chip
-                      color="medium"
-                      outline="true"
-                      *ngIf="currentResponse().wrongTag"
-                      (click)="setWrongTag(null)">
-                      <ion-label>Clear tag</ion-label>
-                    </ion-chip>
-                  </div>
-
-                  <ion-item lines="none" class="note-box">
-                    <ion-label position="stacked">Notes for revision</ion-label>
-                    <ion-textarea
-                      auto-grow="true"
-                      [ngModel]="currentResponse().note || ''"
-                      (ngModelChange)="updateNote($event)"
-                      (ionBlur)="saveCurrentQuestion()"
-                      placeholder="Write the formula, shortcut, or mistake you want to revisit.">
-                    </ion-textarea>
-                  </ion-item>
-
-                  <div class="muted-copy small-copy">
-                    Time spent on this question: {{ formatDuration(currentResponse().timeSpentSeconds) }}
-                  </div>
-                </div>
               </ion-card-content>
             </ion-card>
 
@@ -173,7 +129,7 @@ type DraftMap = Record<string, AttemptQuestionResponse>;
           </div>
 
           <div class="stack side-column">
-            <ion-card class="glass-card">
+            <ion-card class="glass-card p-4 md:p-6 m-2 md:m-4">
               <ion-card-header>
                 <ion-card-title>Question Palette</ion-card-title>
                 <ion-card-subtitle>
@@ -181,7 +137,7 @@ type DraftMap = Record<string, AttemptQuestionResponse>;
                 </ion-card-subtitle>
               </ion-card-header>
               <ion-card-content>
-                <div class="palette-grid">
+                <div class="palette-grid gap-2">
                   <button
                     type="button"
                     class="palette-button"
@@ -206,47 +162,43 @@ type DraftMap = Record<string, AttemptQuestionResponse>;
   `,
   styles: [`
     :host {
-      --border-color: rgba(23, 50, 77, 0.08);
-      --input-placeholder-color: rgba(96, 119, 126, 0.72);
-      --option-bg: rgba(248, 250, 255, 0.88);
+      --border-color: rgba(23, 50, 77, 0.16);
+      --input-placeholder-color: rgba(96, 119, 126, 0.82);
+      --option-bg: rgba(248, 255, 255, 0.88);
       --option-selected-bg: rgba(232, 242, 255, 0.95);
-      --option-selected-border: rgba(30, 136, 229, 0.38);
+      --option-selected-border: var(--ion-color-primary);
       --notes-bg: rgba(255, 248, 240, 0.82);
-      --notes-border: rgba(244, 109, 67, 0.12);
-      --note-box-bg: rgba(255, 255, 255, 0.92);
+      --notes-border: rgba(244, 109, 67, 0.25);
+      --note-box-bg: rgba(255, 255, 255, 0.95);
       --palette-btn-bg: white;
       --palette-btn-visited: rgba(23, 50, 77, 0.08);
-      --palette-btn-visited-border: rgba(23, 50, 77, 0.14);
+      --palette-btn-visited-border: rgba(23, 50, 77, 0.2);
     }
 
     body.dark-theme :host {
-      --border-color: rgba(255, 255, 255, 0.1);
-      --input-placeholder-color: rgba(255, 255, 255, 0.5);
+      --border-color: rgba(255, 255, 255, 0.26);
+      --input-placeholder-color: rgba(255, 255, 255, 0.65);
       --option-bg: #111827;
-      --option-selected-bg: rgba(var(--ion-color-primary-rgb), 0.15);
+      --option-selected-bg: rgba(var(--ion-color-primary-rgb), 0.2);
       --option-selected-border: var(--ion-color-primary);
       --notes-bg: #111827;
-      --notes-border: rgba(244, 109, 67, 0.3);
+      --notes-border: rgba(244, 109, 67, 0.45);
       --note-box-bg: #1f2937;
       --palette-btn-bg: #111827;
-      --palette-btn-visited: rgba(255, 255, 255, 0.05);
-      --palette-btn-visited-border: rgba(255, 255, 255, 0.1);
+      --palette-btn-visited: rgba(255, 255, 255, 0.1);
+      --palette-btn-visited-border: rgba(255, 255, 255, 0.26);
     }
 
     .attempt-shell {
-      padding-top: 16px;
     }
 
     .status-strip {
       display: grid;
-      gap: 12px;
     }
 
     .status-tile {
-      padding: 14px 16px;
       display: flex;
       flex-direction: column;
-      gap: 8px;
     }
 
     .status-tile span {
@@ -286,17 +238,14 @@ type DraftMap = Record<string, AttemptQuestionResponse>;
 
     .option-list {
       display: grid;
-      gap: 12px;
     }
 
     .option-card {
-      border: 1px solid var(--border-color);
+      border: 2px solid var(--border-color);
       border-radius: 18px;
-      padding: 14px 16px;
       background: var(--option-bg);
       display: flex;
       align-items: center;
-      gap: 12px;
       text-align: left;
       color: var(--ion-color-dark);
       transition: transform 160ms ease, border-color 160ms ease, box-shadow 160ms ease;
@@ -325,11 +274,9 @@ type DraftMap = Record<string, AttemptQuestionResponse>;
     .tool-row,
     .nav-row {
       display: grid;
-      gap: 12px;
     }
 
     .notes-panel {
-      padding: 16px;
       border-radius: 20px;
       border: 1px solid var(--notes-border);
       background: var(--notes-bg);
@@ -344,16 +291,19 @@ type DraftMap = Record<string, AttemptQuestionResponse>;
     .tag-row {
       display: flex;
       flex-wrap: wrap;
-      gap: 8px;
     }
 
     .note-box {
       --background: var(--note-box-bg);
       --border-radius: 18px;
-      --padding-start: 14px;
-      --color: var(--ion-color-dark);
+      --color: var(--gk-ink);
       --placeholder-color: var(--input-placeholder-color);
-      border: 1px solid var(--border-color);
+      border: 2px solid var(--border-color);
+      transition: border-color 200ms ease;
+    }
+
+    .note-box:focus-within {
+      border-color: var(--ion-color-primary);
     }
 
     .small-copy {
@@ -367,7 +317,6 @@ type DraftMap = Record<string, AttemptQuestionResponse>;
     .palette-grid {
       display: grid;
       grid-template-columns: repeat(5, minmax(0, 1fr));
-      gap: 10px;
     }
 
     .palette-button {
@@ -424,10 +373,8 @@ type DraftMap = Record<string, AttemptQuestionResponse>;
 
     @media (max-width: 576px) {
       .option-card {
-        padding: 10.5px 12px;
         border-radius: 12px;
         font-size: 0.88rem;
-        gap: 8px;
       }
       .option-badge {
         width: 28px;
@@ -435,7 +382,6 @@ type DraftMap = Record<string, AttemptQuestionResponse>;
         font-size: 0.85rem;
       }
       .note-box {
-        --padding-start: 10px;
         font-size: 0.85rem;
       }
       .note-box ion-textarea {
@@ -445,12 +391,6 @@ type DraftMap = Record<string, AttemptQuestionResponse>;
         font-size: 0.75rem;
         --height: 28px;
         margin: 2px;
-      }
-      .nav-row, .tool-row {
-        gap: 8px;
-      }
-      .status-tile {
-        padding: 10px 12px;
       }
       .status-tile strong {
         font-size: 1rem;
@@ -490,13 +430,7 @@ export class AttemptPage implements OnInit, OnDestroy {
     return detail.questions[this.currentIndex()] ?? null;
   });
 
-  readonly wrongTags: WrongTag[] = [
-    'concept-gap',
-    'careless-mistake',
-    'formula-recall',
-    'time-pressure',
-    'guesswork',
-  ];
+
 
   private timerId: any = null;
   private saveTimeout: any = null;
@@ -554,12 +488,7 @@ export class AttemptPage implements OnInit, OnDestroy {
     return `${minutes}m ${seconds}s`;
   }
 
-  formatWrongTag(tag: WrongTag): string {
-    return tag
-      .split('-')
-      .map((part) => `${part.charAt(0).toUpperCase()}${part.slice(1)}`)
-      .join(' ');
-  }
+
 
   paletteStatus(questionId: string): string {
     const draft = this.drafts()[questionId];
@@ -611,21 +540,7 @@ export class AttemptPage implements OnInit, OnDestroy {
     await this.saveCurrentQuestion();
   }
 
-  updateNote(value: string | number | null): void {
-    this.patchCurrentResponse({
-      note: typeof value === 'string' ? value : String(value ?? ''),
-      visited: true,
-    });
-  }
 
-  async setWrongTag(tag: WrongTag | null): Promise<void> {
-    const current = this.currentResponse();
-    this.patchCurrentResponse({
-      wrongTag: current.wrongTag === tag ? null : tag,
-      visited: true,
-    });
-    await this.saveCurrentQuestion();
-  }
 
   async goPrevious(): Promise<void> {
     const nextIndex = Math.max(0, this.currentIndex() - 1);
@@ -704,8 +619,6 @@ export class AttemptPage implements OnInit, OnDestroy {
             }
           : current
       );
-
-      this.flashSavedMessage('Progress saved');
     } catch (error) {
       this.errorMessage.set(
         this.authService.readError(error, 'The current question could not be saved.')

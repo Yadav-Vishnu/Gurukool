@@ -31,10 +31,10 @@ interface CatalogBook {
   template: `
     <app-header></app-header>
     <ion-content [fullscreen]="true">
-      <div class="page-shell stack books-shell">
+      <div class="page-shell stack books-shell px-4 py-4 md:px-6 md:py-6 lg:px-8">
         
         <!-- Hero Header -->
-        <header class="glass-card hero-card stack">
+        <header class="glass-card hero-card stack p-6 md:p-8">
           <span class="section-kicker">Gurukool Learning Sanctuary</span>
           <h1>Textbooks & Revision Workspace</h1>
           <p class="subtitle-copy">
@@ -188,7 +188,7 @@ interface CatalogBook {
           <section class="recently-viewed-section stack" *ngIf="recentlyViewedBooks().length > 0">
             <h2 class="section-subtitle-title">Recently Viewed</h2>
             <div class="horizontal-scroll-tray">
-              <div class="recent-book-card glass-card" *ngFor="let book of recentlyViewedBooks()" (click)="openPreview(book)">
+              <div class="recent-book-card glass-card p-3 md:p-4" *ngFor="let book of recentlyViewedBooks()" (click)="openPreview(book)">
                 <div class="recent-card-cover">📘</div>
                 <div class="recent-card-details">
                   <strong>{{ book.title }}</strong>
@@ -209,7 +209,7 @@ interface CatalogBook {
             </div>
 
             <div class="books-catalog-grid" *ngIf="filteredBooks().length > 0; else emptyLibrary">
-              <article class="glass-card premium-book-card stack" *ngFor="let book of filteredBooks()">
+              <article class="glass-card premium-book-card stack p-4 md:p-6 m-2 md:m-4" *ngFor="let book of filteredBooks()">
                 <div class="card-top-badges">
                   <span class="badge-exam">{{ book.examType }}</span>
                   <div class="rating-badge">
@@ -272,7 +272,7 @@ interface CatalogBook {
         <ng-container *ngIf="activeTab() === 'workspace'">
           
           <!-- 1) Upload PDF Section -->
-          <section class="glass-card stack">
+          <section class="glass-card stack p-4 md:p-6 mb-6">
             <h2 class="section-subtitle-title">1) PDF Textbook Upload</h2>
             <p class="muted-copy">Select a reference book PDF to extract core concepts automatically.</p>
             
@@ -306,7 +306,7 @@ interface CatalogBook {
           </section>
 
           <!-- 2) Confirm Subject Section -->
-          <section class="glass-card stack">
+          <section class="glass-card stack p-4 md:p-6 mb-6">
             <h2 class="section-subtitle-title">2) Confirm Document Classification</h2>
             <p class="muted-copy">Confirm document tracks to dynamically align with AI roadmap targets.</p>
 
@@ -356,7 +356,7 @@ interface CatalogBook {
           </section>
 
           <!-- 3) Highlight -> Auto Notebook Section -->
-          <section class="glass-card stack">
+          <section class="glass-card stack p-4 md:p-6 mb-6">
             <h2 class="section-subtitle-title">3) Copy Highlights to Notebook</h2>
             <p class="muted-copy">Reference specific textbook pages to build study entries.</p>
             
@@ -404,7 +404,7 @@ interface CatalogBook {
           </section>
 
           <!-- 4) Manual Notes Section -->
-          <section class="glass-card stack">
+          <section class="glass-card stack p-4 md:p-6 mb-6">
             <h2 class="section-subtitle-title">4) Quick Notebook Entry</h2>
             <p class="muted-copy">Write custom study notes or formulas manually.</p>
 
@@ -452,7 +452,7 @@ interface CatalogBook {
           </section>
 
           <!-- 5) AI Paraphrase Section -->
-          <section class="glass-card stack">
+          <section class="glass-card stack p-4 md:p-6 mb-6">
             <div class="ai-header-row">
               <h2 class="section-subtitle-title">5) AI Paraphraser & Memory Hook 🔒 Pro</h2>
             </div>
@@ -503,7 +503,7 @@ interface CatalogBook {
           </section>
 
           <!-- Notebook Entries Section -->
-          <section class="glass-card stack">
+          <section class="glass-card stack p-4 md:p-6 mb-6">
             <div class="notebook-section-header">
               <h2 class="section-subtitle-title">Your Revision Notebook</h2>
               <div class="filter-item-wrapper">
